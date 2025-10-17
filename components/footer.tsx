@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 export default function Footer() {
@@ -12,18 +13,28 @@ export default function Footer() {
   };
 
   return (
-    <footer className="bg-black py-12 text-white">
-      <div className="container mx-auto px-4">
-        <div className="grid gap-8 md:grid-cols-4">
-          {/* Logo and Brand */}
-          <div>
-            <div className="mb-4 text-2xl font-bold">
-              <span className="text-orange-500">Fibo</span>{" "}
-              <span className="text-orange-500">Edu</span>
+    <footer className="bg-black py-4 text-white">
+      <div className="flex max-w-5xl mx-auto px-4 pb-16 pt-12">
+        {/* Logo riêng */}
+        <div>
+          <Link href="/" className="flex items-center">
+            <Image
+              src="/logo_header.png"
+              alt="Fibo Edu Logo"
+              width={100}
+              height={40}
+              className="h-8 w-auto"
+              priority
+            />
+            <div className="ml-2 text-2xl font-bold">
+              <span className="text-white">Fibo</span>{" "}
+              <span className="text-[#ff6b00]">Edu</span>
             </div>
-          </div>
+          </Link>
+        </div>
 
-          {/* Footer Links */}
+        {/* Footer Links */}
+        <div className="flex gap-x-12 ml-52">
           {Object.entries(footerLinks).map(([category, links]) => (
             <div key={category}>
               <h3 className="mb-4 font-semibold">{category}</h3>
@@ -42,12 +53,12 @@ export default function Footer() {
             </div>
           ))}
         </div>
+      </div>
 
-        {/* Copyright */}
-        <div className="mt-12 border-t border-gray-800 pt-8 text-center text-xs text-gray-500">
-          © 2025 Fibo Edu, Inc. Phần Mềm và Logo Fibo Edu là Nhãn Hiệu Thương
-          Mại của Fibo Edu, Inc.
-        </div>
+      {/* --- Copyright --- */}
+      <div className="border-t border-gray-800 py-4 text-center text-xs text-gray-500">
+        © 2025 Fibo Edu, Inc. Phần Mềm và Logo Fibo Edu là Nhãn Hiệu Thương Mại
+        của Fibo Edu, Inc.
       </div>
     </footer>
   );
