@@ -24,9 +24,9 @@ export interface ApiResponse<T> {
   headers: Record<string, string>;
 }
 
-//Param type
+// Param type
 export interface RequestParams {
-     [key: string]: string | number | boolean | undefined | null | string[];
+  [key: string]: string | number | boolean | undefined | null | string[];
 }
 
 export class ApiService {
@@ -43,51 +43,53 @@ export class ApiService {
   }
 
   private setupInterceptors() {
-
-    // Thêm token, xử lý formData
+    // Request Interceptor
     this.client.interceptors.request.use(
       (config) => {
         const token = getCookie("auth-token");
         if (token) config.headers.Authorization = `Bearer ${token}`;
 
         // Nếu data là FormData thì xoá Content-Type để axios tự thêm boundary
-        if (config.data instanceof FormData)
+        if (config.data instanceof FormData) {
           delete config.headers["Content-Type"];
+        }
+
         return config;
       },
       (error) => Promise.reject(error)
     );
 
+    // Response Interceptor
     this.client.interceptors.response.use(
-  (response) => response,
-  (error: AxiosError<ApiErrorData>) => {
-    const status = error.response?.status;
-    const data = error.response?.data;
+      (response) => response,
+      (error: AxiosError<ApiErrorData>) => {
+        const status = error.response?.status;
+        const data = error.response?.data;
 
-    // Nếu BE trả lỗi 401 → gọi callback (nếu có)
-    if (status === 401 && this.onAuthError) {
-      this.onAuthError();
-    }
+        if (status === 401 && this.onAuthError) {
+          this.onAuthError();
+        }
 
-    const message =
-      data?.message ||
-      (data && "Message" in data && String((data as Record<string, unknown>).Message)) ||
-      (data && "error_description" in data && String((data as Record<string, unknown>).error_description)) ||
-      error.message ||
-      "Lỗi không xác định từ máy chủ.";
+        const message =
+          data?.message ||
+          (data && "Message" in data && String((data as Record<string, unknown>).Message)) ||
+          (data && "error_description" in data &&
+            String((data as Record<string, unknown>).error_description)) ||
+          error.message ||
+          "Lỗi không xác định từ máy chủ.";
 
-    const apiError: ApiError = {
-      status,
-      message,
-      error: data,
-    };
+        const apiError: ApiError = {
+          status,
+          message,
+          error: data,
+        };
 
-    return Promise.reject(apiError);
+        return Promise.reject(apiError);
+      }
+    );
   }
-);
-}
 
-// chuyển object sang FormData
+  // Chuyển object sang FormData (fallback)
   private toFormData(data: Record<string, unknown>): FormData {
     const formData = new FormData();
     Object.entries(data).forEach(([key, value]) => {
@@ -98,7 +100,7 @@ export class ApiService {
     return formData;
   }
 
-    // Tạo URLSearchParams từ object params
+  // Tạo URLSearchParams từ object params
   private createParams(params?: RequestParams): URLSearchParams | undefined {
     if (!params) return undefined;
     const searchParams = new URLSearchParams();
@@ -113,13 +115,14 @@ export class ApiService {
     return searchParams;
   }
 
+  // Hàm xử lý chính
   private async request<T>(
     config: AxiosRequestConfig & { useJson?: boolean }
   ): Promise<ApiResponse<T>> {
     const updatedConfig = { ...config };
     const method = updatedConfig.method?.toUpperCase();
 
-    // Nếu là POST/PUT và không gửi JSON thì chuyển sang FormData
+    // Nếu là POST/PUT và data không phải FormData, không dùng JSON → convert sang FormData
     if (
       (method === "POST" || method === "PUT") &&
       updatedConfig.data &&
@@ -127,6 +130,11 @@ export class ApiService {
       !config.useJson
     ) {
       updatedConfig.data = this.toFormData(updatedConfig.data);
+    }
+
+    // Nếu là FormData, axios tự thêm header, không cần set Content-Type
+    if (updatedConfig.data instanceof FormData) {
+      delete updatedConfig.headers?.["Content-Type"];
     }
 
     const response: AxiosResponse<T> = await this.client(updatedConfig);
@@ -137,7 +145,7 @@ export class ApiService {
     };
   }
 
-  //GET
+  // GET
   async get<T>(url: string, params?: RequestParams): Promise<ApiResponse<T>> {
     return this.request<T>({
       method: "GET",
@@ -146,11 +154,11 @@ export class ApiService {
     });
   }
 
-// POST
+  //  POST
   async post<T, D = Record<string, unknown>>(
     url: string,
-    data?: D, // cho phép bất kỳ kiểu D (mặc định là Record)
-    useJson: boolean = false
+    data?: D | FormData,
+    useJson = false
   ): Promise<ApiResponse<T>> {
     return this.request<T>({
       method: "POST",
@@ -161,11 +169,11 @@ export class ApiService {
     });
   }
 
-// PUT
+  // PUT
   async put<T, D = Record<string, unknown>>(
     url: string,
-    data?: D, // cho phép bất kỳ kiểu D (mặc định là Record)
-    useJson: boolean = false
+    data?: D | FormData,
+    useJson = false
   ): Promise<ApiResponse<T>> {
     return this.request<T>({
       method: "PUT",
@@ -176,7 +184,7 @@ export class ApiService {
     });
   }
 
-  //DELETE
+  // DELETE
   async delete<T>(url: string, params?: RequestParams): Promise<ApiResponse<T>> {
     return this.request<T>({
       method: "DELETE",
@@ -186,5 +194,6 @@ export class ApiService {
   }
 }
 
+//Instance mặc định
 const apiService = new ApiService(process.env.NEXT_PUBLIC_API_BASE_URL || "");
 export default apiService;
