@@ -1,58 +1,47 @@
-import { fetchMasterTopic, MasterTopicApiResponse } from "@/lib/api/services/fetchMasterTopic";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { fetchMasterTopic, MasterTopicApiResponse } from "./services/fetchMasterTopic";
 
 export function useMasterTopics(page = 1, pageSize = 10) {
-    const {
-        isError,
-        isLoading,
-        error,
-        data,
-      } = useQuery({
-        queryKey: ["master-topics", page, pageSize],
-        queryFn: () => fetchMasterTopic.getAllMasterTopics(page, pageSize),
-        select: (data: MasterTopicApiResponse) => ({
-          masterTopics: data.data.items,
-          pagination: data.data,
-          statusCode: data.statusCode,
-          message: data.message,
-        }),
-      });
-      return {
-        isError,
-        isLoading,
-        error,
-        data,
-        masterTopics: data?.masterTopics,
-        pagination: data?.pagination,
-      };
+  const { isError, isLoading, error, data } = useQuery({
+    queryKey: ["master-topics", page, pageSize],
+    queryFn: () => fetchMasterTopic.getAllMasterTopics(page, pageSize),
+    select: (data: MasterTopicApiResponse) => ({
+      masterTopics: data.data.items,
+      pagination: data.data,
+      statusCode: data.statusCode,
+      message: data.message,
+    }),
+  });
+  return {
+    isError,
+    isLoading,
+    error,
+    data,
+    masterTopics: data?.masterTopics,
+    pagination: data?.pagination,
+  };
 }
 
 export function useMasterTopicById(id?: string) {
-    const {
-      data,
-      isError,
-      isLoading,
-      error,
-    } = useQuery({
-      queryKey: ["master-topic", id],
-      queryFn: () => (id ? fetchMasterTopic.getMasterTopicById(id) : Promise.reject()),
-      enabled: !!id,
-    });
-    return {
-      masterTopic: data,
-      isError,
-      isLoading,
-      error,
-    };
-  }
+  const { data, isError, isLoading, error } = useQuery({
+    queryKey: ["master-topic", id],
+    queryFn: () => (id ? fetchMasterTopic.getMasterTopicById(id) : Promise.reject()),
+    enabled: !!id,
+  });
+  return {
+    masterTopic: data,
+    isError,
+    isLoading,
+    error,
+  };
+}
 
-  // Create master topic (multipart/form-data)
+// Create master topic (multipart/form-data)
 export function useCreateMasterTopic() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (formData: FormData) =>
-      fetchMasterTopic.createMasterTopic(formData),
+    mutationFn: (formData: FormData) => fetchMasterTopic.createMasterTopic(formData),
     onSuccess: () => {
       // Refetch danh sách sau khi tạo thành công
       queryClient.invalidateQueries({ queryKey: ["master-topics"] });

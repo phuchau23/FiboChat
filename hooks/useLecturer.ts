@@ -1,5 +1,5 @@
-import { fetchLecturer, LecturerApiResponse } from "@/lib/api/services/fetchLecturer";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { fetchLecturer, LecturerApiResponse } from "./services/fetchLecturer";
 
 export default function useLecturers() {
     const {isError, isLoading, error, data} = useQuery({
