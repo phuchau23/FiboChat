@@ -1,4 +1,4 @@
-import apiService from "../core";
+import apiService from "@/lib/api/core";
 
 export interface Lecturer{
   lecturerId: string;

@@ -1,4 +1,4 @@
-import { fetchAuth } from "@/lib/api/services/fetchAuth";
+import { fetchAuth } from "@/hooks/services/fetchAuth";
 import { setCookie } from "cookies-next";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -10,8 +10,8 @@ export function useAuth() {
   const [error, setError] = useState<string | null>(null);
 
   function isApiError(error: unknown): error is ApiError {
-  return typeof error === "object" && error !== null && "message" in error;
-}
+    return typeof error === "object" && error !== null && "message" in error;
+  }
 
   //login
   const login = async (Email: string, Password: string) => {
@@ -20,22 +20,21 @@ export function useAuth() {
     try {
       const response = await fetchAuth.login({ Email, Password });
 
-        if (response.data.token){
-          setCookie("auth-token", response.data.token);
-        }
+      if (response.data.token) {
+        setCookie("auth-token", response.data.token);
+      }
 
-        if (response.data.isVerifiled === false){
-          router.push("/change-password");
-          return;
-        }
+      if (response.data.isVerifiled === false) {
+        router.push("/change-password");
+        return;
+      }
 
-        if (response.data.success === true){
-          router.push("/");
-        } else {
-          setError(response.message || "Đăng nhập thất bại");
-        }
-        
-    } catch (error : unknown) {
+      if (response.data.success === true) {
+        router.push("/");
+      } else {
+        setError(response.message || "Đăng nhập thất bại");
+      }
+    } catch (error: unknown) {
       if (isApiError(error)) {
         setError(error.message);
       } else {
@@ -46,29 +45,29 @@ export function useAuth() {
     }
   };
 
-  //change password first time 
+  //change password first time
   const changePasswordFirstTime = async (NewPassword: string, ConfirmNewPassword: string) => {
     setLoading(true);
     setError(null);
     try {
       const response = await fetchAuth.changePasswordFirstTime({ NewPassword, ConfirmNewPassword });
 
-      if (response.statusCode === 200){
-          router.push("/");
-       } else {
-            setError(response.message || "Đổi mật khẩu thất bại");
-        } 
-   } catch (error : unknown) {
-     if (isApiError(error)) {
+      if (response.statusCode === 200) {
+        router.push("/");
+      } else {
+        setError(response.message || "Đổi mật khẩu thất bại");
+      }
+    } catch (error: unknown) {
+      if (isApiError(error)) {
         setError(error.message);
         if (error.status === 401) router.push("/login");
       } else {
         setError("Đổi mật khẩu thất bại");
       }
-  } finally {
-    setLoading(false);
-  }
-};
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return {
     login,
@@ -77,7 +76,3 @@ export function useAuth() {
     error,
   };
 }
-
-
-
-

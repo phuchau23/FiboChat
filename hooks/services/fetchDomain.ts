@@ -1,4 +1,4 @@
-import apiService from "../core";
+import apiService from "@/lib/api/core";
 
 export enum DomainStatus {
   Active = "Active",
@@ -43,14 +43,8 @@ export interface CreateDomainResponse {
 }
 
 export const fetchDomain = {
-  getAllDomains: async (
-    page = 1,
-    pageSize = 10
-  ): Promise<DomainApiResponse> => {
-    const response = await apiService.get<DomainApiResponse>(
-      `/course/api/domains`,
-      { page, pageSize }
-    );
+  getAllDomains: async (page = 1, pageSize = 10): Promise<DomainApiResponse> => {
+    const response = await apiService.get<DomainApiResponse>(`/course/api/domains`, { page, pageSize });
     return response.data;
   },
 
@@ -59,28 +53,17 @@ export const fetchDomain = {
   },
 
   createDomain: async (data: FormData): Promise<CreateDomainResponse> => {
-    const response = await apiService.post<CreateDomainResponse>(
-      `/course/api/domains`,
-      data
-    );
+    const response = await apiService.post<CreateDomainResponse>(`/course/api/domains`, data);
     return response.data;
   },
 
-  updateDomain: async (
-    id: string,
-    data: FormData
-  ): Promise<CreateDomainResponse> => {
-    const response = await apiService.put<CreateDomainResponse>(
-      `/course/api/domains/${id}`,
-      data
-    );
+  updateDomain: async (id: string, data: FormData): Promise<CreateDomainResponse> => {
+    const response = await apiService.put<CreateDomainResponse>(`/course/api/domains/${id}`, data);
     return response.data;
   },
 
   deleteDomain: async (id: string): Promise<Domain> => {
-    const response = await apiService.delete<{ data: Domain }>(
-      `/course/api/domains/${id}`
-    );
+    const response = await apiService.delete<{ data: Domain }>(`/course/api/domains/${id}`);
     return response.data.data;
   },
 };

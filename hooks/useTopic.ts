@@ -1,13 +1,8 @@
-import { fetchTopic, TopicApiResponse } from "@/lib/api/services/fetchTopic";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { fetchTopic, TopicApiResponse } from "./services/fetchTopic";
 
 export function useTopics(page = 1, pageSize = 10) {
-  const {
-    isError,
-    isLoading,
-    error,
-    data,
-  } = useQuery({
+  const { isError, isLoading, error, data } = useQuery({
     queryKey: ["topics", page, pageSize],
     queryFn: () => fetchTopic.getAllTopics(page, pageSize),
     select: (data: TopicApiResponse) => ({
@@ -28,12 +23,7 @@ export function useTopics(page = 1, pageSize = 10) {
 }
 
 export function useTopicById(id?: string) {
-  const {
-    data,
-    isError,
-    isLoading,
-    error,
-  } = useQuery({
+  const { data, isError, isLoading, error } = useQuery({
     queryKey: ["topic", id],
     queryFn: () => (id ? fetchTopic.getTopicById(id) : Promise.reject()),
     enabled: !!id,
@@ -61,8 +51,7 @@ export function useUpdateTopic() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, formData }: { id: string; formData: FormData }) =>
-      fetchTopic.updateTopic(id, formData),
+    mutationFn: ({ id, formData }: { id: string; formData: FormData }) => fetchTopic.updateTopic(id, formData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["topics"] });
       queryClient.invalidateQueries({ queryKey: ["topic"] });
@@ -80,6 +69,3 @@ export function useDeleteTopic() {
     },
   });
 }
-
-
-
