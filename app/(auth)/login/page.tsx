@@ -9,9 +9,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert } from "@/components/ui/alert";
 import { useAuth } from "@/hooks/useAuth";
+import { useAuthContext } from "@/lib/providers/authProvider";
 
 export default function LoginPage() {
   const { login, loading, error } = useAuth();
+  const { refreshUser } = useAuthContext();
 
   const [formData, setFormData] = useState({ Email: "", Password: "" });
   const [showPassword, setShowPassword] = useState(false);
@@ -38,6 +40,7 @@ export default function LoginPage() {
     if (Object.keys(errs).length > 0) return setFieldError(errs);
 
     await login(formData.Email, formData.Password);
+    await refreshUser();
   };
 
   return (
