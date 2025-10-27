@@ -4,10 +4,9 @@ import React, { useState, useEffect } from "react";
 import { PlusCircle, Search, Users, CalendarDays, Clock, BookOpen } from "lucide-react";
 import Link from "next/link";
 import { getCookie } from "cookies-next";
-import { useClasses } from "@/hooks/useClasses";
-import { Class as ClassItem } from "@/hooks/services/fetchClasses";
 import Pagination from "../components/Pagination";
 import { jwtDecode } from "jwt-decode";
+import { useClassesByLecturer } from "@/hooks/useClass";
 
 const PAGE_SIZE = 5;
 
@@ -36,11 +35,9 @@ export default function ClassPage() {
     }
   }, []);
 
-  const { data, isLoading, isError, error } = useClasses(lecturerId || "", page, PAGE_SIZE);
+  const { classes, pagination, isLoading, isError, error } = useClassesByLecturer(lecturerId || "", page, PAGE_SIZE);
 
-  const classes: ClassItem[] = data?.data?.items || [];
-  const filteredClasses = classes.filter((cls) => cls.code.toLowerCase().includes(search.toLowerCase()));
-
+  const filteredClasses = classes?.filter((cls) => cls.code.toLowerCase().includes(search.toLowerCase())) || [];
   if (!lecturerId) {
     return <div className="text-center text-orange-500 py-10 text-lg">Đang tải thông tin giảng viên...</div>;
   }
@@ -124,7 +121,7 @@ export default function ClassPage() {
 
       {/* Pagination */}
       <div className="mt-8 flex justify-center">
-        <Pagination page={page} total={data?.data?.totalItems || 0} pageSize={PAGE_SIZE} onPageChange={setPage} />
+        <Pagination page={page} total={pagination?.totalItems || 0} pageSize={PAGE_SIZE} onPageChange={setPage} />
       </div>
     </section>
   );

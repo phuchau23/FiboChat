@@ -2,9 +2,9 @@
 
 import React, { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { useClassStudents } from "@/hooks/useClasses";
 import { ArrowLeft, User, Users, Layers } from "lucide-react";
 import { useClassGroupsWithMembers } from "@/hooks/useGroup";
+import { useClassStudents } from "@/hooks/useClass";
 
 export default function ClassStudentsPage() {
   const { classId } = useParams();
@@ -12,11 +12,14 @@ export default function ClassStudentsPage() {
   const [activeTab, setActiveTab] = useState<"students" | "groups">("students");
 
   const {
-    data: studentData,
+    studentsData,
     isLoading: isLoadingStudents,
     isError: isErrorStudents,
     error: studentError,
   } = useClassStudents(classId as string);
+
+  const classInfo = studentsData?.[0];
+  const students = classInfo?.students || [];
 
   // ✅ Hook mới: lấy nhóm kèm members
   const {
@@ -26,8 +29,6 @@ export default function ClassStudentsPage() {
     error: groupError,
   } = useClassGroupsWithMembers(classId as string);
 
-  const classInfo = studentData?.data?.[0];
-  const students = classInfo?.students || [];
   const groups = groupsWithMembers || [];
 
   // Map studentId -> groupName

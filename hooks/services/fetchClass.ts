@@ -114,4 +114,14 @@ export const fetchClass = {
     const res = await apiService.get<ClassStudentsResponse>(`/auth/api/classes/${classId}/students`);
     return res.data;
   },
+  getClassesByLecturerId: async (
+    lecturerId: string,
+    page: number = 1,
+    pageSize: number = 10
+  ): Promise<ClassApiResponse> => {
+    const res = await apiService.get<ClassApiResponse>(
+      `/auth/api/classes/lecturer/${lecturerId}?page=${page}&pageSize=${pageSize}`
+    );
+    return res.data;
+  },
 };
