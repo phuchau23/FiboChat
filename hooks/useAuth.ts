@@ -75,7 +75,7 @@ export function useAuth() {
     changePasswordFirstTime,
     loading,
     error,
-  }
+  };
 }
 
 
