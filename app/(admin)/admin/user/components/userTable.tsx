@@ -1,6 +1,10 @@
 "use client";
 
 import { type Column, DataTable } from "@/components/common/data-table";
+import { TableSkeleton } from "@/components/ui/table-skeleton";
+import { useUser } from "@/hooks/useUser";
+import { User } from "@/lib/api/services/fetchUser";
+import { format } from "date-fns";
 import {
   Pagination,
   PaginationContent,
@@ -9,47 +13,36 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { TableSkeleton } from "@/components/ui/table-skeleton";
-import useClasses from "@/hooks/useClass";
-import type { Class } from "@/lib/api/services/fetchClass";
-import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 
-interface ClassTableProps {
-  onEdit: (classItem: Class) => void;
-  onDelete: (classItem: Class) => void;
+interface UserTableProps {
+  onDelete: (user: User) => void;
 }
 
-export function ClassTable({ onEdit, onDelete }: ClassTableProps) {
+export function UserTable({ onDelete }: UserTableProps) {
   const [page, setPage] = useState(1);
-  const { classes, pagination, isLoading, isError } = useClasses(page, 10);
-  const queryClient = useQueryClient();
+  const { users, pagination, isError, isLoading } = useUser(page);
 
-  const columns: Column<Class>[] = [
-    { key: "code", label: "Code", searchable: true, sortable: true },
+  const columns: Column<User>[] = [
+    { key: "studentID", label: "Student ID", searchable: true, sortable: true },
     {
-      key: "semester",
-      label: "Semester",
-      render: (value) => `${value.code}`,
-    },
-    {
-      key: "lecturer",
-      label: "Lecturer",
-      render: (value) => value?.fullName || "N/A",
+      key: "firstname",
+      label: "Full Name",
+      render: (_, row) => `${row.firstname} ${row.lastname}`,
       searchable: true,
+      sortable: true,
     },
+    { key: "email", label: "Email", searchable: true, sortable: true },
     {
-      key: "status",
-      label: "Status",
+      key: "isVerified",
+      label: "Verified",
       render: (value) => (
         <span
           className={`px-2 py-1 rounded-full text-xs font-medium ${
-            value === "Active"
-              ? "bg-green-100 text-green-600"
-              : "bg-gray-100 text-gray-600"
+            value ? "bg-green-100 text-green-600" : "bg-gray-100 text-gray-500"
           }`}
         >
-          {value}
+          {value ? "Verified" : "Unverified"}
         </span>
       ),
       sortable: true,
@@ -57,7 +50,7 @@ export function ClassTable({ onEdit, onDelete }: ClassTableProps) {
     {
       key: "createdAt",
       label: "Created At",
-      render: (value) => new Date(value).toLocaleDateString("vi-VN"),
+      render: (value) => format(new Date(value), "dd/MM/yyyy - HH:mm"),
       sortable: true,
     },
   ];
@@ -66,34 +59,30 @@ export function ClassTable({ onEdit, onDelete }: ClassTableProps) {
     return (
       <div className="flex h-[400px] items-center justify-center">
         <div className="w-full max-w-6xl">
-          <TableSkeleton rows={6} cols={6} />
+          <TableSkeleton rows={6} cols={columns.length} />
         </div>
       </div>
     );
   }
 
-  if (isError)
+  if (isError) {
     return (
       <p className="text-red-500 text-center text-md font-serif">
-        Lỗi khi tải dữ liệu!
+        Lỗi khi tải danh sách sinh viên!
       </p>
     );
+  }
 
   return (
-    <div className="space-y-6">
+    <div>
       <DataTable
         columns={columns}
-        data={classes || []}
-        onEdit={(classItem) => {
-          onEdit(classItem);
-          queryClient.invalidateQueries({ queryKey: ["classes"] });
-        }}
-        onDelete={onDelete}
+        data={users || []}
         loading={isLoading}
-        searchPlaceholder="Search by code or lecturer..."
+        onDelete={onDelete}
+        searchPlaceholder="Search by name, email, or student ID..."
       />
 
-      {/* Pagination */}
       {pagination && (
         <div className="mt-6">
           <Pagination>
@@ -130,7 +119,7 @@ export function ClassTable({ onEdit, onDelete }: ClassTableProps) {
                   onClick={() => pagination.hasNextPage && setPage(page + 1)}
                   className={
                     !pagination.hasNextPage
-                      ? "opacity-50 pointer-events-none mx-4"
+                      ? "opacity-50 pointer-events-none mx-4 cursor-not-allowed"
                       : "mx-4 cursor-pointer"
                   }
                 />

@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { DomainApiResponse, fetchDomain } from "./services/fetchDomain";
+import { DomainApiResponse, fetchDomain } from "../lib/api/services/fetchDomain";
 
 export function useDomains(page = 1, pageSize = 10) {
   const { isError, isLoading, error, data } = useQuery({

@@ -1,44 +1,46 @@
+import { fetchUser, UserApiResponse } from "@/lib/api/services/fetchUser";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  fetchUser,
-  UpdateProfilePayload,
-  UpdateProfileResponse,
-  UserProfileResponse,
-} from "@/hooks/services/fetchUser";
 
-export function useUserProfile() {
-  const query = useQuery<UserProfileResponse>({
-    queryKey: ["userProfile"],
-    queryFn: fetchUser.getProfile,
-    staleTime: 5 * 60 * 1000, // cache 5 phút
-    retry: 1,
-  });
-
-  // ✅ Giữ nguyên logic, chỉ thêm flag để tiện dùng
-  return {
-    ...query,
-    isLoading: query.isLoading,
-    isError: query.isError,
-  };
+export function useUser(page = 1, pageSize = 10) {
+    const { data, isLoading, isError, error } = useQuery({
+      queryKey: ["users", page, pageSize],
+      queryFn: () => fetchUser.getAllUsers(page, pageSize),
+      select: (data: UserApiResponse) => ({
+        users: data.data.items,
+        pagination: data.data,
+        statusCode: data.statusCode,
+        message: data.message,
+      }),
+    });
+    return {
+      data,
+      isLoading,
+      isError,
+      error,
+      users: data?.users,
+      pagination: data?.pagination,
+    };
 }
 
-export function useUpdateProfile() {
+export function useCreateUser() {
   const queryClient = useQueryClient();
 
-  const mutation = useMutation<
-    UpdateProfileResponse,
-    Error, // ✅ không dùng any, rõ kiểu lỗi
-    UpdateProfilePayload
-  >({
-    mutationFn: fetchUser.updateProfile,
+  return useMutation({
+    mutationFn: (formData: FormData) => fetchUser.createUser(formData),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["userProfile"] });
+      // Refetch danh sách sau khi tạo thành công
+      queryClient.invalidateQueries({ queryKey: ["users"] });
     },
   });
+}
 
-  return {
-    ...mutation,
-    isLoading: mutation.isPending,
-    isError: mutation.isError,
-  };
+export function useDeleteUser() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => fetchUser.deleteUser(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+    },
+  });
 }

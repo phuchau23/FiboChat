@@ -6,9 +6,11 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 // import { ThemeToggle } from "@/components/theme-toggle";
 // import { LanguageSelector } from "@/components/language-selector";
 import { useRouter } from "next/navigation";
+import { useAuthContext } from "@/lib/providers/authProvider";
 
 export function AdminHeader() {
   const router = useRouter();
+  const { logout } = useAuthContext();
 
   const handleBellClick = () => {
     console.log("Notification bell clicked");
@@ -16,9 +18,8 @@ export function AdminHeader() {
   };
 
   const handleLogout = () => {
-    console.log("Logout clicked");
-    // TODO: Implement logout logic
-    // router.push("/login")
+    logout();
+    router.push("/");
   };
 
   return (
@@ -54,7 +55,7 @@ export function AdminHeader() {
             onClick={handleLogout}
             className="w-9 h-9"
           >
-            <LogOut className="w-5 h-5" />
+            <LogOut className="w-5 h-5" onClick={handleLogout} />
             <span className="sr-only">Logout</span>
           </Button>
 

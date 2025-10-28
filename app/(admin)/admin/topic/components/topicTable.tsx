@@ -73,7 +73,9 @@ export function TopicTable({ onEdit, onDelete }: TopicTableProps) {
 
   if (isError)
     return (
-      <p className="text-red-500 text-center">Lỗi khi tải danh sách topic 😢</p>
+      <p className="text-red-500 text-center text-md font-serif">
+        Lỗi khi tải dữ liệu!
+      </p>
     );
 
   return (
@@ -91,42 +93,49 @@ export function TopicTable({ onEdit, onDelete }: TopicTableProps) {
       />
 
       {pagination && (
-        <Pagination>
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious
-                onClick={() => pagination.hasPreviousPage && setPage(page - 1)}
-                className={
-                  !pagination.hasPreviousPage
-                    ? "opacity-50 pointer-events-none mx-7"
-                    : "mx-7"
-                }
-              />
-            </PaginationItem>
-
-            {Array.from({ length: pagination.totalPages }, (_, i) => (
-              <PaginationItem key={i}>
-                <PaginationLink
-                  onClick={() => setPage(i + 1)}
-                  isActive={pagination.currentPage === i + 1}
-                >
-                  {i + 1}
-                </PaginationLink>
+        <div className="mt-6">
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  onClick={() =>
+                    pagination.hasPreviousPage && setPage(page - 1)
+                  }
+                  className={
+                    !pagination.hasPreviousPage
+                      ? "opacity-50 pointer-events-none mx-7"
+                      : "mx-7 cursor-pointer"
+                  }
+                />
               </PaginationItem>
-            ))}
 
-            <PaginationItem>
-              <PaginationNext
-                onClick={() => pagination.hasNextPage && setPage(page + 1)}
-                className={
-                  !pagination.hasNextPage
-                    ? "opacity-50 pointer-events-none mx-4"
-                    : "mx-4"
-                }
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
+              {Array.from({ length: pagination.totalPages }, (_, i) => (
+                <PaginationItem key={i}>
+                  <PaginationLink
+                    onClick={() => {
+                      setPage(i + 1);
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
+                    isActive={pagination.currentPage === i + 1}
+                  >
+                    {i + 1}
+                  </PaginationLink>
+                </PaginationItem>
+              ))}
+
+              <PaginationItem>
+                <PaginationNext
+                  onClick={() => pagination.hasNextPage && setPage(page + 1)}
+                  className={
+                    !pagination.hasNextPage
+                      ? "opacity-50 pointer-events-none mx-4"
+                      : "mx-4 cursor-pointer"
+                  }
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
       )}
     </div>
   );

@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { fetchMasterTopic, MasterTopicApiResponse } from "./services/fetchMasterTopic";
+import { fetchMasterTopic, MasterTopicApiResponse } from "../lib/api/services/fetchMasterTopic";
 
 export function useMasterTopics(page = 1, pageSize = 10) {
   const { isError, isLoading, error, data } = useQuery({

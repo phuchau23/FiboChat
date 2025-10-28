@@ -1,7 +1,14 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { PlusCircle, Search, Users, CalendarDays, Clock, BookOpen } from "lucide-react";
+import {
+  PlusCircle,
+  Search,
+  Users,
+  CalendarDays,
+  Clock,
+  BookOpen,
+} from "lucide-react";
 import Link from "next/link";
 import { getCookie } from "cookies-next";
 import Pagination from "../components/Pagination";
@@ -35,11 +42,19 @@ export default function ClassPage() {
     }
   }, []);
 
-  const { classes, pagination, isLoading, isError, error } = useClassesByLecturer(lecturerId || "", page, PAGE_SIZE);
+  const { classes, pagination, isLoading, isError, error } =
+    useClassesByLecturer(lecturerId || "", page, PAGE_SIZE);
 
-  const filteredClasses = classes?.filter((cls) => cls.code.toLowerCase().includes(search.toLowerCase())) || [];
+  const filteredClasses =
+    classes?.filter((cls) =>
+      cls.code.toLowerCase().includes(search.toLowerCase())
+    ) || [];
   if (!lecturerId) {
-    return <div className="text-center text-orange-500 py-10 text-lg">Đang tải thông tin giảng viên...</div>;
+    return (
+      <div className="text-center text-orange-500 py-10 text-lg">
+        Đang tải thông tin giảng viên...
+      </div>
+    );
   }
 
   return (
@@ -68,17 +83,25 @@ export default function ClassPage() {
 
       {/* Content */}
       {isLoading ? (
-        <div className="text-center text-orange-500 py-10 text-lg animate-pulse">Loading classes...</div>
+        <div className="text-center text-orange-500 py-10 text-lg animate-pulse">
+          Loading classes...
+        </div>
       ) : isError ? (
         <div className="text-center text-red-500 py-10">
           {(error as Error)?.message || "Đã xảy ra lỗi không xác định."}
         </div>
       ) : filteredClasses.length === 0 ? (
-        <div className="text-center text-gray-500 py-12 italic text-lg">Không tìm thấy lớp nào 😔</div>
+        <div className="text-center text-gray-500 py-12 italic text-lg">
+          Không tìm thấy lớp nào 😔
+        </div>
       ) : (
         <div className="space-y-6">
           {filteredClasses.map((cls) => (
-            <Link href={`/lecturer/class/${cls.id}`} key={cls.id} className="block group">
+            <Link
+              href={`/lecturer/class/${cls.id}`}
+              key={cls.id}
+              className="block group"
+            >
               <div className="rounded-2xl bg-gradient-to-br from-orange-50 to-white border border-orange-100 p-6 hover:shadow-lg transition">
                 {/* Header */}
                 <div className="flex justify-between items-center mb-3">
@@ -88,7 +111,9 @@ export default function ClassPage() {
                   </h4>
                   <span
                     className={`text-sm px-3 py-1 rounded-full ${
-                      cls.status === "Active" ? "bg-green-100 text-green-600" : "bg-gray-100 text-gray-600"
+                      cls.status === "Active"
+                        ? "bg-green-100 text-green-600"
+                        : "bg-gray-100 text-gray-600"
                     }`}
                   >
                     {cls.status}
@@ -100,15 +125,20 @@ export default function ClassPage() {
                   <p className="flex items-center gap-2">
                     <CalendarDays className="h-4 w-4 text-orange-400" />
                     <span>
-                      <span className="font-medium text-orange-600">Semester:</span> {cls.semester?.code} -{" "}
-                      {cls.semester?.term} {cls.semester?.year}
+                      <span className="font-medium text-orange-600">
+                        Semester:
+                      </span>{" "}
+                      {cls.semester?.code} - {cls.semester?.term}{" "}
+                      {cls.semester?.year}
                     </span>
                   </p>
 
                   <p className="flex items-center gap-2">
                     <Clock className="h-4 w-4 text-orange-400" />
                     <span>
-                      <span className="font-medium text-orange-600">Created:</span>{" "}
+                      <span className="font-medium text-orange-600">
+                        Created:
+                      </span>{" "}
                       {new Date(cls.createdAt).toLocaleString()}
                     </span>
                   </p>
@@ -121,7 +151,12 @@ export default function ClassPage() {
 
       {/* Pagination */}
       <div className="mt-8 flex justify-center">
-        <Pagination page={page} total={pagination?.totalItems || 0} pageSize={PAGE_SIZE} onPageChange={setPage} />
+        <Pagination
+          page={page}
+          total={pagination?.totalItems || 0}
+          pageSize={PAGE_SIZE}
+          onPageChange={setPage}
+        />
       </div>
     </section>
   );

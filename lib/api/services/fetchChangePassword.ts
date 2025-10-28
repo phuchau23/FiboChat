@@ -1,4 +1,4 @@
-import apiService from "../../lib/api/core";
+import apiService from "../core";
 
 export interface ChangePasswordResponse {
   statusCode: number;

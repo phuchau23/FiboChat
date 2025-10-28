@@ -1,4 +1,4 @@
-import { fetchAuth } from "@/hooks/services/fetchAuth";
+import { fetchAuth } from "@/lib/api/services/fetchAuth";
 import { setCookie } from "cookies-next";
 import { useRouter } from "next/navigation";
 import { useState } from "react";

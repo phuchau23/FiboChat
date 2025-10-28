@@ -10,7 +10,6 @@ import {
   Layers,
   Users,
   UserCheck,
-  Shield,
 } from "lucide-react";
 
 const navItems = [
@@ -19,8 +18,7 @@ const navItems = [
   { label: "Class", href: "/admin/class", icon: BookOpen },
   { label: "Topic", href: "/admin/topic", icon: Layers },
   { label: "Lecturer", href: "/admin/lecturer", icon: UserCheck },
-  { label: "User", href: "/admin/user", icon: Users },
-  { label: "Role", href: "/admin/role", icon: Shield },
+  { label: "Student", href: "/admin/user", icon: Users },
 ];
 
 export function AdminSidebar() {
@@ -44,13 +42,20 @@ export function AdminSidebar() {
               key={item.href}
               href={item.href}
               className={cn(
-                "flex items-center gap-3 px-4 py-2 rounded-lg font-medium transition-all duration-200",
+                "flex items-center gap-3 px-4 py-2 rounded-lg font-medium transition-all duration-200 ease-in-out",
                 isActive
-                  ? "bg-[#FF6B00] text-white shadow-sm"
+                  ? "bg-[#FF6B00] text-white "
                   : "text-sidebar-foreground hover:bg-[#FF6B00]/10 "
               )}
             >
-              <Icon className="w-5 h-5" />
+              <Icon
+                className={cn(
+                  "w-5 h-5 transition-colors duration-100",
+                  isActive
+                    ? "text-white"
+                    : "text-gray-600 group-hover:text-[#FF6B00]"
+                )}
+              />
               <span>{item.label}</span>
             </Link>
           );
