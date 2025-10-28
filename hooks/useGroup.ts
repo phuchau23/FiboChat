@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { fetchGroups, GroupWithMembers } from "@/hooks/services/fetchGroup";
+import { fetchGroups, GroupWithMembers } from "@/lib/api/services/fetchGroup";
 
 // ✅ Hook: lấy nhóm kèm members
 export function useClassGroupsWithMembers(classId: string) {

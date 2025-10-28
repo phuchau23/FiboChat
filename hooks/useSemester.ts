@@ -1,7 +1,7 @@
 "use client"
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { fetchSemester, SemesterApiResponse } from "./services/fetchSemester";
+import { fetchSemester, SemesterApiResponse } from "../lib/api/services/fetchSemester";
 
 // Get all semesters
 export function useSemesters(page = 1, pageSize = 10) {

@@ -45,14 +45,9 @@ export function ConfirmDialog({
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={onConfirm}
-            disabled={loading}
-            className={
-              destructive
-                ? "bg-destructive text-destructive-foreground hover:bg-[#FF6B00] hover:text-white"
-                : ""
-            }
+            className=" hover:bg-[#FF6B00]"
           >
-            {loading ? "Đang xử lý..." : "Xác nhận"}
+            Xác nhận
           </AlertDialogAction>
         </div>
       </AlertDialogContent>

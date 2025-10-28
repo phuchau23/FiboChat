@@ -2,12 +2,19 @@
 
 import { useRouter } from "next/navigation";
 import { Globe, Moon, Bell, LogOut } from "lucide-react";
+import { useAuthContext } from "@/lib/providers/authProvider";
 
 export default function Header() {
   const router = useRouter();
+  const { logout } = useAuthContext();
 
   const handleProfileClick = () => {
     router.push("/lecturer/profile");
+  };
+
+  const handleLogoutClick = () => {
+    logout();
+    router.push("/");
   };
 
   return (
@@ -15,7 +22,7 @@ export default function Header() {
       <Globe className="w-5 h-5 cursor-pointer" />
       <Moon className="w-5 h-5 cursor-pointer" />
       <Bell className="w-5 h-5 text-red-500 cursor-pointer" />
-      <LogOut className="w-5 h-5 cursor-pointer" />
+      <LogOut onClick={handleLogoutClick} className="w-5 h-5 cursor-pointer" />
 
       {/* Avatar chuyển hướng đến trang profile */}
       <img

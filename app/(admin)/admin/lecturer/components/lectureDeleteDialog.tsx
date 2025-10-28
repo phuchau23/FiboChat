@@ -27,17 +27,18 @@ export function LecturerDeleteDialog({
   onOpenChange,
 }: LecturerDeleteDialogProps) {
   const { toast } = useToast();
-  const { mutateAsync: deleteLecturer } = useDeleteLecturer();
+  const deleteLecturer = useDeleteLecturer();
   const [loading, setLoading] = useState(false);
 
   const handleDelete = async () => {
     if (!selectedLecturer) return;
     setLoading(true);
     try {
-      const res = await deleteLecturer(selectedLecturer.lecturerId);
+      await deleteLecturer.mutateAsync(selectedLecturer.lecturerId);
 
       toast({
-        description: res?.message || "Lecturer deleted successfully.",
+        title: "Deleted Successfully",
+        description: "Lecturer deleted successfully.",
       });
 
       onOpenChange(false);
@@ -48,6 +49,7 @@ export function LecturerDeleteDialog({
         "Failed to delete lecturer.";
 
       toast({
+        title: "Oops! Something went wrong",
         description: message,
         variant: "destructive",
       });
@@ -62,11 +64,13 @@ export function LecturerDeleteDialog({
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete Lecturer</AlertDialogTitle>
+          <AlertDialogTitle className="font-bold">
+            Delete Lecturer
+          </AlertDialogTitle>
           <AlertDialogDescription>
             Are you sure you want to delete lecturer{" "}
-            <span className="font-semibold">{selectedLecturer?.fullName}</span>?
-            This action cannot be undone.
+            <span className="font-semibold">{selectedLecturer?.fullName}</span>{" "}
+            ?
           </AlertDialogDescription>
         </AlertDialogHeader>
 
@@ -74,15 +78,11 @@ export function LecturerDeleteDialog({
           <AlertDialogCancel
             disabled={loading}
             onClick={() => onOpenChange(false)}
+            className=" hover:border-gray-400"
           >
             Cancel
           </AlertDialogCancel>
-          <AlertDialogAction
-            onClick={handleDelete}
-            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-          >
-            Delete
-          </AlertDialogAction>
+          <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
         </div>
       </AlertDialogContent>
     </AlertDialog>

@@ -1,21 +1,26 @@
 "use client";
 
 import React, { useState } from "react";
-import { Search, FolderOpen, Clock, Archive, BookOpen, Pencil, PlusCircle } from "lucide-react";
+import { FolderOpen, Archive, BookOpen } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 import { useDomains } from "@/hooks/useDomain";
 import { useMasterTopics } from "@/hooks/useMasterTopic";
 import { useTopics } from "@/hooks/useTopic";
 
-import { Domain } from "@/hooks/services/fetchDomain";
-import { MasterTopic } from "@/hooks/services/fetchMasterTopic";
-import { Topic } from "@/hooks/services/fetchTopic";
+import { Domain } from "@/lib/api/services/fetchDomain";
+import { MasterTopic } from "@/lib/api/services/fetchMasterTopic";
+import { Topic } from "@/lib/api/services/fetchTopic";
 
 type FlattenedRow = {
   domain: string;
@@ -34,9 +39,17 @@ export default function DashboardTabs() {
   const renderStatus = (status: string) => {
     switch (status.toLowerCase()) {
       case "active":
-        return <Badge className="bg-emerald-100 text-emerald-700 border border-emerald-300">Active</Badge>;
+        return (
+          <Badge className="bg-emerald-100 text-emerald-700 border border-emerald-300">
+            Active
+          </Badge>
+        );
       case "inactive":
-        return <Badge className="bg-gray-100 text-gray-700 border border-gray-300">Inactive</Badge>;
+        return (
+          <Badge className="bg-gray-100 text-gray-700 border border-gray-300">
+            Inactive
+          </Badge>
+        );
       default:
         return null;
     }
@@ -108,9 +121,14 @@ export default function DashboardTabs() {
                 </TableHeader>
                 <TableBody>
                   {domains
-                    ?.filter((d: Domain) => d.name.toLowerCase().includes(search.toLowerCase()))
+                    ?.filter((d: Domain) =>
+                      d.name.toLowerCase().includes(search.toLowerCase())
+                    )
                     .map((d: Domain) => (
-                      <TableRow key={d.id} className="hover:bg-orange-50 transition">
+                      <TableRow
+                        key={d.id}
+                        className="hover:bg-orange-50 transition"
+                      >
                         <TableCell className="font-medium">{d.name}</TableCell>
                         <TableCell>{d.description}</TableCell>
                         <TableCell>{renderStatus(d.status)}</TableCell>
@@ -144,16 +162,24 @@ export default function DashboardTabs() {
                 </TableHeader>
                 <TableBody>
                   {masterTopics
-                    ?.filter((mt: MasterTopic) => mt.name.toLowerCase().includes(search.toLowerCase()))
+                    ?.filter((mt: MasterTopic) =>
+                      mt.name.toLowerCase().includes(search.toLowerCase())
+                    )
                     .map((mt: MasterTopic) => (
-                      <TableRow key={mt.id} className="hover:bg-orange-50 transition">
+                      <TableRow
+                        key={mt.id}
+                        className="hover:bg-orange-50 transition"
+                      >
                         <TableCell className="font-medium">{mt.name}</TableCell>
                         <TableCell>{mt.description}</TableCell>
                         <TableCell>{mt.domain?.name || "Unknown"}</TableCell>
                         <TableCell>{mt.semester?.code}</TableCell>
                         <TableCell>{mt.semester?.term}</TableCell>
                         <TableCell>{mt.semester?.year}</TableCell>
-                        <TableCell>{mt.lecturers?.map((l) => l.fullName).join(", ") || "None"}</TableCell>
+                        <TableCell>
+                          {mt.lecturers?.map((l) => l.fullName).join(", ") ||
+                            "None"}
+                        </TableCell>
                         <TableCell>{renderStatus(mt.status)}</TableCell>
                       </TableRow>
                     ))}
@@ -180,9 +206,14 @@ export default function DashboardTabs() {
                 </TableHeader>
                 <TableBody>
                   {topics
-                    ?.filter((t: Topic) => t.name.toLowerCase().includes(search.toLowerCase()))
+                    ?.filter((t: Topic) =>
+                      t.name.toLowerCase().includes(search.toLowerCase())
+                    )
                     .map((t: Topic) => (
-                      <TableRow key={t.id} className="hover:bg-orange-50 transition">
+                      <TableRow
+                        key={t.id}
+                        className="hover:bg-orange-50 transition"
+                      >
                         <TableCell className="flex items-center font-medium">
                           {renderIcon(t.status)}
                           {t.name}

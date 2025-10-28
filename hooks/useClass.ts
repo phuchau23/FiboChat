@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ClassApiResponse, ClassStudentsResponse, fetchClass } from "./services/fetchClass";
+import { ClassApiResponse, ClassStudentsResponse, fetchClass } from "../lib/api/services/fetchClass";
 
 export default function useClasses(page = 1, pageSize = 10) {
   const { isError, isLoading, error, data } = useQuery({

@@ -49,6 +49,7 @@ export function SemesterFormModal({
         const res = await createSemester.mutateAsync(form);
 
         toast({
+          title: "Success",
           description: res?.message || "Semester added successfully.",
         });
       }

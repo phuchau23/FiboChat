@@ -54,9 +54,24 @@ export default function TopicPage() {
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)}>
         <TabsList>
-          <TabsTrigger value="domains">Domains</TabsTrigger>
-          <TabsTrigger value="master-topics">Master Topics</TabsTrigger>
-          <TabsTrigger value="topics">Topics</TabsTrigger>
+          <TabsTrigger
+            value="domains"
+            className="data-[state=active]:border-[#FF6B00] data-[state=active]:text-[#FF6B00] text-gray-600  transition-all px-4 py-2"
+          >
+            Domains
+          </TabsTrigger>
+          <TabsTrigger
+            value="master-topics"
+            className="data-[state=active]:border-[#FF6B00] data-[state=active]:text-[#FF6B00] text-gray-600  transition-all px-4 py-2"
+          >
+            Master Topics
+          </TabsTrigger>
+          <TabsTrigger
+            value="topics"
+            className="data-[state=active]:border-[#FF6B00] data-[state=active]:text-[#FF6B00] text-gray-600  transition-all px-4 py-2"
+          >
+            Topics
+          </TabsTrigger>
         </TabsList>
 
         {/* Domains */}

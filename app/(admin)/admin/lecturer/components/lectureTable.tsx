@@ -65,8 +65,8 @@ export function LecturerTable({ onEdit, onDelete }: LecturerTableProps) {
 
   if (isError) {
     return (
-      <p className="text-red-500 text-center">
-        Lỗi khi tải danh sách giảng viên
+      <p className="text-red-500 text-center text-md font-serif">
+        Lỗi khi tải danh sách giảng viên!
       </p>
     );
   }

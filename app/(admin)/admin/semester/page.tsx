@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState } from "react";
@@ -7,6 +8,7 @@ import { SemesterFormModal } from "./components/semesterModal";
 import { SemesterDeleteDialog } from "./components/semesterDeleteDialog";
 import { Semester } from "@/lib/api/services/fetchSemester";
 import { useDeleteSemester } from "@/hooks/useSemester";
+import { useToast } from "@/hooks/use-toast";
 
 export default function SemesterPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -16,6 +18,7 @@ export default function SemesterPage() {
   );
 
   const deleteSemester = useDeleteSemester();
+  const { toast } = useToast();
 
   if (deleteSemester.isPending) {
     return <p>Loading...</p>;
@@ -40,9 +43,24 @@ export default function SemesterPage() {
     if (!selectedSemester) return;
     try {
       await deleteSemester.mutateAsync(selectedSemester.id);
+
+      toast({
+        variant: "default",
+        title: "Deleted Successfully",
+        description: "Semester deleted successfully.",
+      });
+
       setIsDeleteOpen(false);
-    } catch (error) {
-      console.error("Error deleting semester:", error);
+    } catch (error: any) {
+      const message =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Failed to delete semester.";
+      toast({
+        variant: "destructive",
+        title: "Failed to delete semester",
+        description: message,
+      });
     }
   };
 
@@ -71,3 +89,4 @@ export default function SemesterPage() {
     </div>
   );
 }
+

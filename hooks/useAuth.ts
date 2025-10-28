@@ -1,8 +1,9 @@
-import { fetchAuth } from "@/hooks/services/fetchAuth";
+import { fetchAuth } from "@/lib/api/services/fetchAuth";
 import { setCookie } from "cookies-next";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ApiError } from "@/lib/api/core";
+import { decodeToken } from "@/utils/jwt";
 
 export function useAuth() {
   const router = useRouter();
@@ -20,21 +21,34 @@ export function useAuth() {
     try {
       const response = await fetchAuth.login({ Email, Password });
 
-      if (response.data.token) {
-        setCookie("auth-token", response.data.token);
-      }
+        if (response.data.token){
+          setCookie("auth-token", response.data.token);
+          
+         // ✅ decode token để biết role
+        const decoded = decodeToken(response.data.token);
+        const role = decoded?.role;
 
-      if (response.data.isVerifiled === false) {
-        router.push("/change-password");
-        return;
-      }
+        if (response.data.isVerifiled === false) {
+          router.push("/change-password");
+          return;
+        }
 
-      if (response.data.success === true) {
-        router.push("/");
+        // ✅ redirect theo role
+        switch (role) {
+          case "Admin":
+            router.push("/admin");
+            break;
+          case "Lecturer":
+            router.push("/lecturer");
+            break;
+          default:
+            router.push("/");
+        }
       } else {
-        setError(response.message || "Đăng nhập thất bại");
-      }
-    } catch (error: unknown) {
+          setError(response.message || "Đăng nhập thất bại");
+        }
+        
+    } catch (error : unknown) {
       if (isApiError(error)) {
         setError(error.message);
       } else {

@@ -3,6 +3,7 @@ import { jwtDecode } from "jwt-decode";
 export interface DecodedToken {
   nameid: string;
   email?: string;
+  role?: string;
   exp?: number;
   iat?: number;
 }

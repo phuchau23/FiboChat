@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { fetchChangePassword } from "@/hooks/services/fetchChangePassword";
+import { fetchChangePassword } from "@/lib/api/services/fetchChangePassword";
 import { ApiError } from "@/lib/api/core";
 
 interface ChangePasswordVariables {

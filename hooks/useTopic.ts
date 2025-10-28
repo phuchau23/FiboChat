@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { fetchTopic, TopicApiResponse } from "./services/fetchTopic";
+import { fetchTopic, TopicApiResponse } from "../lib/api/services/fetchTopic";
 
 export function useTopics(page = 1, pageSize = 10) {
   const { isError, isLoading, error, data } = useQuery({
