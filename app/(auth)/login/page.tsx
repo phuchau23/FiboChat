@@ -16,6 +16,7 @@ export default function LoginPage() {
   const { refreshUser } = useAuthContext();
 
   const [formData, setFormData] = useState({ Email: "", Password: "" });
+  const [rememberMe, setRememberMe] = useState(false); // ✅ Thêm state rememberMe
   const [showPassword, setShowPassword] = useState(false);
   const [fieldError, setFieldError] = useState<{
     Email?: string;
@@ -39,7 +40,7 @@ export default function LoginPage() {
     const errs = validate();
     if (Object.keys(errs).length > 0) return setFieldError(errs);
 
-    await login(formData.Email, formData.Password);
+    await login(formData.Email, formData.Password, rememberMe);
     await refreshUser();
   };
 
@@ -126,7 +127,18 @@ export default function LoginPage() {
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
 
-              <div className="mt-2 text-right">
+              <div className="flex justify-between items-center mt-4 text-right">
+                {/* ✅ Remember me */}
+                <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                    className="h-4 w-4 accent-[#FF6B00] cursor-pointer"
+                  />
+                  Ghi nhớ đăng nhập
+                </label>
+
                 <Link
                   href="/forgot-password"
                   className="text-sm text-black hover:underline"
