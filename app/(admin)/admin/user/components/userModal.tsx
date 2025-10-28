@@ -1,7 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { FormModal, type FormField } from "@/components/common/form-modal";
+import {
+  FormModal,
+  type FormField,
+} from "@/app/(admin)/admin/components/form-modal";
 import { useToast } from "@/hooks/use-toast";
 import { useCreateUser } from "@/hooks/useUser";
 

@@ -16,7 +16,7 @@ export default function LoginPage() {
   const { refreshUser } = useAuthContext();
 
   const [formData, setFormData] = useState({ Email: "", Password: "" });
-  const [rememberMe, setRememberMe] = useState(false); // ✅ Thêm state rememberMe
+  const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [fieldError, setFieldError] = useState<{
     Email?: string;
@@ -128,7 +128,7 @@ export default function LoginPage() {
               </button>
 
               <div className="flex justify-between items-center mt-4 text-right">
-                {/* ✅ Remember me */}
+                {/* Remember me */}
                 <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
                   <input
                     type="checkbox"

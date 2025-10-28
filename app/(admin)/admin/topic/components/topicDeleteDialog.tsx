@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { ConfirmDialog } from "@/components/common/comfirm-dialog";
+import { ConfirmDialog } from "@/app/(admin)/admin/components/comfirm-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { useDeleteDomain } from "@/hooks/useDomain";
 import { useDeleteMasterTopic } from "@/hooks/useMasterTopic";

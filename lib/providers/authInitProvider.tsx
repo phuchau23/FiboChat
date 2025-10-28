@@ -9,7 +9,7 @@ export default function AuthInitProvider({
   children: React.ReactNode;
 }) {
   useEffect(() => {
-    cleanExpiredTokenOnLoad(); // ✅ Hàm này kiểm tra cookie 'auth-token' có hết hạn không
+    cleanExpiredTokenOnLoad(); // Hàm này kiểm tra cookie 'auth-token' có hết hạn không
   }, []);
 
   return <>{children}</>;
