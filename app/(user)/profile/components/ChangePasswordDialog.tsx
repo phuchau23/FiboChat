@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Shield, X, Save, Eye, EyeOff } from "lucide-react";
 import { useChangePassword } from "@/hooks/useChangePassword";
+import { useToast } from "@/hooks/use-toast";
 
 interface ChangePasswordDialogProps {
   onClose: () => void;
@@ -12,22 +13,22 @@ export default function ChangePasswordDialog({ onClose }: ChangePasswordDialogPr
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [message, setMessage] = useState("");
-
-  // toggle hiển thị mật khẩu
   const [showCurrent, setShowCurrent] = useState(false);
   const [showNew, setShowNew] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
-  // ✅ dùng mutation có sẵn isLoading, isError, isSuccess
-  const { mutate, isPending, isError, isSuccess, error } = useChangePassword();
+  const { toast } = useToast();
+  const { mutate, isPending } = useChangePassword();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setMessage("");
 
     if (newPassword !== confirmPassword) {
-      setMessage("❌ Mật khẩu xác nhận không khớp.");
+      toast({
+        title: "Lỗi xác nhận mật khẩu",
+        description: "❌ Mật khẩu xác nhận không khớp.",
+        variant: "destructive",
+      });
       return;
     }
 
@@ -36,14 +37,38 @@ export default function ChangePasswordDialog({ onClose }: ChangePasswordDialogPr
       {
         onSuccess: (res) => {
           if (res.success) {
-            setMessage("✅ " + res.message);
+            toast({
+              title: "✅ Đổi mật khẩu thành công",
+              description: res.message,
+            });
             setTimeout(() => onClose(), 1200);
           } else {
-            setMessage("❌ " + res.message);
+            toast({
+              title: "❌ Đổi mật khẩu thất bại",
+              description: res.message,
+              variant: "destructive",
+            });
           }
         },
-        onError: (err) => {
-          setMessage("❌ " + (err.message || "Đổi mật khẩu thất bại"));
+        onError: (err: unknown) => {
+          let errorMessage = "Không thể đổi mật khẩu.";
+
+          if (err instanceof Error) {
+            errorMessage = err.message;
+          } else if (
+            typeof err === "object" &&
+            err !== null &&
+            "response" in err &&
+            typeof (err as { response?: { data?: { message?: string } } }).response?.data?.message === "string"
+          ) {
+            errorMessage = (err as { response?: { data?: { message?: string } } }).response!.data!.message!;
+          }
+
+          toast({
+            title: "Lỗi hệ thống",
+            description: errorMessage,
+            variant: "destructive",
+          });
         },
       }
     );
@@ -52,18 +77,15 @@ export default function ChangePasswordDialog({ onClose }: ChangePasswordDialogPr
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 relative">
-        {/* Nút đóng */}
         <button onClick={onClose} className="absolute top-3 right-3 text-gray-500 hover:text-gray-700">
           <X className="w-5 h-5" />
         </button>
 
-        {/* Tiêu đề */}
         <div className="flex items-center gap-2 mb-4">
           <Shield className="w-5 h-5 text-blue-600" />
           <h2 className="text-xl font-semibold">Đổi mật khẩu</h2>
         </div>
 
-        {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Mật khẩu hiện tại */}
           <div>
@@ -78,9 +100,8 @@ export default function ChangePasswordDialog({ onClose }: ChangePasswordDialogPr
               />
               <button
                 type="button"
-                onClick={() => setShowCurrent((prev) => !prev)}
+                onClick={() => setShowCurrent((p) => !p)}
                 className="absolute right-3 top-2.5 text-gray-500 hover:text-gray-700"
-                tabIndex={-1}
               >
                 {showCurrent ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
@@ -100,9 +121,8 @@ export default function ChangePasswordDialog({ onClose }: ChangePasswordDialogPr
               />
               <button
                 type="button"
-                onClick={() => setShowNew((prev) => !prev)}
+                onClick={() => setShowNew((p) => !p)}
                 className="absolute right-3 top-2.5 text-gray-500 hover:text-gray-700"
-                tabIndex={-1}
               >
                 {showNew ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
@@ -122,19 +142,13 @@ export default function ChangePasswordDialog({ onClose }: ChangePasswordDialogPr
               />
               <button
                 type="button"
-                onClick={() => setShowConfirm((prev) => !prev)}
+                onClick={() => setShowConfirm((p) => !p)}
                 className="absolute right-3 top-2.5 text-gray-500 hover:text-gray-700"
-                tabIndex={-1}
               >
                 {showConfirm ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
             </div>
           </div>
-
-          {/* Thông báo */}
-          {message && (
-            <p className={`text-sm ${message.startsWith("✅") ? "text-green-600" : "text-red-600"}`}>{message}</p>
-          )}
 
           {/* Nút hành động */}
           <div className="flex justify-end gap-2 pt-3">
