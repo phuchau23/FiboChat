@@ -21,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Textarea } from "../ui/textarea";
+import { Textarea } from "../../../../components/ui/textarea";
 import { cn } from "@/lib/utils";
 
 export interface FormField {

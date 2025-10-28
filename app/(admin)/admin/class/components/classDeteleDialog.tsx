@@ -1,6 +1,6 @@
 "use client";
 
-import { ConfirmDialog } from "@/components/common/comfirm-dialog";
+import { ConfirmDialog } from "@/app/(admin)/admin/components/comfirm-dialog";
 import { Class } from "@/lib/api/services/fetchClass";
 interface ClassDeleteDialogProps {
   open: boolean;

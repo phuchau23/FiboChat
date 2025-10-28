@@ -1,7 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { type Column, DataTable } from "@/components/common/data-table";
+import {
+  type Column,
+  DataTable,
+} from "@/app/(admin)/admin/components/data-table";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { useDomains } from "@/hooks/useDomain";
 import { Domain } from "@/lib/api/services/fetchDomain";

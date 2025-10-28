@@ -1,7 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { FormField, FormModal } from "@/components/common/form-modal";
+import {
+  FormField,
+  FormModal,
+} from "@/app/(admin)/admin/components/form-modal";
 import { useToast } from "@/hooks/use-toast";
 import { useCreateSemester, useUpdateSemester } from "@/hooks/useSemester";
 import { Semester } from "@/lib/api/services/fetchSemester";

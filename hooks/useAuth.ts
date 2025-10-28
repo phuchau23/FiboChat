@@ -54,7 +54,7 @@ export function useAuth() {
     }
   };
 
-  // 🔹 CHANGE PASSWORD FIRST TIME
+  // CHANGE PASSWORD FIRST TIME
   const changePasswordFirstTime = async (
     NewPassword: string,
     ConfirmNewPassword: string

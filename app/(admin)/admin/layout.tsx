@@ -1,8 +1,8 @@
 "use client";
 
 import type React from "react";
-import { AdminSidebar } from "@/components/common/admin-sidebar";
-import { AdminHeader } from "@/components/common/admin-header";
+import { AdminSidebar } from "@/app/(admin)/admin/components/admin-sidebar";
+import { AdminHeader } from "@/app/(admin)/admin/components/admin-header";
 import { Toaster } from "@/components/ui/toaster";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { QueryClient } from "@tanstack/react-query";

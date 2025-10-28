@@ -1,6 +1,9 @@
 "use client";
 
-import { type Column, DataTable } from "@/components/common/data-table";
+import {
+  type Column,
+  DataTable,
+} from "@/app/(admin)/admin/components/data-table";
 import { Lecturer, MasterTopic } from "@/lib/api/services/fetchMasterTopic";
 import { useMasterTopics } from "@/hooks/useMasterTopic";
 import { useQueryClient } from "@tanstack/react-query";

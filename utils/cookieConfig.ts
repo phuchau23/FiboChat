@@ -53,7 +53,7 @@ export function getAuthCookieConfig(rememberMe = false): CookieOptions {
 }
 
 /**
- * ✅ Dọn dẹp token hết hạn mỗi khi reload app
+ * Dọn dẹp token hết hạn mỗi khi reload app
  * Dùng cho AuthInitProvider
  */
 export function cleanExpiredTokenOnLoad() {
