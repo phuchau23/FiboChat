@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
+import { Toaster } from "@/components/ui/toaster";
 
 const ProfileInfo = dynamic(() => import("./components/ProfileInfo"), { ssr: false });
 
@@ -23,6 +24,7 @@ export default function ProfilePage() {
 
         {/* Footer */}
         <Footer />
+        <Toaster />
       </div>
     </QueryClientProvider>
   );
