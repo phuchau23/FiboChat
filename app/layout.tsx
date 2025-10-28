@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/lib/providers/authProvider";
+import { QueryProvider } from "@/lib/providers/queryProviders";
+import AuthInitProvider from "@/lib/providers/authInitProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -13,8 +15,11 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 export const metadata: Metadata = {
-  title: "Fibo Edu",
+  title: "FiboEdu - Nền Tảng AI Hỗ Trợ Học Tập",
   description: "Nền tảng học tập thông minh dành cho sinh viên FPTU",
+  icons: {
+    icon: "/logo_header.png",
+  },
 };
 
 export default function RootLayout({
@@ -27,9 +32,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen bg-gray-50`}
       >
-        <AuthProvider>
-          <main className="flex-1">{children}</main>
-        </AuthProvider>
+        <QueryProvider>
+          <AuthInitProvider>
+            <AuthProvider>{children}</AuthProvider>
+          </AuthInitProvider>
+        </QueryProvider>
       </body>
     </html>
   );

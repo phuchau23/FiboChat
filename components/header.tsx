@@ -72,8 +72,8 @@ export default function Header() {
               {/* User info header */}
               <div className="flex items-center gap-3 px-2 py-2">
                 <div className="h-10 w-10 flex items-center justify-center rounded-full bg-gray-700 text-white font-semibold uppercase">
-                  {user.firstname[0]}
-                  {user.lastname[0]}
+                  {user.firstname?.[0] || ""}
+                  {user.lastname?.[0] || ""}
                 </div>
                 <div className="flex flex-col">
                   <p className="font-medium text-sm text-gray-900">
@@ -99,7 +99,7 @@ export default function Header() {
               {/* Sign out */}
               <DropdownMenuItem
                 onClick={logout}
-                className="cursor-pointer flex items-center gap-2 px-2 py-2 text-sm  hover:bg-red-50 rounded-md"
+                className="cursor-pointer flex items-center gap-2 px-2 py-2 text-sm  hover:bg-gray-100 rounded-md"
               >
                 <LogOut size={16} />
                 Đăng xuất

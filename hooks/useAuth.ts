@@ -4,36 +4,35 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ApiError } from "@/lib/api/core";
 import { decodeToken } from "@/utils/jwt";
+import { getAuthCookieConfig } from "@/utils/cookieConfig";
 
 export function useAuth() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  function isApiError(error: unknown): error is ApiError {
-    return typeof error === "object" && error !== null && "message" in error;
-  }
+  const isApiError = (error: unknown): error is ApiError =>
+    typeof error === "object" && error !== null && "message" in error;
 
-  //login
-  const login = async (Email: string, Password: string) => {
+  // LOGIN
+  const login = async (Email: string, Password: string, rememberMe = false) => {
     setLoading(true);
     setError(null);
-    try {
-      const response = await fetchAuth.login({ Email, Password });
 
-        if (response.data.token){
-          setCookie("auth-token", response.data.token);
-          
-         // ✅ decode token để biết role
-        const decoded = decodeToken(response.data.token);
+    try {
+      const res = await fetchAuth.login({ Email, Password });
+
+      if (res.data?.token) {
+        setCookie("auth-token", res.data.token, getAuthCookieConfig(rememberMe));
+
+        const decoded = decodeToken(res.data.token);
         const role = decoded?.role;
 
-        if (response.data.isVerifiled === false) {
+        if (res.data.isVerifiled === false) {
           router.push("/change-password");
           return;
         }
 
-        // ✅ redirect theo role
         switch (role) {
           case "Admin":
             router.push("/admin");
@@ -45,48 +44,44 @@ export function useAuth() {
             router.push("/");
         }
       } else {
-          setError(response.message || "Đăng nhập thất bại");
-        }
-        
-    } catch (error : unknown) {
-      if (isApiError(error)) {
-        setError(error.message);
-      } else {
-        setError("Đăng nhập thất bại");
+        setError(res.message || "Đăng nhập thất bại");
       }
+    } catch (err: unknown) {
+      if (isApiError(err)) setError(err.message);
+      else setError("Đăng nhập thất bại");
     } finally {
       setLoading(false);
     }
   };
 
-  //change password first time
-  const changePasswordFirstTime = async (NewPassword: string, ConfirmNewPassword: string) => {
+  // 🔹 CHANGE PASSWORD FIRST TIME
+  const changePasswordFirstTime = async (
+    NewPassword: string,
+    ConfirmNewPassword: string
+  ) => {
     setLoading(true);
     setError(null);
-    try {
-      const response = await fetchAuth.changePasswordFirstTime({ NewPassword, ConfirmNewPassword });
 
-      if (response.statusCode === 200) {
+    try {
+      const res = await fetchAuth.changePasswordFirstTime({
+        NewPassword,
+        ConfirmNewPassword,
+      });
+
+      if (res.statusCode === 200) {
         router.push("/");
       } else {
-        setError(response.message || "Đổi mật khẩu thất bại");
+        setError(res.message || "Đổi mật khẩu thất bại");
       }
-    } catch (error: unknown) {
-      if (isApiError(error)) {
-        setError(error.message);
-        if (error.status === 401) router.push("/login");
-      } else {
-        setError("Đổi mật khẩu thất bại");
-      }
+    } catch (err: unknown) {
+      if (isApiError(err)) {
+        setError(err.message);
+        if (err.status === 401) router.push("/login");
+      } else setError("Đổi mật khẩu thất bại");
     } finally {
       setLoading(false);
     }
   };
 
-  return {
-    login,
-    changePasswordFirstTime,
-    loading,
-    error,
-  };
+  return { login, changePasswordFirstTime, loading, error };
 }

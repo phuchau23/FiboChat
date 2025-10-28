@@ -4,7 +4,7 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { getCookie, deleteCookie } from "cookies-next";
 import { useAuth } from "@/hooks/useAuth";
 import { fetchAuth } from "@/lib/api/services/fetchAuth";
-import { decodeToken } from "@/utils/jwt";
+import { decodeToken, isTokenExpired } from "@/utils/jwt";
 
 interface User {
   id: string;
@@ -41,7 +41,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // 🔹 Lấy user từ token cookie
+  // Refresh user từ cookie
   const refreshUser = async () => {
     const token = getCookie("auth-token");
     if (!token) {
@@ -50,17 +50,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    const decoded = decodeToken(String(token));
-    if (!decoded || (decoded.exp && decoded.exp * 1000 < Date.now())) {
+    if (isTokenExpired(String(token))) {
       deleteCookie("auth-token");
       setUser(null);
       setLoading(false);
       return;
     }
 
+    const decoded = decodeToken(String(token));
+    if (!decoded) {
+      deleteCookie("auth-token");
+      setUser(null);
+      setLoading(false);
+      return;
+    }
     try {
+      //Gọi API để lấy thông tin user đầy đủ
       const res = await fetchAuth.getUserById(decoded.nameid);
-      setUser(res.data);
+      if (res && res.data) {
+        setUser({
+          id: res.data.id,
+          firstname: res.data.firstname ?? "",
+          lastname: res.data.lastname ?? "",
+          email: res.data.email ?? decoded.email ?? "",
+          role: res.data.role ?? decoded.role ?? "",
+          isVerified: res.data.isVerified ?? false,
+        });
+      } else {
+        setUser(null);
+      }
     } catch (err) {
       console.error("Lỗi lấy user:", err);
       setUser(null);
@@ -69,12 +87,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // 🔹 Logout
   const logout = () => {
     deleteCookie("auth-token");
     setUser(null);
   };
 
+  // load user khi app mount
   useEffect(() => {
     refreshUser();
   }, []);
@@ -97,8 +115,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 }
 
 export function useAuthContext() {
-  const context = useContext(AuthContext);
-  if (!context)
+  const ctx = useContext(AuthContext);
+  if (!ctx)
     throw new Error("useAuthContext must be used inside <AuthProvider />");
-  return context;
+  return ctx;
 }
