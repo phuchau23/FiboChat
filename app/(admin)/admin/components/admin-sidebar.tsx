@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
@@ -26,12 +27,24 @@ export function AdminSidebar() {
 
   return (
     <aside className="w-64 bg-sidebar border-r border-sidebar-border h-screen sticky top-0 overflow-y-auto">
-      <div className="p-6">
-        <h1 className="text-2xl font-bold text-sidebar-foreground">Admin</h1>
-        <p className="text-sm text-sidebar-foreground/60">Dashboard</p>
+      <div className="flex items-center gap-2 p-6 border-b border-sidebar-border">
+        <Link href="/" className="flex items-center">
+          <Image
+            src="/logo_header.png"
+            alt="Fibo Edu Logo"
+            width={40}
+            height={40}
+            className="h-10 w-10 object-contain"
+            priority
+          />
+          <div className="text-2xl font-bold ml-2">
+            <span className="text-black dark:text-white">Fibo</span>{" "}
+            <span className="text-orange-500">Edu</span>
+          </div>
+        </Link>
       </div>
 
-      <nav className="space-y-2 px-4">
+      <nav className="space-y-2 px-4 mt-4">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive =
@@ -44,8 +57,8 @@ export function AdminSidebar() {
               className={cn(
                 "flex items-center gap-3 px-4 py-2 rounded-lg font-medium transition-all duration-200 ease-in-out",
                 isActive
-                  ? "bg-[#FF6B00] text-white "
-                  : "text-sidebar-foreground hover:bg-[#FF6B00]/10 "
+                  ? "bg-[#FF6B00] text-white"
+                  : "text-sidebar-foreground hover:bg-[#FF6B00]/10"
               )}
             >
               <Icon

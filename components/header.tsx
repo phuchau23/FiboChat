@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { LogOut, Settings } from "lucide-react";
+import { Globe, LayoutDashboard, LogOut, Settings } from "lucide-react";
 
 export default function Header() {
   const router = useRouter();
@@ -57,52 +57,68 @@ export default function Header() {
         ) : user ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="flex items-center gap-3 cursor-pointer rounded-full hover:bg-gray-100 px-2 py-1 transition">
-                <div className="h-9 w-9 flex items-center justify-center rounded-full bg-gray-700 text-white text-sm font-semibold uppercase">
-                  {user.firstname[0]}
-                  {user.lastname[0]}
-                </div>
-              </button>
+              <div className="h-9 w-9 flex items-center justify-center rounded-full bg-gray-700 text-white text-sm font-semibold uppercase cursor-pointer hover:opacity-90 transition">
+                {user.firstname[0]}
+                {user.lastname[0]}
+              </div>
             </DropdownMenuTrigger>
 
             <DropdownMenuContent
               align="end"
-              className="w-60 rounded-xl shadow-lg p-2"
+              className="w-72 rounded-xl p-3 bg-white shadow-2xl border border-gray-200 z-[9999]"
             >
-              {/* User info header */}
-              <div className="flex items-center gap-3 px-2 py-2">
-                <div className="h-10 w-10 flex items-center justify-center rounded-full bg-gray-700 text-white font-semibold uppercase">
-                  {user.firstname?.[0] || ""}
-                  {user.lastname?.[0] || ""}
+              {/* Header user info */}
+              <div className="flex items-center gap-3 mb-2">
+                <div className="h-10 w-10 flex items-center justify-center rounded-full bg-gray-700 text-white text-sm font-semibold uppercase">
+                  {user.firstname[0]}
+                  {user.lastname[0]}
                 </div>
                 <div className="flex flex-col">
-                  <p className="font-medium text-sm text-gray-900">
+                  <span className="font-medium text-sm text-gray-900">
                     {user.firstname} {user.lastname}
-                  </p>
-                  <p className="text-xs text-gray-500 truncate max-w-[160px]">
-                    {user.email}
-                  </p>
+                  </span>
+                  <span className="text-xs text-gray-500">{user.email}</span>
                 </div>
               </div>
 
               <DropdownMenuSeparator />
+              {/*Dashboard (Admin / Lecturer only) */}
+              {["Admin", "Lecturer"].includes(user.role) && (
+                <DropdownMenuItem
+                  onClick={() =>
+                    router.push(user.role === "Admin" ? "/admin" : "/lecturer")
+                  }
+                  className="cursor-pointer flex items-center gap-2 px-2 py-2 text-sm text-gray-700 hover:bg-gray-200 rounded-md"
+                >
+                  <LayoutDashboard size={16} className="text-gray-500" />
+                  Dashboard
+                </DropdownMenuItem>
+              )}
 
               {/* Manage account */}
-              <DropdownMenuItem
-                onClick={() => router.push("/profile")}
-                className="cursor-pointer flex items-center gap-2 px-2 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
-              >
-                <Settings size={16} className="text-gray-500" />
-                Quản lí tài khoản
+              {["Student"].includes(user.role) && (
+                <DropdownMenuItem
+                  onClick={() => router.push("/profile")}
+                  className="cursor-pointer flex items-center gap-2 px-2 py-2 text-sm text-gray-700 hover:bg-gray-200 rounded-md"
+                >
+                  <Settings size={16} className="text-gray-500" />
+                  Quản lí hồ sơ
+                </DropdownMenuItem>
+              )}
+
+              {/* Language */}
+              <DropdownMenuItem className="cursor-pointer flex items-center gap-2 py-2 text-gray-700 hover:bg-gray-200 rounded-md transition">
+                <Globe className="w-4 h-4" /> Language
               </DropdownMenuItem>
 
-              {/* Sign out */}
+              <DropdownMenuSeparator />
+
+              {/* Logout */}
               <DropdownMenuItem
                 onClick={logout}
-                className="cursor-pointer flex items-center gap-2 px-2 py-2 text-sm  hover:bg-gray-100 rounded-md"
+                className="cursor-pointer flex items-center gap-2 py-2 text-sm text-gray-700 hover:bg-gray-200 rounded-md font-medium transition"
               >
-                <LogOut size={16} />
-                Đăng xuất
+                <LogOut className="w-4 h-4" /> Đăng xuất
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

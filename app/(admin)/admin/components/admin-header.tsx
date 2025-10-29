@@ -1,20 +1,29 @@
 "use client";
 
-import { Bell, LogOut } from "lucide-react";
+import { Bell, LogOut, Globe, Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-// import { ThemeToggle } from "@/components/theme-toggle";
-// import { LanguageSelector } from "@/components/language-selector";
-import { useRouter } from "next/navigation";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useAuthContext } from "@/lib/providers/authProvider";
+import { useTheme } from "next-themes";
+import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
 
 export function AdminHeader() {
+  const { user, logout } = useAuthContext();
+  const { theme, setTheme } = useTheme();
   const router = useRouter();
-  const { logout } = useAuthContext();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
 
   const handleBellClick = () => {
     console.log("Notification bell clicked");
-    // TODO: Implement notification panel
   };
 
   const handleLogout = () => {
@@ -22,21 +31,15 @@ export function AdminHeader() {
     router.push("/");
   };
 
+  if (!mounted || !user) return null;
+
   return (
     <header className="border-b border-border bg-background">
       <div className="flex items-center justify-between px-8 py-4">
-        {/* Left side - empty for future use */}
         <div />
 
-        {/* Right side - 5 icons in order */}
-        <div className="flex items-center gap-2 md:gap-3">
-          {/* 1. Language Selector */}
-          {/* <LanguageSelector /> */}
-
-          {/* 2. Theme Toggle */}
-          {/* <ThemeToggle /> */}
-
-          {/* 3. Notification Bell */}
+        {/* Right side */}
+        <div className="flex items-center gap-2 md:gap-3 mr-4">
           <Button
             variant="ghost"
             size="icon"
@@ -48,25 +51,65 @@ export function AdminHeader() {
             <span className="sr-only">Notifications</span>
           </Button>
 
-          {/* 4. Logout */}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleLogout}
-            className="w-9 h-9"
-          >
-            <LogOut className="w-5 h-5" onClick={handleLogout} />
-            <span className="sr-only">Logout</span>
-          </Button>
+          {/* User Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <div className="h-9 w-9 flex items-center justify-center rounded-full bg-gray-700 text-white text-sm font-semibold uppercase cursor-pointer hover:opacity-90 transition">
+                {user.firstname[0]}
+                {user.lastname[0]}
+              </div>
+            </DropdownMenuTrigger>
 
-          {/* 5. User Avatar */}
-          <Avatar className="w-9 h-9 cursor-pointer">
-            <AvatarImage
-              src="https://api.dicebear.com/7.x/avataaars/svg?seed=admin"
-              alt="User avatar"
-            />
-            <AvatarFallback>AD</AvatarFallback>
-          </Avatar>
+            <DropdownMenuContent
+              align="end"
+              className="w-72 rounded-xl p-3 bg-white shadow-2xl border border-gray-200 z-[9999]"
+            >
+              {/* Header user info */}
+              <div className="flex items-center gap-3 mb-2">
+                <div className="h-10 w-10 flex items-center justify-center rounded-full bg-gray-700 text-white text-sm font-semibold uppercase">
+                  {user.firstname[0]}
+                  {user.lastname[0]}
+                </div>
+                <div className="flex flex-col">
+                  <span className="font-medium text-sm text-gray-900">
+                    {user.firstname} {user.lastname}
+                  </span>
+                  <span className="text-xs text-gray-500">{user.email}</span>
+                </div>
+              </div>
+
+              <DropdownMenuSeparator />
+
+              <DropdownMenuItem
+                onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+                className="cursor-pointer flex items-center gap-2 py-2 text-gray-700 hover:bg-gray-200 rounded-md transition"
+              >
+                {theme === "light" ? (
+                  <>
+                    <Moon className="w-4 h-4" /> Dark Mode
+                  </>
+                ) : (
+                  <>
+                    <Sun className="w-4 h-4" /> Light Mode
+                  </>
+                )}
+              </DropdownMenuItem>
+
+              <DropdownMenuItem className="cursor-pointer flex items-center gap-2 py-2 text-gray-700 hover:bg-gray-200 rounded-md transition">
+                <Globe className="w-4 h-4" /> Language
+              </DropdownMenuItem>
+
+              <DropdownMenuSeparator />
+
+              {/* Logout */}
+              <DropdownMenuItem
+                onClick={handleLogout}
+                className="cursor-pointer flex items-center gap-2 py-2  hover:bg-gray-200 rounded-md font-medium transition"
+              >
+                <LogOut className="w-4 h-4" /> Logout
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </header>
