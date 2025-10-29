@@ -26,7 +26,7 @@ export function AdminSidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-64 bg-sidebar border-r border-sidebar-border h-screen sticky top-0 overflow-y-auto">
+    <aside className="w-64 bg-sidebar border-r border-sidebar-border h-screen sticky top-0 overflow-y-auto bg-gray-50">
       <div className="flex items-center gap-2 p-6 border-b border-sidebar-border">
         <Link href="/" className="flex items-center">
           <Image

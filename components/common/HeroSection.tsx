@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Star, Users, Award } from "lucide-react";
+import GlareHover from "../effects/GlareHover";
 
 export default function HeroSection() {
   return (
@@ -27,9 +28,22 @@ export default function HeroSection() {
         </p>
 
         {/* CTA Button */}
-        <Button className="flex items-center justify-center gap-2 rounded-full bg-[#FF6B00] px-16 py-6 text-white font-semibold text-lg shadow-[0_5px_0_0_#E85D04] hover:translate-y-[1px] hover:shadow-[0_3px_0_0_#E85D04] active:translate-y-[2px] active:shadow-[0_2px_0_0_#E85D04] transition-all">
-          Bắt đầu hỏi đáp
-        </Button>
+        <GlareHover
+          width="auto"
+          height="auto"
+          background="transparent"
+          borderColor="transparent"
+          glareColor="#ffffff"
+          glareOpacity={0.28}
+          glareSize={420}
+          glareAngle={-25}
+          transitionDuration={1350}
+          className="rounded-full backdrop-blur-sm bg-white/5"
+        >
+          <Button className="flex items-center justify-center gap-2 rounded-full bg-[#FF6B00] px-16 py-6 text-white font-semibold text-lg shadow-[0_5px_0_0_#E85D04] hover:translate-y-[1px] hover:shadow-[0_3px_0_0_#E85D04] active:translate-y-[2px] active:shadow-[0_2px_0_0_#E85D04] transition-all">
+            Bắt đầu hỏi đáp
+          </Button>
+        </GlareHover>
       </div>
 
       {/* Stats */}
