@@ -1,20 +1,15 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import {
-  PlusCircle,
-  Search,
-  Users,
-  CalendarDays,
-  Clock,
-  BookOpen,
-} from "lucide-react";
+import { PlusCircle, Search, Users, CalendarDays, Clock, BookOpen } from "lucide-react";
 import Link from "next/link";
 import { getCookie } from "cookies-next";
 import Pagination from "../components/Pagination";
 import { jwtDecode } from "jwt-decode";
 import { useClassesByLecturer } from "@/hooks/useClass";
+import { useToast } from "@/hooks/use-toast";
 
+// Kích thước page
 const PAGE_SIZE = 5;
 
 interface DecodedToken {
@@ -24,10 +19,14 @@ interface DecodedToken {
   exp: number;
 }
 
+// Skeleton card
+const CardSkeleton = () => <div className="animate-pulse rounded-3xl bg-gray-100 h-56 w-full p-6"></div>;
+
 export default function ClassPage() {
   const [lecturerId, setLecturerId] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
+  const { toast } = useToast();
 
   // ✅ Decode lecturerId từ token
   useEffect(() => {
@@ -38,23 +37,21 @@ export default function ClassPage() {
         setLecturerId(decoded.nameid);
       } catch (error) {
         console.error("Token không hợp lệ:", error);
+        toast({
+          title: "Lỗi token",
+          description: "Token không hợp lệ, vui lòng đăng nhập lại.",
+          variant: "destructive",
+        });
       }
     }
-  }, []);
+  }, [toast]);
 
-  const { classes, pagination, isLoading, isError, error } =
-    useClassesByLecturer(lecturerId || "", page, PAGE_SIZE);
+  const { classes, pagination, isLoading, isError, error } = useClassesByLecturer(lecturerId || "", page, PAGE_SIZE);
 
-  const filteredClasses =
-    classes?.filter((cls) =>
-      cls.code.toLowerCase().includes(search.toLowerCase())
-    ) || [];
+  const filteredClasses = classes?.filter((cls) => cls.code.toLowerCase().includes(search.toLowerCase())) || [];
+
   if (!lecturerId) {
-    return (
-      <div className="text-center text-orange-500 py-10 text-lg">
-        Đang tải thông tin giảng viên...
-      </div>
-    );
+    return <div className="text-center text-orange-500 py-10 text-lg">Đang tải thông tin giảng viên...</div>;
   }
 
   return (
@@ -83,66 +80,69 @@ export default function ClassPage() {
 
       {/* Content */}
       {isLoading ? (
-        <div className="text-center text-orange-500 py-10 text-lg animate-pulse">
-          Loading classes...
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 place-items-stretch">
+          {Array.from({ length: PAGE_SIZE }).map((_, idx) => (
+            <CardSkeleton key={idx} />
+          ))}
         </div>
       ) : isError ? (
-        <div className="text-center text-red-500 py-10">
-          {(error as Error)?.message || "Đã xảy ra lỗi không xác định."}
-        </div>
+        <>
+          {toast({
+            title: "Lỗi tải lớp",
+            description: (error as Error)?.message || "Đã xảy ra lỗi không xác định.",
+            variant: "destructive",
+          })}
+          <div className="text-center text-red-500 py-10">
+            {(error as Error)?.message || "Đã xảy ra lỗi không xác định."}
+          </div>
+        </>
       ) : filteredClasses.length === 0 ? (
-        <div className="text-center text-gray-500 py-12 italic text-lg">
-          Không tìm thấy lớp nào 😔
-        </div>
+        <div className="text-center text-gray-500 py-12 italic text-lg">Không tìm thấy lớp nào 😔</div>
       ) : (
-        <div className="space-y-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 place-items-stretch">
           {filteredClasses.map((cls) => (
             <Link
               href={`/lecturer/class/${cls.id}`}
               key={cls.id}
-              className="block group"
+              className="group rounded-3xl bg-white shadow-md border border-gray-100 p-6 hover:shadow-xl hover:scale-[1.02] transition-all"
             >
-              <div className="rounded-2xl bg-gradient-to-br from-orange-50 to-white border border-orange-100 p-6 hover:shadow-lg transition">
-                {/* Header */}
-                <div className="flex justify-between items-center mb-3">
-                  <h4 className="text-xl font-semibold text-orange-600 flex items-center gap-2 group-hover:text-orange-700 transition">
-                    <BookOpen className="h-5 w-5 text-orange-500" />
-                    {cls.code}
-                  </h4>
-                  <span
-                    className={`text-sm px-3 py-1 rounded-full ${
-                      cls.status === "Active"
-                        ? "bg-green-100 text-green-600"
-                        : "bg-gray-100 text-gray-600"
-                    }`}
-                  >
-                    {cls.status}
-                  </span>
+              {/* Icon + Menu */}
+              <div className="flex justify-between items-start mb-4">
+                <div
+                  className={`w-12 h-12 flex items-center justify-center rounded-full text-white text-xl font-bold
+            ${
+              cls.status === "Active"
+                ? "bg-gradient-to-br from-orange-400 to-orange-500"
+                : "bg-gradient-to-br from-gray-400 to-gray-500"
+            }`}
+                >
+                  {cls.code?.charAt(0) || "C"}
                 </div>
+                <button className="text-gray-400 hover:text-gray-600 transition">•••</button>
+              </div>
 
-                {/* Details */}
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 text-gray-700 text-sm">
-                  <p className="flex items-center gap-2">
-                    <CalendarDays className="h-4 w-4 text-orange-400" />
-                    <span>
-                      <span className="font-medium text-orange-600">
-                        Semester:
-                      </span>{" "}
-                      {cls.semester?.code} - {cls.semester?.term}{" "}
-                      {cls.semester?.year}
-                    </span>
-                  </p>
+              {/* Title */}
+              <h4 className="text-lg font-semibold text-gray-800 mb-2 group-hover:text-orange-600 transition">
+                {cls.code}
+              </h4>
 
-                  <p className="flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-orange-400" />
-                    <span>
-                      <span className="font-medium text-orange-600">
-                        Created:
-                      </span>{" "}
-                      {new Date(cls.createdAt).toLocaleString()}
-                    </span>
-                  </p>
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-6 h-6 rounded-full bg-orange-100 flex items-center justify-center">
+                  <Users className="h-4 w-4 text-orange-500" />
                 </div>
+                <p className="text-sm text-gray-600">My class</p>
+              </div>
+
+              {/* Info */}
+              <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 mb-4">
+                <span className="flex items-center gap-1">
+                  <BookOpen className="h-4 w-4 text-orange-400" />
+                  {cls.semester?.code || "N/A"}
+                </span>
+                <span className="flex items-center gap-1">
+                  <Clock className="h-4 w-4 text-orange-400" />
+                  {new Date(cls.createdAt).toLocaleDateString()}
+                </span>
               </div>
             </Link>
           ))}
@@ -151,12 +151,7 @@ export default function ClassPage() {
 
       {/* Pagination */}
       <div className="mt-8 flex justify-center">
-        <Pagination
-          page={page}
-          total={pagination?.totalItems || 0}
-          pageSize={PAGE_SIZE}
-          onPageChange={setPage}
-        />
+        <Pagination page={page} total={pagination?.totalItems || 0} pageSize={PAGE_SIZE} onPageChange={setPage} />
       </div>
     </section>
   );

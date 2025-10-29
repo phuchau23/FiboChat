@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ClassApiResponse, ClassStudentsResponse, fetchClass } from "../lib/api/services/fetchClass";
-
+import { UseMutationResult } from "@tanstack/react-query";
+import { ClassSingleResponse } from "../lib/api/services/fetchClass";
 export default function useClasses(page = 1, pageSize = 10) {
   const { isError, isLoading, error, data } = useQuery({
     queryKey: ["classes", page, pageSize],
@@ -104,6 +105,45 @@ export function useClassStudents(classId: string) {
     staleTime: 5 * 60 * 1000,
     retry: 1,
     select: (res: ClassStudentsResponse) => res.data, // trả về mảng ClassWithStudents[]
+  });
+
+  return {
+    studentsData: data, // mảng ClassWithStudents[]
+    isLoading,
+    isError,
+    error,
+  };
+}
+
+interface AddStudentsParams {
+  classId: string;
+  userIds: string[];
+}
+
+export function useAddStudentsToClass(): UseMutationResult<
+  ClassSingleResponse, // kết quả trả về
+  Error, // lỗi
+  AddStudentsParams, // tham số khi mutate
+  unknown // context (mặc định unknown)
+> {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ classId, userIds }: AddStudentsParams) => fetchClass.addStudentsToClass(classId, userIds),
+    onSuccess: (_, { classId }) => {
+      queryClient.invalidateQueries({ queryKey: ["classStudents", classId] });
+    },
+  });
+}
+
+export function useStudentsWithoutGroup(classId: string) {
+  const { data, isError, isLoading, error } = useQuery({
+    queryKey: ["studentsWithoutGroup", classId],
+    queryFn: () => fetchClass.getStudentsWithoutGroup(classId),
+    enabled: !!classId,
+    staleTime: 5 * 60 * 1000,
+    retry: 1,
+    select: (res: ClassStudentsResponse) => res.data, // lấy data từ response
   });
 
   return {

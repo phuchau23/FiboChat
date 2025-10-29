@@ -7,6 +7,7 @@ export interface Group {
   name: string;
   description: string;
   createdAt: string;
+  status: string;
 }
 
 export interface Member {
@@ -66,5 +67,40 @@ export const fetchGroups = {
     );
 
     return groupsWithMembers;
+  },
+  // ✅ POST /api/groups
+  createGroup: async (classId: string, name: string, description: string) => {
+    const formData = new FormData();
+    formData.append("ClassId", classId);
+    formData.append("Name", name);
+    formData.append("Description", description);
+
+    // ❌ Không cần truyền headers ở đây
+    const res = await apiService.post(`/auth/api/groups`, formData);
+
+    return res.data;
+  },
+  updateGroup: async (id: string, name: string, description: string) => {
+    const formData = new FormData();
+    formData.append("Name", name);
+    formData.append("Description", description);
+
+    const res = await apiService.put(`/auth/api/groups/${id}`, formData);
+    return res.data;
+  },
+  addMembersToGroup: async (groupId: string, userIds: string[]) => {
+    const formData = new FormData();
+    userIds.forEach((id) => formData.append("userIds", id));
+    console.log("Submitting:", [...formData.entries()]); // kiểm tra log
+    const res = await apiService.post(`/auth/api/groups/${groupId}/members`, formData);
+    return res.data;
+  },
+  removeMemberFromGroup: async (groupId: string, userId: string) => {
+    const res = await apiService.delete(`/auth/api/groups/${groupId}/members/${userId}`);
+    return res.data;
+  },
+  deleteGroup: async (groupId: string) => {
+    const res = await apiService.delete(`/auth/api/groups/${groupId}`);
+    return res.data;
   },
 };
