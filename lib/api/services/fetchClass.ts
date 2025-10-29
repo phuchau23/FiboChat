@@ -124,4 +124,14 @@ export const fetchClass = {
     );
     return res.data;
   },
+  addStudentsToClass: async (classId: string, userIds: string[]): Promise<ClassSingleResponse> => {
+    const formData = new FormData();
+    userIds.forEach((id) => formData.append("userIds", id));
+    const res = await apiService.post<ClassSingleResponse>(`/auth/api/classes/${classId}/add-students`, formData);
+    return res.data;
+  },
+  getStudentsWithoutGroup: async (classId: string): Promise<ClassStudentsResponse> => {
+    const res = await apiService.get<ClassStudentsResponse>(`/auth/api/classes/${classId}/students/without-group`);
+    return res.data;
+  },
 };

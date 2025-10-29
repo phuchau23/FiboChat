@@ -1,4 +1,5 @@
 import apiService from "@/lib/api/core";
+import { MasterTopic } from "./fetchMasterTopic";
 
 export enum TopicStatus {
   Active = "Active",
@@ -11,6 +12,7 @@ export interface Topic {
   description: string;
   status: TopicStatus;
   createdAt: string;
+  masterTopic?: MasterTopic;
 }
 
 export interface TopicPagination {
@@ -54,35 +56,22 @@ export const fetchTopic = {
   },
 
   getTopicById: async (id: string): Promise<SingleTopicResponse> => {
-    const response = await apiService.get<SingleTopicResponse>(
-      `/course/api/topics/${id}`
-    );
+    const response = await apiService.get<SingleTopicResponse>(`/course/api/topics/${id}`);
     return response.data;
   },
 
   createTopic: async (formData: FormData): Promise<CreateTopicResponse> => {
-    const response = await apiService.post<CreateTopicResponse>(
-      `/course/api/topics`,
-      formData
-    );
+    const response = await apiService.post<CreateTopicResponse>(`/course/api/topics`, formData);
     return response.data;
   },
 
-  updateTopic: async (
-    id: string,
-    formData: FormData
-  ): Promise<CreateTopicResponse> => {
-    const response = await apiService.put<CreateTopicResponse>(
-      `/course/api/topics/${id}`,
-      formData
-    );
+  updateTopic: async (id: string, formData: FormData): Promise<CreateTopicResponse> => {
+    const response = await apiService.put<CreateTopicResponse>(`/course/api/topics/${id}`, formData);
     return response.data;
   },
 
   deleteTopic: async (id: string): Promise<SingleTopicResponse> => {
-    const response = await apiService.delete<SingleTopicResponse>(
-      `/course/api/topics/${id}`
-    );
+    const response = await apiService.delete<SingleTopicResponse>(`/course/api/topics/${id}`);
     return response.data;
   },
 };
