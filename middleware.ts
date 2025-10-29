@@ -9,7 +9,14 @@ export default function middleware(req: NextRequest) {
   const role = token ? decodeToken(token)?.role ?? null : null;
 
   // Nếu chưa đăng nhập → cho vào route public
-  if (!token) return NextResponse.next();
+  if (!token) {
+    if (pathname.startsWith("/admin") || pathname.startsWith("/lecturer")) {
+      return NextResponse.redirect(new URL("/", req.url));
+    }
+    return NextResponse.next();
+  }
+
+
 
   // Nếu đã login mà vào /login, /forgot-password,... → redirect theo vai trò
   if (authRoutes.includes(pathname)) {

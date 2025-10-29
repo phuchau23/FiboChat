@@ -4,6 +4,7 @@ import "./globals.css";
 import { AuthProvider } from "@/lib/providers/authProvider";
 import { QueryProvider } from "@/lib/providers/queryProviders";
 import AuthInitProvider from "@/lib/providers/authInitProvider";
+import { ThemeProvider } from "@/lib/providers/themeProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,11 +33,13 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen bg-gray-50`}
       >
-        <QueryProvider>
-          <AuthInitProvider>
-            <AuthProvider>{children}</AuthProvider>
-          </AuthInitProvider>
-        </QueryProvider>
+        <ThemeProvider>
+          <QueryProvider>
+            <AuthInitProvider>
+              <AuthProvider>{children}</AuthProvider>
+            </AuthInitProvider>
+          </QueryProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
