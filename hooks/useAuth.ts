@@ -1,10 +1,11 @@
 import { fetchAuth } from "@/lib/api/services/fetchAuth";
 import { setCookie } from "cookies-next";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ApiError } from "@/lib/api/core";
 import { decodeToken } from "@/utils/jwt";
 import { getAuthCookieConfig } from "@/utils/cookieConfig";
+import { handleGoogleRedirectResult, signInWithGoogle } from "@/lib/firebase/auth";
 
 export function useAuth() {
   const router = useRouter();
@@ -83,5 +84,62 @@ export function useAuth() {
     }
   };
 
-  return { login, changePasswordFirstTime, loading, error };
+   // GOOGLE LOGIN
+const loginWithGoogle = async (idToken: string, rememberMe = false) => {
+  try {
+    setLoading(true);
+    setError(null);
+
+    const res = await fetchAuth.loginWithGoogle(idToken);
+
+    if (!res.data?.token) {
+      setError(res.data?.message || res.message || "Đăng nhập Google thất bại");
+      return;
+    }
+
+    setCookie("auth-token", res.data.token, getAuthCookieConfig(rememberMe));
+    const decoded = decodeToken(res.data.token);
+    const role = decoded?.role;
+
+    switch (role) {
+      case "Admin":
+        router.push("/admin");
+        break;
+      case "Lecturer":
+        router.push("/lecturer");
+        break;
+      default:
+        router.push("/");
+    }
+  } finally {
+    setLoading(false);
+  }
+};
+
+// POPUP Login Google
+const loginWithGoogleProvider = async (rememberMe = false) => {
+  try {
+    setLoading(true);
+    const result = await signInWithGoogle();
+    if (result?.idToken) {
+      await loginWithGoogle(result.idToken, rememberMe);
+    }
+  } catch (err: unknown) {
+    if (isApiError(err)) setError(err.message);
+    else setError("Đăng nhập Google thất bại");
+  } finally {
+    setLoading(false);
+  }
+};
+
+// Fallback Redirect Google Login
+useEffect(() => {
+  (async () => {
+    const result = await handleGoogleRedirectResult();
+    if (result?.idToken) await loginWithGoogle(result.idToken);
+  })();
+}, []);
+
+  return { login, changePasswordFirstTime, loginWithGoogle, loginWithGoogleProvider, loading, error };
 }
+

@@ -18,6 +18,17 @@ export interface LoginResponse {
   };
 }
 
+export interface LoginWithGoogleResponse {
+  statusCode: number;
+  code: string;
+  message: string;
+  data: {
+    token: string;
+    success: boolean;
+    message: string;
+  };
+}
+
 // get user by id
 export interface GetUserByIdResponse {
   statusCode: number;
@@ -63,6 +74,18 @@ export const fetchAuth = {
 
   getUserById: async (id: string): Promise<GetUserByIdResponse> => {
     const response = await apiService.get<GetUserByIdResponse>(`/auth/api/users/${id}`);
+    return response.data;
+  },
+
+   loginWithGoogle: async (idToken: string): Promise<LoginWithGoogleResponse> => {
+    const form = new FormData();
+    form.append("idToken", idToken);
+
+    const response = await apiService.post<LoginWithGoogleResponse, FormData>(
+      "/auth/api/users/login-google",
+      form // Không truyền JSON mode → tự động gửi multipart/form-data
+    );
+
     return response.data;
   },
 };
