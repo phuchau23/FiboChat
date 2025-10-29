@@ -28,7 +28,7 @@ export function getSecureCookieConfig(customOptions: Partial<CookieOptions> = {}
   };
 
   if (isProduction) {
-    defaultConfig.domain = '.fibo.edu.vn';
+    defaultConfig.domain = 'https://fibo-chat.vercel.app';
   }
 
   return { ...defaultConfig, ...customOptions };
@@ -48,7 +48,7 @@ export function getAuthCookieConfig(rememberMe = false): CookieOptions {
     secure: isSecure,
     sameSite: 'lax',
     httpOnly: false,
-    domain: isProduction ? '.fibo.edu.vn' : undefined,
+    domain: isProduction ? 'https://fibo-chat.vercel.app' : undefined,
   };
 }
 
