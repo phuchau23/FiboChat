@@ -1,8 +1,11 @@
+"use client";
 import { Button } from "@/components/ui/button";
 import { Star, Users, Award } from "lucide-react";
 import GlareHover from "../effects/GlareHover";
+import { useRouter } from "next/navigation";
 
 export default function HeroSection() {
+  const router = useRouter();
   return (
     <section className="relative flex min-h-screen flex-col justify-between items-center bg-white text-center">
       {/* Content phần trên */}
@@ -40,7 +43,10 @@ export default function HeroSection() {
           transitionDuration={1350}
           className="rounded-full backdrop-blur-sm bg-white/5"
         >
-          <Button className="flex items-center justify-center gap-2 rounded-full bg-[#FF6B00] px-16 py-6 text-white font-semibold text-lg shadow-[0_5px_0_0_#E85D04] hover:translate-y-[1px] hover:shadow-[0_3px_0_0_#E85D04] active:translate-y-[2px] active:shadow-[0_2px_0_0_#E85D04] transition-all">
+          <Button
+            onClick={() => router.push("/chat")}
+            className="flex items-center justify-center gap-2 rounded-full bg-[#FF6B00] px-16 py-6 text-white font-semibold text-lg shadow-[0_5px_0_0_#E85D04] hover:translate-y-[1px] hover:shadow-[0_3px_0_0_#E85D04] active:translate-y-[2px] active:shadow-[0_2px_0_0_#E85D04] transition-all"
+          >
             Bắt đầu hỏi đáp
           </Button>
         </GlareHover>
