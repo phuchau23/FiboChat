@@ -27,7 +27,6 @@ export function ConfirmDialog({
   onConfirm,
   onCancel,
   loading,
-  destructive,
 }: ConfirmDialogProps) {
   return (
     <AlertDialog open={open} onOpenChange={(isOpen) => !isOpen && onCancel()}>

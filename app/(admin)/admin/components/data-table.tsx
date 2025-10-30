@@ -13,7 +13,14 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Trash2, Edit2, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import {
+  Trash2,
+  Edit2,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+  Eye,
+} from "lucide-react";
 
 export interface Column<T> {
   key: keyof T;
@@ -28,6 +35,7 @@ interface DataTableProps<T> {
   data: T[];
   onEdit?: (row: T) => void;
   onDelete?: (row: T) => void;
+  onView?: (row: T) => void;
   loading?: boolean;
   searchPlaceholder?: string;
 }
@@ -39,6 +47,7 @@ export function DataTable<T extends { [key: string]: any }>({
   data,
   onEdit,
   onDelete,
+  onView,
   loading,
   searchPlaceholder = "Search...",
 }: DataTableProps<T>) {
@@ -109,7 +118,7 @@ export function DataTable<T extends { [key: string]: any }>({
     return <ArrowUpDown className="w-4 h-4 opacity-50" />;
   };
 
-  // ✅ Hàm format giá trị hiển thị (UI format dd/mm/yyyy)
+  // Hàm format giá trị hiển thị (UI format dd/mm/yyyy)
   const formatValue = (value: any) => {
     if (!value) return "-";
 
@@ -191,9 +200,18 @@ export function DataTable<T extends { [key: string]: any }>({
                         : formatValue(row[col.key])}
                     </TableCell>
                   ))}
-                  {(onEdit || onDelete) && (
+                  {(onView || onEdit || onDelete) && (
                     <TableCell>
                       <div className="flex gap-2">
+                        {onView && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => onView(row)}
+                          >
+                            <Eye className="w-4 h-4 text-gray-500" />
+                          </Button>
+                        )}
                         {onEdit && (
                           <Button
                             variant="ghost"

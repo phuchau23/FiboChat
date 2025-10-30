@@ -21,9 +21,10 @@ import { useState } from "react";
 interface ClassTableProps {
   onEdit: (classItem: Class) => void;
   onDelete: (classItem: Class) => void;
+  onView: (classItem: Class) => void;
 }
 
-export function ClassTable({ onEdit, onDelete }: ClassTableProps) {
+export function ClassTable({ onEdit, onDelete, onView }: ClassTableProps) {
   const [page, setPage] = useState(1);
   const { classes, pagination, isLoading, isError } = useClasses(page, 10);
   const queryClient = useQueryClient();
@@ -91,6 +92,7 @@ export function ClassTable({ onEdit, onDelete }: ClassTableProps) {
           onEdit(classItem);
           queryClient.invalidateQueries({ queryKey: ["classes"] });
         }}
+        onView={onView}
         onDelete={onDelete}
         loading={isLoading}
         searchPlaceholder="Search by code or lecturer..."
