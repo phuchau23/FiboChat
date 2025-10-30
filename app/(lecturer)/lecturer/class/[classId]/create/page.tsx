@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, CheckCircle } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { useCreateGroup } from "@/hooks/useGroup";
 import { useToast } from "@/hooks/use-toast";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
@@ -24,14 +24,14 @@ export default function CreateGroupPage() {
       { classId: classId as string, name, description },
       {
         onSuccess: () => {
-          toast({
-            title: "✅ Tạo nhóm thành công",
-            description: `Nhóm "${name}" đã được tạo.`,
-          });
-          setTimeout(() => router.push(`/lecturer/class/${classId}`), 800);
+          // Set flag so danh sách đọc và hiện toast (bạn đã có effect đọc localStorage)
+          if (typeof window !== "undefined") {
+            localStorage.setItem("groupCreated", "true");
+          }
+          // Client-side redirect (router.push) — effect ở trang danh sách sẽ bắt và hiển thị toast
+          router.push(`/lecturer/class/${classId}?tab=groups`);
         },
         onError: (err: unknown) => {
-          // Check kiểu của err trước khi truy cập message
           let errorMessage = "Không thể tạo nhóm. Vui lòng thử lại.";
           if (err instanceof Error) {
             errorMessage = err.message;

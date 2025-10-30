@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { BookOpen, Users, FileText, Star, Tag, MessageSquare, BarChart3, School } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import Image from "next/image";
 
 interface LecturerSidebarProps {
   onSectionChange?: (section: string) => void;
@@ -28,15 +29,20 @@ export default function LecturerSidebar({ onSectionChange }: LecturerSidebarProp
     <div className="w-64 bg-white border-r border-gray-200 flex flex-col">
       {/* Header */}
       <div className="p-6 border-b border-gray-200">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center">
-            <School className="w-6 h-6 text-white" />
-          </div>
-          <div>
-            <h1 className="font-bold text-lg text-gray-900">Fibo Edu</h1>
+        <Link href="/" className="flex items-center gap-3">
+          <Image
+            src="/logo_header.png"
+            alt="Fibo Edu Logo"
+            width={40}
+            height={40}
+            className="h-10 w-10 object-contain"
+            priority
+          />
+          <div className="text-2xl font-bold ml-2">
+            <span className="text-black dark:text-white">Fibo</span> <span className="text-orange-500">Edu</span>
             <p className="text-sm text-gray-500">Lecturer Portal</p>
           </div>
-        </div>
+        </Link>
       </div>
 
       {/* Navigation */}
