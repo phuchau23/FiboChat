@@ -7,17 +7,23 @@ import { ClassTable } from "./components/classTable";
 import { ClassFormModal } from "./components/classModal";
 import type { Class } from "@/lib/api/services/fetchClass";
 import { ClassDeleteDialog } from "./components/classDeteleDialog";
+import { useRouter } from "next/navigation";
 
 export default function ClassPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [selectedClass, setSelectedClass] = useState<Class | null>(null);
 
+  const router = useRouter();
   const deleteClass = useDeleteClass();
 
   const handleAdd = () => {
     setSelectedClass(null);
     setIsFormOpen(true);
+  };
+
+  const handleView = (classItem: Class) => {
+    router.push(`/admin/class/${classItem.id}`);
   };
 
   const handleEdit = (classItem: Class) => {
@@ -49,7 +55,11 @@ export default function ClassPage() {
       </div>
 
       {/* Table */}
-      <ClassTable onEdit={handleEdit} onDelete={handleDelete} />
+      <ClassTable
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+        onView={handleView}
+      />
 
       {/* Form Modal */}
       <ClassFormModal

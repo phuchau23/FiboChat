@@ -81,6 +81,41 @@ export interface ClassStudentsResponse {
   data: ClassWithStudents[]; // đúng với API
 }
 
+export interface ClassWithStudentsResponse {
+  statusCode: number;
+  code: string;
+  message: string;
+  data: ClassWithStudents; 
+}
+
+export interface StudentWithoutClass {
+  id: string;
+  firstname: string;
+  lastname: string;
+  email: string;
+  studentID: string;
+  role: string;       
+  isVerified: boolean;
+  createdAt: string;
+}
+
+export interface StudentsWithoutClassPage {
+  items: StudentWithoutClass[];
+  totalItems: number;
+  currentPage: number;
+  totalPages: number;
+  pageSize: number;
+  hasPreviousPage: boolean;
+  hasNextPage: boolean;
+}
+
+export interface StudentsWithoutClassResponse {
+  statusCode: number;
+  code: string;
+  message: string;
+  data: StudentsWithoutClassPage;
+}
+
 export const fetchClass = {
   getAllClasses: async (page = 1, pageSize = 10): Promise<ClassApiResponse> => {
     const response = await apiService.get<ClassApiResponse>(`/auth/api/classes?page=${page}&pageSize=${pageSize}`);
@@ -109,11 +144,13 @@ export const fetchClass = {
   deleteClass: async (id: string): Promise<void> => {
     await apiService.delete(`/auth/api/classes/${id}`);
   },
-  // ✅ Lấy danh sách sinh viên theo classId
+
+  // Lấy danh sách sinh viên theo classId
   getStudentsByClassId: async (classId: string): Promise<ClassStudentsResponse> => {
     const res = await apiService.get<ClassStudentsResponse>(`/auth/api/classes/${classId}/students`);
     return res.data;
   },
+
   getClassesByLecturerId: async (
     lecturerId: string,
     page: number = 1,
@@ -124,14 +161,34 @@ export const fetchClass = {
     );
     return res.data;
   },
-  addStudentsToClass: async (classId: string, userIds: string[]): Promise<ClassSingleResponse> => {
-    const formData = new FormData();
-    userIds.forEach((id) => formData.append("userIds", id));
-    const res = await apiService.post<ClassSingleResponse>(`/auth/api/classes/${classId}/add-students`, formData);
-    return res.data;
-  },
+  
+
   getStudentsWithoutGroup: async (classId: string): Promise<ClassStudentsResponse> => {
     const res = await apiService.get<ClassStudentsResponse>(`/auth/api/classes/${classId}/students/without-group`);
     return res.data;
   },
+
+  // get all students without class
+  getAllStudentsWithoutClass: async (page = 1, pageSize = 10): Promise<StudentsWithoutClassResponse> => {
+    const res = await apiService.get<StudentsWithoutClassResponse>(`/auth/api/classes/students-without-class`, {
+      page,
+      pageSize,
+    });
+    return res.data;
+  },
+
+  // ADD STUDENTS TO CLASS
+  addStudentsToClass: async (classId: string, userIds: string[]): Promise<ClassWithStudentsResponse> => {
+    const formData = new FormData();
+    userIds.forEach((id) => formData.append("userIds", id));
+    const res = await apiService.post<ClassWithStudentsResponse>(`/auth/api/classes/${classId}/add-students`, formData);
+    return res.data;
+  },
+
+  // REMOVE STUDENT FROM CLASS
+  removeStudentFromClass: async (classId: string, studentId: string): Promise<ClassWithStudentsResponse> => {
+    const res = await apiService.delete<ClassWithStudentsResponse>(`/auth/api/classes/${classId}/remove-students/${studentId}`);
+    return res.data;
+  },
+
 };
