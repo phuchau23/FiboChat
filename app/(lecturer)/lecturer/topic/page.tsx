@@ -48,6 +48,9 @@ export default function DashboardTree() {
         return null;
     }
   };
+  if (!domains?.length || !masterTopics?.length || !topics?.length) {
+    return <div className="p-6 text-orange-600 text-center">Đang tải dữ liệu...</div>;
+  }
 
   return (
     <div className="w-full space-y-4 p-6 bg-gradient-to-b from-white via-orange-50/50 to-white rounded-2xl border border-orange-100 shadow-[0_4px_20px_rgba(255,137,56,0.08)]">

@@ -1,8 +1,9 @@
 "use client";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import Header from "./components/Header";
 import LecturerSidebar from "./components/LecturerSidebar";
+import Header from "./components/Header";
+import { Toaster } from "@/components/ui/toaster";
 
 // 🔹 Tạo QueryClient một lần
 const queryClient = new QueryClient();
@@ -22,6 +23,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           {/* Main content */}
           <main className="flex-1 p-8 bg-white">{children}</main>
         </div>
+        <Toaster />
       </div>
     </QueryClientProvider>
   );
