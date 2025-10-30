@@ -33,7 +33,7 @@ export default function AddMemberPage() {
   const handleAddMembers = async () => {
     if (selectedUserIds.length === 0) {
       toast({
-        title: "⚠️ Chưa chọn sinh viên",
+        title: " Chưa chọn sinh viên",
         description: "Vui lòng chọn ít nhất một sinh viên để thêm vào nhóm.",
         variant: "destructive",
       });
@@ -47,14 +47,14 @@ export default function AddMemberPage() {
       });
 
       toast({
-        title: "✅ Thêm thành công",
+        title: " Thêm thành công",
         description: `${selectedUserIds.length} sinh viên đã được thêm vào nhóm.`,
       });
 
       router.push(`/lecturer/class/${classId}`);
     } catch (err: unknown) {
       toast({
-        title: "❌ Lỗi thêm thành viên",
+        title: " Lỗi thêm thành viên",
         description: err instanceof Error ? err.message : "Không thể thêm sinh viên vào nhóm.",
         variant: "destructive",
       });
