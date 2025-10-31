@@ -6,6 +6,7 @@ import { ApiError } from "@/lib/api/core";
 import { decodeToken } from "@/utils/jwt";
 import { getAuthCookieConfig } from "@/utils/cookieConfig";
 import { handleGoogleRedirectResult, signInWithGoogle } from "@/lib/firebase/auth";
+import { toast } from "./use-toast";
 
 export function useAuth() {
   const router = useRouter();
@@ -118,13 +119,17 @@ const loginWithGoogle = async (idToken: string, rememberMe = false) => {
 
 // POPUP Login Google
 const loginWithGoogleProvider = async (rememberMe = false) => {
+  setError(null);
+
+  const result = await signInWithGoogle(); // popup / redirect logic
+
+  // User đóng popup → return sớm → KHÔNG lỗi, KHÔNG disable UI lâu
+  if (!result) return;
+  
   try {
     setLoading(true);
-    const result = await signInWithGoogle();
-    if (result?.idToken) {
-      await loginWithGoogle(result.idToken, rememberMe);
-    }
-  } catch (err: unknown) {
+    await loginWithGoogle(result.idToken, rememberMe);
+  } catch (err) {
     if (isApiError(err)) setError(err.message);
     else setError("Đăng nhập Google thất bại");
   } finally {
