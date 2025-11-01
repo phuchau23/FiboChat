@@ -3,7 +3,6 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -12,6 +11,7 @@ import { MasterTopicTable } from "./components/masterTopicTable";
 import { TopicTable } from "./components/topicTable";
 import { TopicFormModal } from "./components/topicModal";
 import { TopicDeleteDialog } from "./components/topicDeleteDialog";
+import { MasterTopicDetailModal } from "./components/masterTopicDetail";
 
 export default function TopicPage() {
   const [activeTab, setActiveTab] = useState<
@@ -20,6 +20,8 @@ export default function TopicPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<any>(null);
+  const [isViewOpen, setIsViewOpen] = useState(false);
+  const [selectedViewItem, setSelectedViewItem] = useState<any>(null);
 
   const handleAdd = () => {
     setSelectedItem(null);
@@ -81,7 +83,14 @@ export default function TopicPage() {
 
         {/* Master Topics */}
         <TabsContent value="master-topics" className="space-y-4">
-          <MasterTopicTable onEdit={handleEdit} onDelete={handleDelete} />
+          <MasterTopicTable
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            onView={(item) => {
+              setSelectedViewItem(item);
+              setIsViewOpen(true);
+            }}
+          />
         </TabsContent>
 
         {/* Topics */}
@@ -105,6 +114,12 @@ export default function TopicPage() {
         selectedItem={selectedItem}
         onCancel={() => setIsDeleteOpen(false)}
         onOpenChange={setIsDeleteOpen}
+      />
+
+      <MasterTopicDetailModal
+        open={isViewOpen}
+        onOpenChange={setIsViewOpen}
+        masterTopic={selectedViewItem}
       />
     </div>
   );

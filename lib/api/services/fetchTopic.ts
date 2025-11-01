@@ -1,18 +1,29 @@
 import apiService from "@/lib/api/core";
-import { MasterTopic } from "./fetchMasterTopic";
 
 export enum TopicStatus {
   Active = "Active",
   Inactive = "Inactive",
 }
 
+export enum MasterTopicStatus {
+  Active = "Active",
+  Inactive = "Inactive",
+}
+
+export interface MasterTopic {
+  id: string;
+  name: string;
+  description: string;
+  status: MasterTopicStatus;
+  createdAt: string;
+}
 export interface Topic {
   id: string;
   name: string;
   description: string;
   status: TopicStatus;
   createdAt: string;
-  masterTopic?: MasterTopic;
+  masterTopic: MasterTopic;
 }
 
 export interface TopicPagination {

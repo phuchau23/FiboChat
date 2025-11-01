@@ -20,9 +20,14 @@ import {
 interface MasterTopicTableProps {
   onEdit: (masterTopic: MasterTopic) => void;
   onDelete: (masterTopic: MasterTopic) => void;
+  onView: (masterTopic: MasterTopic) => void;
 }
 
-export function MasterTopicTable({ onEdit, onDelete }: MasterTopicTableProps) {
+export function MasterTopicTable({
+  onEdit,
+  onDelete,
+  onView,
+}: MasterTopicTableProps) {
   const [page, setPage] = useState(1);
   const { masterTopics, pagination, isLoading, isError } = useMasterTopics(
     page,
@@ -53,16 +58,50 @@ export function MasterTopicTable({ onEdit, onDelete }: MasterTopicTableProps) {
     {
       key: "lecturers",
       label: "Lecturers",
-      render: (lecturers) =>
-        lecturers && lecturers.length > 0
-          ? lecturers.map((l: Lecturer) => l.fullName).join(", ")
-          : "—",
       searchable: true,
+      render: (lecturers: Lecturer[]) => {
+        if (!lecturers || lecturers.length === 0) return "—";
+
+        const names = lecturers.map((l) => l.fullName);
+
+        if (lecturers.length <= 1) {
+          return names.join(", ");
+        }
+
+        const firstTwo = names.slice(0, 1).join(", ");
+        const remaining = lecturers.length - 1;
+        return (
+          <span className="flex items-center gap-2">
+            <span>{firstTwo}</span>
+            <span className="flex items-center justify-center w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700 text-xs font-semibold text-gray-700 dark:text-gray-100">
+              +{remaining}
+            </span>
+          </span>
+        );
+      },
     },
     {
       key: "description",
       label: "Description",
       searchable: true,
+      render: (value: string) => {
+        if (!value) return "—";
+
+        const maxLength = 25;
+        const shortText =
+          value.length > maxLength
+            ? value.substring(0, maxLength) + "..."
+            : value;
+
+        return (
+          <span
+            title={value} // khi hover hiện full text
+            className="text-gray-700"
+          >
+            {shortText}
+          </span>
+        );
+      },
     },
     {
       key: "status",
@@ -83,9 +122,18 @@ export function MasterTopicTable({ onEdit, onDelete }: MasterTopicTableProps) {
     },
     {
       key: "createdAt",
-      label: "Created At",
+      label: "Created",
       sortable: true,
-      render: (value) => new Date(value).toLocaleString(),
+      render: (value) => {
+        const d = new Date(value);
+
+        const date = d.toLocaleDateString("vi-VN", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        });
+        return `${date}`;
+      },
     },
   ];
 
@@ -106,6 +154,7 @@ export function MasterTopicTable({ onEdit, onDelete }: MasterTopicTableProps) {
       <DataTable
         columns={columns}
         data={masterTopics || []}
+        onView={onView}
         onEdit={(masterTopic) => {
           onEdit(masterTopic);
           queryClient.invalidateQueries({ queryKey: ["masterTopics"] });
