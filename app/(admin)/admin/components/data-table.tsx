@@ -124,13 +124,20 @@ export function DataTable<T extends { [key: string]: any }>({
 
     // Nếu là ISO date → format dd/mm/yyyy
     if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}T/.test(value)) {
-      const date = new Date(value);
-      if (!isNaN(date.getTime())) {
-        const day = String(date.getDate()).padStart(2, "0");
-        const month = String(date.getMonth() + 1).padStart(2, "0");
-        const year = date.getFullYear();
-        return `${day}/${month}/${year}`;
-      }
+      const d = new Date(value);
+      return (
+        d.toLocaleDateString("vi-VN", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        }) +
+        " " +
+        d.toLocaleTimeString("vi-VN", {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false,
+        })
+      );
     }
 
     return String(value);
@@ -168,7 +175,7 @@ export function DataTable<T extends { [key: string]: any }>({
                   )}
                 </TableHead>
               ))}
-              {(onEdit || onDelete) && <TableHead>Actions</TableHead>}
+              {(onView || onEdit || onDelete) && <TableHead>Actions</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>

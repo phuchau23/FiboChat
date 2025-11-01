@@ -31,7 +31,14 @@ export function TopicTable({ onEdit, onDelete }: TopicTableProps) {
   const columns: Column<Topic>[] = [
     {
       key: "name",
-      label: "Topic Name",
+      label: "Name",
+      searchable: true,
+      sortable: true,
+    },
+    {
+      key: "masterTopic",
+      label: "Master Topic",
+      render: (masterTopic) => masterTopic.name,
       searchable: true,
       sortable: true,
     },

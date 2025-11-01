@@ -48,7 +48,13 @@ export default function LoginPage() {
     <div className="flex min-h-screen w-full">
       {/* LEFT SECTION */}
       <div className="hidden lg:flex flex-col justify-center items-center w-1/2 bg-[#FF7A1A] text-white relative overflow-hidden px-10 m-2 rounded-3xl">
-        <Image src="/img_bg.png" alt="Illustration" width={500} height={400} />
+        <Image
+          src="/img_bg.png"
+          alt="Illustration"
+          width={500}
+          height={400}
+          priority
+        />
       </div>
 
       {/* RIGHT SECTION */}
@@ -62,6 +68,7 @@ export default function LoginPage() {
               width={200}
               height={200}
               className="mx-auto"
+              priority
             />
             <h1 className="text-2xl font-bold text-gray-900">Đăng nhập</h1>
           </div>

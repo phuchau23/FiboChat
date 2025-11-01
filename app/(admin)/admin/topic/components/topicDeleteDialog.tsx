@@ -54,7 +54,7 @@ export function TopicDeleteDialog({
         message = res.message || "Topic deleted successfully.";
       }
 
-      toast({ description: message });
+      toast({ title: "Deleted Successfully", description: message });
       onOpenChange(false);
     } catch (err: any) {
       console.error("Delete failed:", err);

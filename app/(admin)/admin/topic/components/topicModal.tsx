@@ -20,7 +20,10 @@ import useLecturers from "@/hooks/useLecturer";
 import { useSemesters } from "@/hooks/useSemester";
 
 import type { Domain } from "@/lib/api/services/fetchDomain";
-import type { MasterTopic } from "@/lib/api/services/fetchMasterTopic";
+import type {
+  Lecturer,
+  MasterTopic,
+} from "@/lib/api/services/fetchMasterTopic";
 
 interface TopicFormModalProps {
   open: boolean;
@@ -108,18 +111,18 @@ export function TopicFormModal({
       placeholder: "Select",
     },
     {
-      name: "LecturerId",
-      label: "Lecturers",
-      type: "select",
-      required: true,
-      options: lecturerOptions,
-      placeholder: "Select",
-    },
-    {
       name: "Description",
       label: "Description",
       type: "textarea",
       placeholder: "Enter description",
+    },
+    {
+      name: "LecturerIds",
+      label: "Assigned Lecturers",
+      type: "multiselect",
+      required: true,
+      options: lecturerOptions,
+      placeholder: "Select",
     },
   ];
 
@@ -175,7 +178,10 @@ export function TopicFormModal({
         Description: selectedItem.description,
         DomainId: selectedItem.domain?.id,
         SemesterId: selectedItem.semester?.id,
-        LecturerId: selectedItem.lecturers?.[0]?.lecturerId,
+        LecturerIds:
+          (selectedItem.lecturers as Lecturer[] | undefined)?.map(
+            (l) => l.lecturerId
+          ) ?? [],
       };
     }
 
@@ -224,6 +230,7 @@ export function TopicFormModal({
       }
 
       toast({
+        title: "Added Successfully",
         description: `${getTitle()} successfully.`,
       });
       onOpenChange(false);
