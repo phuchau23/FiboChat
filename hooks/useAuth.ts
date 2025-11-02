@@ -29,7 +29,11 @@ export function useAuth() {
 
         const decoded = decodeToken(res.data.token);
         const role = decoded?.role;
+        const userId = decoded?.nameid;
 
+        if (userId) {
+          setCookie("user-id", userId, getAuthCookieConfig(rememberMe)); // 👈 lưu cookie userId
+        }
         if (res.data.isVerifiled === false) {
           router.push("/change-password");
           return;
@@ -57,10 +61,7 @@ export function useAuth() {
   };
 
   // CHANGE PASSWORD FIRST TIME
-  const changePasswordFirstTime = async (
-    NewPassword: string,
-    ConfirmNewPassword: string
-  ) => {
+  const changePasswordFirstTime = async (NewPassword: string, ConfirmNewPassword: string) => {
     setLoading(true);
     setError(null);
 
@@ -85,66 +86,65 @@ export function useAuth() {
     }
   };
 
-   // GOOGLE LOGIN
-const loginWithGoogle = async (idToken: string, rememberMe = false) => {
-  try {
-    setLoading(true);
+  // GOOGLE LOGIN
+  const loginWithGoogle = async (idToken: string, rememberMe = false) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const res = await fetchAuth.loginWithGoogle(idToken);
+
+      if (!res.data?.token) {
+        setError(res.data?.message || res.message || "Đăng nhập Google thất bại");
+        return;
+      }
+
+      setCookie("auth-token", res.data.token, getAuthCookieConfig(rememberMe));
+      const decoded = decodeToken(res.data.token);
+      const role = decoded?.role;
+
+      switch (role) {
+        case "Admin":
+          router.push("/admin");
+          break;
+        case "Lecturer":
+          router.push("/lecturer");
+          break;
+        default:
+          router.push("/");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // POPUP Login Google
+  const loginWithGoogleProvider = async (rememberMe = false) => {
     setError(null);
 
-    const res = await fetchAuth.loginWithGoogle(idToken);
+    const result = await signInWithGoogle(); // popup / redirect logic
 
-    if (!res.data?.token) {
-      setError(res.data?.message || res.message || "Đăng nhập Google thất bại");
-      return;
+    // User đóng popup → return sớm → KHÔNG lỗi, KHÔNG disable UI lâu
+    if (!result) return;
+
+    try {
+      setLoading(true);
+      await loginWithGoogle(result.idToken, rememberMe);
+    } catch (err) {
+      if (isApiError(err)) setError(err.message);
+      else setError("Đăng nhập Google thất bại");
+    } finally {
+      setLoading(false);
     }
+  };
 
-    setCookie("auth-token", res.data.token, getAuthCookieConfig(rememberMe));
-    const decoded = decodeToken(res.data.token);
-    const role = decoded?.role;
-
-    switch (role) {
-      case "Admin":
-        router.push("/admin");
-        break;
-      case "Lecturer":
-        router.push("/lecturer");
-        break;
-      default:
-        router.push("/");
-    }
-  } finally {
-    setLoading(false);
-  }
-};
-
-// POPUP Login Google
-const loginWithGoogleProvider = async (rememberMe = false) => {
-  setError(null);
-
-  const result = await signInWithGoogle(); // popup / redirect logic
-
-  // User đóng popup → return sớm → KHÔNG lỗi, KHÔNG disable UI lâu
-  if (!result) return;
-  
-  try {
-    setLoading(true);
-    await loginWithGoogle(result.idToken, rememberMe);
-  } catch (err) {
-    if (isApiError(err)) setError(err.message);
-    else setError("Đăng nhập Google thất bại");
-  } finally {
-    setLoading(false);
-  }
-};
-
-// Fallback Redirect Google Login
-useEffect(() => {
-  (async () => {
-    const result = await handleGoogleRedirectResult();
-    if (result?.idToken) await loginWithGoogle(result.idToken);
-  })();
-}, []);
+  // Fallback Redirect Google Login
+  useEffect(() => {
+    (async () => {
+      const result = await handleGoogleRedirectResult();
+      if (result?.idToken) await loginWithGoogle(result.idToken);
+    })();
+  }, []);
 
   return { login, changePasswordFirstTime, loginWithGoogle, loginWithGoogleProvider, loading, error };
 }
-

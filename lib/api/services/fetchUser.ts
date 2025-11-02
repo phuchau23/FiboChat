@@ -55,6 +55,7 @@ export interface DeleteUserResponse {
   message: string;
 }
 export interface UserProfile {
+  id: string;
   firstname: string;
   lastname: string;
   email: string;
@@ -64,6 +65,7 @@ export interface UserProfile {
   address: string;
   dateOfBirth: string;
   avatarUrl?: string;
+  classId?: string;
 }
 
 export interface UserProfileResponse {

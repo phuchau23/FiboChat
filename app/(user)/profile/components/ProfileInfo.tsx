@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, ChangeEvent } from "react";
-import { Mail, User, Shield, Edit2, Save, X, ImageUp } from "lucide-react";
+import { Mail, User, Shield, Edit2, Save, X, ImageUp, Tag, UsersIcon, BookOpen, Users } from "lucide-react";
 import { type ClassMember } from "@/utils/data";
 import ChangePasswordDialog from "./ChangePasswordDialog";
 import { useUpdateProfile, useUserProfile } from "@/hooks/useUser";
@@ -9,6 +9,9 @@ import { UpdateProfilePayload } from "@/lib/api/services/fetchUser";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
+import { useClassEnrollmentByUser, useGroupMembers } from "@/hooks/useGroupEnrollment";
+import { getCookie } from "cookies-next/client";
+import { decodeToken } from "@/utils/jwt";
 
 interface ProfileForm {
   firstname: string;
@@ -27,6 +30,17 @@ interface ProfileForm {
 
 export default function ProfileInfo() {
   const { data, isLoading, isError } = useUserProfile();
+  const token = getCookie("auth-token");
+  let userId: string | undefined = undefined;
+
+  if (token) {
+    const decoded = decodeToken(token.toString());
+    userId = decoded?.nameid; // 👈 đây là ID thật của user
+  }
+  const { data: enrollment, isLoading: loadingEnrollment } = useClassEnrollmentByUser(userId);
+  const groupId = enrollment?.group?.id;
+  const { members, isLoading: loadingMembers } = useGroupMembers(groupId);
+
   const updateProfileMutation = useUpdateProfile();
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -47,8 +61,6 @@ export default function ProfileInfo() {
   const [uploading, setUploading] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [activeTab, setActiveTab] = useState<"profile" | "class">("profile");
-  const [members, setMembers] = useState<ClassMember[]>([]);
-  const [loadingMembers, setLoadingMembers] = useState(false);
 
   // --- Khi có data từ API, set form ---
   useEffect(() => {
@@ -431,29 +443,140 @@ export default function ProfileInfo() {
                   </div>
                 </div>
               ) : (
-                <div>
-                  <h2 className="text-xl font-semibold mb-4">Thành viên trong nhóm</h2>
-                  {loadingMembers ? (
-                    <p>Đang tải danh sách...</p>
-                  ) : (
-                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {members.map((m) => (
-                        <div
-                          key={m.id}
-                          className="flex items-center gap-3 border p-4 rounded-xl hover:bg-gray-50 transition"
-                        >
-                          <img src={m.avatarUrl} alt={m.fullName} className="w-12 h-12 rounded-full object-cover" />
-                          <div>
-                            <p className="font-semibold">{m.fullName}</p>
-                            <p className="text-xs text-orange-600">{m.role}</p>
+                <div className="">
+                  <h2 className="text-2xl font-semibold text-gray-900 mb-6 flex items-center">
+                    <Users className="w-8 h-8 mr-3 text-orange-600" />
+                    Thành viên trong nhóm
+                  </h2>
+                  <hr className="mb-8 border-t-2 border-orange-500/30" />
+
+                  {loadingEnrollment ? (
+                    <p className="text-gray-500 text-lg animate-pulse">Đang tải thông tin lớp...</p>
+                  ) : enrollment ? (
+                    <div className="space-y-10">
+                      {/* Thông tin lớp học và Nhóm (Sử dụng cấu trúc 2 cột nếu có nhóm) */}
+                      <div className={`grid ${enrollment.group ? "lg:grid-cols-2 gap-8" : "grid-cols-1"} `}>
+                        {/* 📘 Lớp học */}
+                        <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-md transition hover:shadow-lg">
+                          <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                            <BookOpen className="w-5 h-5 mr-2 text-orange-600" />
+                            Thông tin lớp học
+                          </h3>
+                          <div className="text-gray-700 space-y-3">
+                            <p className="flex justify-between items-center border-b pb-2">
+                              <span className="font-medium text-gray-600 flex items-center">
+                                <Tag className="w-4 h-4 mr-2 text-orange-500" />
+                                Mã lớp:
+                              </span>
+                              <span className="font-semibold text-gray-900">{enrollment.class.code}</span>
+                            </p>
+                            <p className="flex justify-between items-center border-b pb-2">
+                              <span className="font-medium text-gray-600 flex items-center">
+                                <User className="w-4 h-4 mr-2 text-orange-500" />
+                                Giảng viên:
+                              </span>
+                              <span className="font-semibold text-gray-900">{enrollment.class.lecturer.fullName}</span>
+                            </p>
+                            <p className="flex justify-between items-center">
+                              <span className="font-medium text-gray-600 flex items-center">
+                                <BookOpen className="w-4 h-4 mr-2 text-orange-500" />
+                                Học kỳ:
+                              </span>
+                              <span className="font-semibold text-gray-900">
+                                {enrollment.class.semester.code} ({enrollment.class.semester.year})
+                              </span>
+                            </p>
                           </div>
-                          <span
-                            className={`ml-auto w-3 h-3 rounded-full ${
-                              m.status === "online" ? "bg-green-500" : "bg-gray-400"
-                            }`}
-                          />
                         </div>
-                      ))}
+
+                        {/* 👥 Nhóm của bạn */}
+                        {enrollment.group && (
+                          <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-md transition hover:shadow-lg">
+                            <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                              <UsersIcon className="w-5 h-5 mr-2 text-orange-600" />
+                              Nhóm hiện tại
+                            </h3>
+                            <div className="text-gray-700 space-y-3">
+                              <p className="flex justify-between items-center border-b pb-2">
+                                <span className="font-medium text-gray-600 flex items-center">
+                                  <Tag className="w-4 h-4 mr-2 text-orange-500" />
+                                  Tên nhóm:
+                                </span>
+                                <span className="font-semibold text-gray-900">{enrollment.group.name}</span>
+                              </p>
+                              <div className="pt-2">
+                                <p className="font-medium text-gray-600 mb-1 flex items-center">
+                                  <UsersIcon className="w-4 h-4 mr-2 text-orange-500" />
+                                  Mô tả:
+                                </p>
+                                <p className="text-gray-800 italic bg-orange-50 p-3 rounded-lg border border-orange-200">
+                                  {enrollment.group.description || "Không có mô tả"}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      <hr className="border-t-2 border-gray-100" />
+
+                      {/* 🧑‍🎓 Thành viên nhóm */}
+                      <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-xl">
+                        <h3 className="text-2xl font-bold text-gray-800 mb-5 flex items-center">
+                          <User className="w-6 h-6 mr-3 text-orange-600" />
+                          Danh sách thành viên nhóm
+                        </h3>
+
+                        {loadingMembers ? (
+                          <p className="text-gray-500 text-lg animate-pulse">Đang tải danh sách thành viên...</p>
+                        ) : members && members.length > 0 ? (
+                          <ul className="divide-y divide-gray-100 border-t border-b border-gray-200">
+                            {members.map((m) => (
+                              <li
+                                key={m.id}
+                                className="flex items-center justify-between py-4 px-3 hover:bg-orange-50/50 rounded-xl transition duration-200 ease-in-out"
+                              >
+                                <div className="flex items-center">
+                                  <div className="flex-shrink-0 mr-4">
+                                    <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center text-blue-600 font-bold">
+                                      {m.name[0]}
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <p className="font-bold text-lg text-gray-900">{m.name}</p>
+                                    <div className="text-sm text-gray-500 flex items-center space-x-3 mt-1">
+                                      <span className="font-medium text-gray-700 flex items-center">
+                                        <Tag className="w-3 h-3 mr-1" />
+                                        {m.studentID}
+                                      </span>
+                                      <span className="flex items-center">
+                                        <Mail className="w-3 h-3 mr-1" />
+                                        {m.email}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                                <span
+                                  className={`text-sm font-bold px-3 py-1 rounded-full whitespace-nowrap
+                        ${
+                          m.role === "Nhóm trưởng" ? "bg-orange-500 text-white shadow-sm" : "bg-blue-100 text-blue-700"
+                        }`}
+                                >
+                                  {m.role}
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <div className="bg-yellow-50 p-4 rounded-lg text-center border border-yellow-200">
+                            <p className="text-lg text-yellow-700">Chưa có thành viên nào trong nhóm.</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="bg-red-50 p-4 rounded-lg text-center border border-red-200">
+                      <p className="text-lg text-red-700 font-medium">Không có dữ liệu lớp hoặc nhóm để hiển thị.</p>
                     </div>
                   )}
                 </div>
