@@ -85,4 +85,18 @@ export const fetchTopic = {
     const response = await apiService.delete<SingleTopicResponse>(`/course/api/topics/${id}`);
     return response.data;
   },
+  // Lấy danh sách chủ đề theo giảng viên
+  getTopicsByLecturer: async (lecturerId: string, page = 1, pageSize = 10): Promise<TopicApiResponse> => {
+    const response = await apiService.get<TopicApiResponse>(`/course/api/topics/lecturer/${lecturerId}`, {
+      page,
+      pageSize,
+    });
+    return response.data;
+  },
+
+  // Lấy tất cả chủ đề theo giảng viên (bỏ phân trang nếu cần)
+  getAllTopicsByLecturer: async (lecturerId: string): Promise<TopicApiResponse> => {
+    const response = await apiService.get<TopicApiResponse>(`/course/api/topics/lecturer/${lecturerId}`);
+    return response.data;
+  },
 };
