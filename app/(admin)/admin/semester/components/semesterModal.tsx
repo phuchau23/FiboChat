@@ -8,6 +8,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { useCreateSemester, useUpdateSemester } from "@/hooks/useSemester";
 import { Semester } from "@/lib/api/services/fetchSemester";
+import { getErrorMessage } from "@/utils/error";
 
 interface SemesterFormModalProps {
   open: boolean;
@@ -45,6 +46,7 @@ export function SemesterFormModal({
         });
 
         toast({
+          title: "Success notification!",
           description: res?.message || "Semester updated successfully.",
         });
       } else {
@@ -52,25 +54,23 @@ export function SemesterFormModal({
         const res = await createSemester.mutateAsync(form);
 
         toast({
-          title: "Success",
+          title: "Success notification!",
           description: res?.message || "Semester added successfully.",
         });
       }
 
       onOpenChange(false);
     } catch (error: any) {
-      const message =
-        error?.response?.data?.message ||
-        error?.message ||
-        "An unexpected error occurred.";
+      const message = getErrorMessage(
+        error,
+        "Failed to save semester. Please try again."
+      );
 
       toast({
         title: "Oops! Something went wrong",
         description: message,
         variant: "destructive",
       });
-
-      console.error("Error saving semester:", error);
     }
   };
   const formFields: FormField[] = [

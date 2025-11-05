@@ -8,6 +8,9 @@ import { ClassFormModal } from "./components/classModal";
 import type { Class } from "@/lib/api/services/fetchClass";
 import { ClassDeleteDialog } from "./components/classDeteleDialog";
 import { useRouter } from "next/navigation";
+import { toast } from "@/hooks/use-toast";
+import axios from "axios";
+import { getErrorMessage } from "@/utils/error";
 
 export default function ClassPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -40,9 +43,21 @@ export default function ClassPage() {
     if (!selectedClass) return;
     try {
       await deleteClass.mutateAsync(selectedClass.id);
+      toast({
+        title: "Success notification!",
+        description: "Class deleted successfully.",
+      });
       setIsDeleteOpen(false);
-    } catch (error) {
-      console.error("Error deleting class:", error);
+    } catch (err) {
+      const message = getErrorMessage(
+        err,
+        "Failed to delete class. Please try again."
+      );
+      toast({
+        title: "Oops! Something went wrong",
+        description: message,
+        variant: "destructive",
+      });
     }
   };
 

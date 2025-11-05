@@ -42,7 +42,7 @@ export function MasterTopicDetailModal({
 
         {/* Title + Subtitle */}
         <div className="space-y-1">
-          <p className="text-sm font-medium text-[#FF6B00]">Domain</p>
+          <p className="text-sm font-medium text-[#FF6B00]">Assigned Domain</p>
           <p className="font-semibold text-lg">{domain?.name || "No domain"}</p>
         </div>
 

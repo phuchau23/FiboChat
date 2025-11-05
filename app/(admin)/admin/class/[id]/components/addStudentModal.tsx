@@ -19,6 +19,7 @@ import {
   useStudentsWithoutClass,
 } from "@/hooks/useClass";
 import { useToast } from "@/hooks/use-toast";
+import { getErrorMessage } from "@/utils/error";
 
 interface AddStudentModalProps {
   open: boolean;
@@ -70,7 +71,7 @@ export function AddStudentModal({
       {
         onSuccess: () => {
           toast({
-            title: "Students Added",
+            title: "Success notification!",
             description: `${selectedStudents.length} student have been successfully added to the class.`,
           });
 
@@ -78,11 +79,10 @@ export function AddStudentModal({
           onOpenChange(false);
         },
         onError: (err: unknown) => {
-          const message =
-            (err as { response?: { data?: { message?: string } } }).response
-              ?.data?.message ??
-            (err as Error).message ??
-            "Failed to add students.";
+          const message = getErrorMessage(
+            err,
+            "Failed to add students. Please try again."
+          );
 
           toast({
             title: "Oops! Something went wrong",

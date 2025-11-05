@@ -31,7 +31,7 @@ export function DomainTable({ onEdit, onDelete }: DomainTableProps) {
   const columns: Column<Domain>[] = [
     {
       key: "name",
-      label: "Domain Name",
+      label: "Name",
       searchable: true,
       sortable: true,
     },
@@ -95,7 +95,7 @@ export function DomainTable({ onEdit, onDelete }: DomainTableProps) {
         }}
         onDelete={onDelete}
         loading={isLoading}
-        searchPlaceholder="Search by domain name..."
+        searchPlaceholder="Search by domain name and description..."
       />
 
       {/* Pagination */}
