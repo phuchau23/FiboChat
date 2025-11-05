@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/select";
 import { useCreateLecturer, useUpdateLecturer } from "@/hooks/useLecturer";
 import { useToast } from "@/hooks/use-toast";
+import { getErrorMessage } from "@/utils/error";
 
 interface LecturerFormModalProps {
   open: boolean;
@@ -83,6 +84,7 @@ export function LecturerFormModal({
         });
 
         toast({
+          title: "Success notification!",
           description: res.message || "Lecturer updated successfully.",
         });
       } else {
@@ -91,23 +93,23 @@ export function LecturerFormModal({
         const res = await createLecturer.mutateAsync(form);
 
         toast({
+          title: "Success notification!",
           description: res.message || "Lecturer created successfully.",
         });
       }
 
       onOpenChange(false);
     } catch (error: any) {
-      const message =
-        error?.response?.data?.message ||
-        error?.message ||
-        "Failed to save lecturer.";
+      const message = getErrorMessage(
+        error,
+        "Failed to save lecturer. Please try again."
+      );
 
       toast({
+        title: "Oops! Something went wrong",
         description: message,
         variant: "destructive",
       });
-
-      console.error("Error saving lecturer:", error);
     }
   };
   return (

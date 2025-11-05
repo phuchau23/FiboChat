@@ -9,6 +9,7 @@ import { SemesterDeleteDialog } from "./components/semesterDeleteDialog";
 import { Semester } from "@/lib/api/services/fetchSemester";
 import { useDeleteSemester } from "@/hooks/useSemester";
 import { useToast } from "@/hooks/use-toast";
+import { getErrorMessage } from "@/utils/error";
 
 export default function SemesterPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -52,10 +53,10 @@ export default function SemesterPage() {
 
       setIsDeleteOpen(false);
     } catch (error: any) {
-      const message =
-        error?.response?.data?.message ||
-        error?.message ||
-        "Failed to delete semester.";
+      const message = getErrorMessage(
+        error,
+        "Failed to delete semester. Please try again."
+      );
       toast({
         variant: "destructive",
         title: "Failed to delete semester",

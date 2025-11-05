@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useRemoveStudentFromClass } from "@/hooks/useClass";
 import { useToast } from "@/hooks/use-toast";
+import { getErrorMessage } from "@/utils/error";
 
 interface RemoveStudentDialogProps {
   open: boolean;
@@ -46,15 +47,14 @@ export function RemoveStudentDialog({
           onOpenChange(false);
         },
         onError: (err: unknown) => {
-          const errorMessage =
-            (err as { response?: { data?: { message?: string } } }).response
-              ?.data?.message ??
-            (err as Error).message ??
-            "Failed to remove student.";
+          const message = getErrorMessage(
+            err,
+            "Failed to remove student. Please try again."
+          );
 
           toast({
             title: "Oops! Something went wrong",
-            description: errorMessage,
+            description: message,
             variant: "destructive",
           });
         },

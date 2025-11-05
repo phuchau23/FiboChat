@@ -29,7 +29,7 @@ export function useMasterTopicById(id?: string) {
     enabled: !!id,
   });
   return {
-    masterTopic: data,
+    masterTopic: data ?? null,
     isError,
     isLoading,
     error,

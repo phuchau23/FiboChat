@@ -7,6 +7,7 @@ import {
 } from "@/app/(admin)/admin/components/form-modal";
 import { useToast } from "@/hooks/use-toast";
 import { useCreateUser } from "@/hooks/useUser";
+import { getErrorMessage } from "@/utils/error";
 
 interface UserFormModalProps {
   open: boolean;
@@ -36,13 +37,22 @@ export function UserFormModal({ open, onOpenChange }: UserFormModalProps) {
       const response = await createUser.mutateAsync(form);
 
       toast({
-        title: "User Created",
+        title: "Success notification!",
         description:
           response.data.message || "Please check your email for verification.",
       });
       onOpenChange(false);
-    } catch (error) {
-      console.error("Lỗi khi tạo user:", error);
+    } catch (err) {
+      const message = getErrorMessage(
+        err,
+        "Failed to create user. Please try again."
+      );
+
+      toast({
+        title: "Oops! Something went wrong",
+        description: message,
+        variant: "destructive",
+      });
     }
   };
 

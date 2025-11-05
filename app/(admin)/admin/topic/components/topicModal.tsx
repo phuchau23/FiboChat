@@ -24,6 +24,7 @@ import type {
   Lecturer,
   MasterTopic,
 } from "@/lib/api/services/fetchMasterTopic";
+import { getErrorMessage } from "@/utils/error";
 
 interface TopicFormModalProps {
   open: boolean;
@@ -54,6 +55,7 @@ export function TopicFormModal({
   const updateTopic = useUpdateTopic();
 
   const [loading, setLoading] = useState(false);
+  const getAction = () => (selectedItem ? "Update" : "Add");
 
   const domainOptions = useMemo(
     () => (domains ?? []).map((d: Domain) => ({ value: d.id, label: d.name })),
@@ -230,14 +232,24 @@ export function TopicFormModal({
       }
 
       toast({
-        title: "Added Successfully",
-        description: `${getTitle()} successfully.`,
+        title: `${getAction()}`,
+        description: `${getAction()}d ${
+          activeTab === "domains"
+            ? "Domain"
+            : activeTab === "master-topics"
+            ? "Master Topic"
+            : "Topic"
+        } successfully.`,
       });
       onOpenChange(false);
-    } catch (error: any) {
+    } catch (error) {
+      const message = getErrorMessage(
+        error,
+        "Failed to save data. Please try again."
+      );
       toast({
         title: "Error",
-        description: error?.message || "Failed to save data.",
+        description: message,
         variant: "destructive",
       });
     } finally {
