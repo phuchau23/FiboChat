@@ -143,7 +143,7 @@ export default function TopicPage() {
         open={isTopicViewOpen}
         onOpenChange={closeTopicDetail}
         topic={selectedTopicViewItem}
-        masterTopic={masterTopic?.data ?? null}
+        masterTopic={masterTopic}
         loading={topicViewLoading}
       />
     </div>

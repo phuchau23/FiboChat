@@ -45,30 +45,45 @@ export function TopicDetailModal({
           <p className="text-lg font-medium text-gray-800">{name}</p>
         </DialogHeader>
 
-        {/* Domain */}
-        <div className="space-y-1">
-          <p className="text-sm font-medium text-[#FF6B00]">Assigned Domain</p>
-
-          {loading ? (
-            <p className="text-gray-500 italic text-sm">Loading...</p>
-          ) : (
-            <p className="font-semibold">
-              {masterTopic?.domain?.name ?? "No domain assigned"}
+        {/* Domain + Master Topic (2 Columns with Divider) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 md:divide-x md:divide-gray-200">
+          {/* Assigned Domain */}
+          <div className="space-y-1 md:pr-8">
+            <p className="text-sm font-medium text-[#FF6B00]">
+              Assigned Domain
             </p>
-          )}
+
+            {loading ? (
+              <p className="text-gray-500 text-sm">Loading...</p>
+            ) : (
+              <p className="font-semibold">
+                {masterTopic?.domain?.name ?? "No domain assigned"}
+              </p>
+            )}
+          </div>
+
+          {/* Assigned Master Topic */}
+          <div className="space-y-1 md:pl-8">
+            <p className="text-sm font-medium text-[#FF6B00]">
+              Assigned Master Topic
+            </p>
+
+            {loading ? (
+              <p className="text-gray-500 text-sm">Loading...</p>
+            ) : (
+              <p className="font-semibold">
+                {masterTopic?.name ?? "No master topic assigned"}
+              </p>
+            )}
+          </div>
         </div>
 
-        {/* Master Topic */}
+        {/* Semester */}
         <div className="space-y-1">
-          <p className="text-sm font-medium text-[#FF6B00]">
-            Assigned Master Topic
+          <p className="text-sm font-medium text-[#FF6B00]">Semester</p>
+          <p className="leading-relaxed">
+            {masterTopic?.semester?.code ?? "No semester assigned"}
           </p>
-
-          {loading ? (
-            <p className="text-gray-500 italic text-sm">Loading...</p>
-          ) : (
-            <p className="font-semibold">{masterTopic?.name ?? "N/A"}</p>
-          )}
         </div>
 
         {/* Assigned Lecturers */}

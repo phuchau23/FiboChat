@@ -25,8 +25,9 @@ export function useMasterTopics(page = 1, pageSize = 10) {
 export function useMasterTopicById(id?: string) {
   const { data, isError, isLoading, error } = useQuery({
     queryKey: ["master-topic", id],
-    queryFn: () => (id ? fetchMasterTopic.getMasterTopicById(id) : Promise.reject()),
+    queryFn: () => fetchMasterTopic.getMasterTopicById(id!),
     enabled: !!id,
+    
   });
   return {
     masterTopic: data ?? null,

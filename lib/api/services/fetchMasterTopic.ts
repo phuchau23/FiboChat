@@ -102,8 +102,8 @@ export const fetchMasterTopic = {
     return response.data;
   },
 
-  getMasterTopicById: async (id: string) => {
-    const response = await apiService.get<{ data: MasterTopicDetailApiResponse }>(
+  getMasterTopicById: async (id: string): Promise<MasterTopic> => {
+    const response = await apiService.get<MasterTopicDetailApiResponse>(
       `course/api/master-topics/${id}`
     );
     return response.data.data;
