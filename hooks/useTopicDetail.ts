@@ -13,10 +13,6 @@ export function useTopicDetail() {
   const openTopicDetail = (item: Topic) => {
     setTopic(item);
   };
-  console.log("🔍 Topic được chọn:", topic);
-console.log("🔍 MasterTopicId lấy từ topic:", masterTopicId);
-console.log("🔍 MasterTopic trả về từ hook:", masterTopic);
-
   const closeTopicDetail = () => setTopic(null);
 
   return {
