@@ -37,7 +37,12 @@ export function AdminHeader() {
   return (
     <header className="border-b border-border bg-background">
       <div className="flex items-center justify-between px-8 py-4">
-        <div />
+        <div className="flex items-center gap-2 text-xl font-medium text-slate-700">
+          Welcome back,
+          <span className="font-semibold text-slate-900 text-xl">
+            {user.firstname} {user.lastname}
+          </span>
+        </div>
 
         {/* Right side */}
         <div className="flex items-center gap-2 md:gap-3 mr-4">

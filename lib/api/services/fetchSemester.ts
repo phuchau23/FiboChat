@@ -2,9 +2,8 @@ import apiService from "@/lib/api/core";
 
 
 export enum SemesterStatus {
-  Pending = "Pending",
   Active = "Active",
-  Ended = "Disabled",
+  Inactive = "Inactive",
 }
 
 export interface Semester {

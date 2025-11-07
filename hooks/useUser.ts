@@ -28,6 +28,20 @@ export function useUser(page = 1, pageSize = 10) {
   };
 }
 
+export function useAllUsers() {
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["allUsers"],
+    queryFn: () => fetchUser.getAllUsersNoPagination(),
+    staleTime: 5 * 60 * 1000, // cache 5 phút
+  });
+
+  return {
+    users: data ?? [],
+    isLoading,
+    isError,
+  };
+}
+
 export function useCreateUser() {
   const queryClient = useQueryClient();
 
