@@ -1,6 +1,4 @@
 import apiService from "../core";
-
-// ==== INTERFACES ==== //
 export interface Group {
   id: string;
   classId: string;
@@ -40,8 +38,69 @@ export interface GroupResponse {
   };
 }
 
-// ==== API SERVICE ==== //
+export interface OverviewGroupClass {
+  id: string;
+  code: string;
+  status: string;
+  createdAt: string;
+  lecturer?: { id: string; fullName: string } | null;
+  semester?: { id: string; code: string; term: string; year: number } | null;
+}
+
+export interface OverviewGroupTopic {
+  id: string;
+  name: string;
+  description: string;
+  masterTopic?: { id: string; name: string; description: string } | null;
+}
+
+export interface OverviewGroup {
+  id: string;
+  name: string;
+  description: string;
+  status: string;
+  createdAt: string;
+  class: OverviewGroupClass;
+  topic: OverviewGroupTopic | null; // null = chưa chọn topic
+}
+
+export interface OverviewGroupPaginationResponse {
+  statusCode: number;
+  code: string;
+  message: string;
+  data: {
+    items: OverviewGroup[];
+    totalItems: number;
+    currentPage: number;
+    totalPages: number;
+    pageSize: number;
+    hasPreviousPage: boolean;
+    hasNextPage: boolean;
+  };
+}
+
 export const fetchGroups = {
+
+    getAllGroupsAllPages: async (): Promise<OverviewGroup[]> => {
+    let page = 1;
+    const pageSize = 50;
+    let all: OverviewGroup[] = [];
+
+    while (true) {
+      const res = await apiService.get<OverviewGroupPaginationResponse>(`/auth/api/groups`, {
+        page,
+        pageSize,
+      });
+
+      all = [...all, ...(res.data.data.items ?? [])];
+
+      if (!res.data.data.hasNextPage) break;
+      page++;
+    }
+
+    return all;
+  },
+
   // GET /api/groups/class/{classId}
   getByClassId: async (classId: string): Promise<GroupResponse> => {
     const res = await apiService.get<GroupResponse>(`/auth/api/groups/class/${classId}`);

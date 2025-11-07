@@ -169,7 +169,7 @@ export function DataTable<T extends { [key: string]: any }>({
         />
       </div>
 
-      <div className="border rounded-lg overflow-hidden">
+      <div className="border shadow-sm rounded-lg overflow-hidden bg-white">
         <Table>
           <TableHeader>
             <TableRow>

@@ -22,6 +22,24 @@ export function useTopics(page = 1, pageSize = 10) {
   };
 }
 
+export function useAllTopics() {
+  const { data, isError, isLoading, error } = useQuery({
+    queryKey: ["allTopics"],
+    queryFn: () => fetchTopic.getAllTopicsAllPages(),
+    staleTime: 15 * 60 * 1000, // 15 phút không fetch lại
+    refetchOnWindowFocus: false, // không refetch mỗi lần người dùng alt-tab
+  });
+
+  return {
+    topics: data ?? [],
+    isLoading,
+    isError,
+    error,
+  };
+}
+
+
+
 export function useTopicById(id?: string) {
   const { data, isError, isLoading, error } = useQuery({
     queryKey: ["topic", id],
