@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useDeleteDomain } from "@/hooks/useDomain";
 import { useDeleteMasterTopic } from "@/hooks/useMasterTopic";
 import { useDeleteTopic } from "@/hooks/useTopic";
+import { getErrorMessage } from "@/utils/error";
 import { useState } from "react";
 
 interface TopicDeleteDialogProps {
@@ -54,16 +55,16 @@ export function TopicDeleteDialog({
         message = res.message || "Topic deleted successfully.";
       }
 
-      toast({ title: "Deleted Successfully", description: message });
+      toast({ title: "Delete", description: message });
       onOpenChange(false);
-    } catch (err: any) {
-      console.error("Delete failed:", err);
+    } catch (err) {
+      const message = getErrorMessage(
+        err,
+        "Failed to delete data. Please try again."
+      );
       toast({
         title: "Delete failed",
-        description:
-          err?.response?.data?.message ||
-          err?.message ||
-          "An error occurred while deleting. Please try again.",
+        description: message,
         variant: "destructive",
       });
     } finally {

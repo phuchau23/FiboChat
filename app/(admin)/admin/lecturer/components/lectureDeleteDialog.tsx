@@ -14,6 +14,7 @@ import { Lecturer } from "@/lib/api/services/fetchLecturer";
 import { useDeleteLecturer } from "@/hooks/useLecturer";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { getErrorMessage } from "@/utils/error";
 
 interface LecturerDeleteDialogProps {
   open: boolean;
@@ -37,24 +38,22 @@ export function LecturerDeleteDialog({
       await deleteLecturer.mutateAsync(selectedLecturer.lecturerId);
 
       toast({
-        title: "Deleted Successfully",
+        title: "Success notification!",
         description: "Lecturer deleted successfully.",
       });
 
       onOpenChange(false);
     } catch (error: any) {
-      const message =
-        error?.response?.data?.message ||
-        error?.message ||
-        "Failed to delete lecturer.";
+      const message = getErrorMessage(
+        error,
+        "Failed to delete lecturer. Please try again."
+      );
 
       toast({
         title: "Oops! Something went wrong",
         description: message,
         variant: "destructive",
       });
-
-      console.error("Delete lecturer error:", error);
     } finally {
       setLoading(false);
     }

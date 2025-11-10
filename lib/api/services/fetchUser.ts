@@ -100,6 +100,11 @@ export const fetchUser = {
     return response.data;
   },
 
+  getAllUsersNoPagination: async (): Promise<User[]> => {
+    const response = await apiService.get<UserApiResponse>("/auth/api/users");
+    return response.data.data.items;
+  },
+
   createUser: async (formData: FormData): Promise<RegisterUserResponse> => {
     const response = await apiService.post<RegisterUserResponse>("/auth/api/users/register", formData);
     return response.data;

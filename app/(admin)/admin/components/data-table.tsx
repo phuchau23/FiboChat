@@ -64,8 +64,23 @@ export function DataTable<T extends { [key: string]: any }>({
       result = result.filter((row) => {
         return columns.some((col) => {
           if (!col.searchable) return false;
-          const value = String(row[col.key]).toLowerCase();
-          return value.includes(lowerSearchTerm);
+          const rawValue = row[col.key];
+
+          let stringValue = "";
+
+          if (rawValue == null) {
+            stringValue = "";
+          } else if (typeof rawValue === "object") {
+            stringValue =
+              rawValue.fullName ??
+              rawValue.name ??
+              rawValue.title ??
+              JSON.stringify(rawValue);
+          } else {
+            stringValue = String(rawValue);
+          }
+
+          return stringValue.toLowerCase().includes(lowerSearchTerm);
         });
       });
     }
@@ -154,7 +169,7 @@ export function DataTable<T extends { [key: string]: any }>({
         />
       </div>
 
-      <div className="border rounded-lg overflow-hidden">
+      <div className="border shadow-sm rounded-lg overflow-hidden bg-white">
         <Table>
           <TableHeader>
             <TableRow>
