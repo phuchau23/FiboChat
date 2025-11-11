@@ -1,3 +1,6 @@
+import { Toaster } from "@/components/ui/toaster";
+import { Toast } from "@radix-ui/react-toast";
+
 export default function ChatLayout({
   children,
 }: {
@@ -5,7 +8,10 @@ export default function ChatLayout({
 }) {
   return (
     <>
-      <main>{children}</main>
+      <main>
+        {children}
+        <Toaster />
+      </main>
     </>
   );
 }

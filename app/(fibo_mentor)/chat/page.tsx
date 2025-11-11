@@ -24,6 +24,7 @@ import {
   HistoryResponse,
 } from "@/lib/api/services/fetchHistoryChat";
 import { ChatInputBar } from "./components/ChatInputBar";
+import FeedbackDialog from "./components/FeedbackDialog";
 
 /* ==============================
  * 1) Helpers & constants
@@ -787,20 +788,31 @@ export default function FiboMentor() {
                               Sao chép
                             </button>
 
-                            <button
-                              onClick={() => {
-                                console.log(
-                                  "[Report] answerId:",
-                                  m.id || "(none)",
-                                  { message: m }
-                                );
-                              }}
-                              className="px-2 py-1 text-[12px] border rounded-md bg-white/80 hover:bg-white"
-                              title="Báo cáo"
-                              aria-label="Report"
-                            >
-                              Báo cáo
-                            </button>
+                            {m.id ? (
+                              <FeedbackDialog
+                                answerId={m.id}
+                                answerContent={candidate} // hiển thị trong dialog
+                                defaultHelpful="Helpful"
+                                trigger={
+                                  <button
+                                    className="px-2 py-1 text-[12px] border rounded-md bg-white/80 hover:bg-white"
+                                    title="Báo cáo"
+                                    aria-label="Report"
+                                  >
+                                    Đánh giá
+                                  </button>
+                                }
+                              />
+                            ) : (
+                              <button
+                                disabled
+                                className="px-2 py-1 text-[12px] border rounded-md bg-gray-100 text-gray-400 cursor-not-allowed"
+                                title="Chưa có AnswerId"
+                                aria-label="Report"
+                              >
+                                Đánh giá
+                              </button>
+                            )}
                           </div>
                         )}
                       </div>
