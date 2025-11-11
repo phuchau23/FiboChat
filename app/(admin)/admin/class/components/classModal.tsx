@@ -11,6 +11,7 @@ import useLecturers from "@/hooks/useLecturer";
 import { useSemesters } from "@/hooks/useSemester";
 import type { Class } from "@/lib/api/services/fetchClass";
 import { Lecturer } from "@/lib/api/services/fetchLecturer";
+import { getErrorMessage } from "@/utils/error";
 import { useEffect, useMemo, useState } from "react";
 
 interface ClassFormModalProps {
@@ -109,20 +110,21 @@ export function ClassFormModal({
         const res = await createClass.mutateAsync(form);
 
         toast({
+          title: "Success notification!",
           description: res.message || "Class created successfully.",
         });
       }
 
       onOpenChange(false);
     } catch (err: any) {
-      console.error("Error saving class:", err);
+      const message = getErrorMessage(
+        err,
+        "Failed to save class. Please try again."
+      );
 
       toast({
         title: "Oops! Something went wrong",
-        description:
-          err?.response?.data?.message ||
-          err?.message ||
-          "Failed to save class. Please try again.",
+        description: message,
         variant: "destructive",
       });
     } finally {

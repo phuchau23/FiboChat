@@ -23,7 +23,8 @@ export function MasterTopicDetailModal({
 }: MasterTopicDetailModalProps) {
   if (!masterTopic) return null;
 
-  const { name, domain, lecturers, description, createdAt } = masterTopic;
+  const { name, domain, semester, lecturers, description, createdAt } =
+    masterTopic;
 
   function getFallback(fullName: string) {
     const parts = fullName.trim().split(" ");
@@ -40,10 +41,26 @@ export function MasterTopicDetailModal({
           <p className="font-semibold text-lg">{name}</p>
         </DialogHeader>
 
-        {/* Title + Subtitle */}
-        <div className="space-y-1">
-          <p className="text-sm font-medium text-[#FF6B00]">Domain</p>
-          <p className="font-semibold text-lg">{domain?.name || "No domain"}</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 md:divide-x md:divide-gray-200">
+          {/* Assigned Domain */}
+          <div className="space-y-1 md:pr-8">
+            <p className="text-sm font-medium text-[#FF6B00]">
+              Assigned Domain
+            </p>
+            <p className="font-semibold text-lg">
+              {domain?.name || "No domain"}
+            </p>
+          </div>
+
+          {/* Assigned Semester */}
+          <div className="space-y-1 md:pl-8">
+            <p className="text-sm font-medium text-[#FF6B00]">
+              Assigned Semester
+            </p>
+            <p className="font-semibold text-lg">
+              {semester?.code || "No semester"}
+            </p>
+          </div>
         </div>
 
         {/* Description Block */}

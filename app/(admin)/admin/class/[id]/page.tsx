@@ -51,7 +51,7 @@ export default function ClassDetailPage() {
       </Button>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
+        <Card className="bg-white border-2 shadow-sm hover:shadow-md transition-shadow">
           <CardHeader className="pb-2">
             <CardTitle className="text-md font-medium text-gray-500">
               Class Code
@@ -62,7 +62,7 @@ export default function ClassDetailPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-white border-2 shadow-sm hover:shadow-md transition-shadow">
           <CardHeader className="pb-2">
             <CardTitle className="text-md font-medium text-gray-500">
               Semester
@@ -73,7 +73,7 @@ export default function ClassDetailPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-white border-2 shadow-sm hover:shadow-md transition-shadow">
           <CardHeader className="pb-2">
             <CardTitle className="text-md font-medium text-gray-500">
               Lecturer

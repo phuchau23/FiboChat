@@ -38,7 +38,7 @@ export function MasterTopicTable({
   const columns: Column<MasterTopic>[] = [
     {
       key: "name",
-      label: "Master Topic Name",
+      label: "Name",
       searchable: true,
       sortable: true,
     },
