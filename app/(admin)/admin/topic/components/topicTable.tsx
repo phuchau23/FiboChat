@@ -66,9 +66,18 @@ export function TopicTable({ onEdit, onDelete, onView }: TopicTableProps) {
     },
     {
       key: "createdAt",
-      label: "Created At",
+      label: "Created",
       sortable: true,
-      render: (value) => new Date(value).toLocaleString(),
+      render: (value) => {
+        const d = new Date(value);
+
+        const date = d.toLocaleDateString("vi-VN", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        });
+        return `${date}`;
+      },
     },
   ];
 

@@ -9,7 +9,6 @@ import type { Class } from "@/lib/api/services/fetchClass";
 import { ClassDeleteDialog } from "./components/classDeteleDialog";
 import { useRouter } from "next/navigation";
 import { toast } from "@/hooks/use-toast";
-import axios from "axios";
 import { getErrorMessage } from "@/utils/error";
 
 export default function ClassPage() {

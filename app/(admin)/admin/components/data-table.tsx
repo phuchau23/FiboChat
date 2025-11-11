@@ -28,6 +28,7 @@ export interface Column<T> {
   render?: (value: any, row: T) => React.ReactNode;
   sortable?: boolean;
   searchable?: boolean;
+  sortFn?: (a: T, b: T, direction: "asc" | "desc") => number;
 }
 
 interface DataTableProps<T> {
@@ -87,25 +88,31 @@ export function DataTable<T extends { [key: string]: any }>({
 
     // Apply sorting
     if (sortKey && sortDirection) {
+      const col = columns.find((c) => c.key === sortKey);
+
       result.sort((a, b) => {
+        if (col?.sortFn) return col.sortFn(a, b, sortDirection);
+
         const aValue = a[sortKey];
         const bValue = b[sortKey];
 
         if (aValue === bValue) return 0;
-        if (aValue === null || aValue === undefined) return 1;
-        if (bValue === null || bValue === undefined) return -1;
+        if (aValue == null) return 1;
+        if (bValue == null) return -1;
 
-        if (typeof aValue === "string" && typeof bValue === "string") {
+        if (typeof aValue === "boolean" && typeof bValue === "boolean") {
           return sortDirection === "asc"
-            ? aValue.localeCompare(bValue)
-            : bValue.localeCompare(aValue);
+            ? Number(aValue) - Number(bValue)
+            : Number(bValue) - Number(aValue);
         }
 
         if (typeof aValue === "number" && typeof bValue === "number") {
           return sortDirection === "asc" ? aValue - bValue : bValue - aValue;
         }
 
-        return 0;
+        return sortDirection === "asc"
+          ? String(aValue).localeCompare(String(bValue))
+          : String(bValue).localeCompare(String(aValue));
       });
     }
 
