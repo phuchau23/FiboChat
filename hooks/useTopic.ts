@@ -27,7 +27,7 @@ export function useAllTopics() {
     queryKey: ["allTopics"],
     queryFn: () => fetchTopic.getAllTopicsAllPages(),
     staleTime: 15 * 60 * 1000, // 15 phút không fetch lại
-    refetchOnWindowFocus: false, // không refetch mỗi lần người dùng alt-tab
+    refetchOnWindowFocus: false, 
   });
 
   return {
