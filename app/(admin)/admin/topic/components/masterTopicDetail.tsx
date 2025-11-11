@@ -9,22 +9,24 @@ import {
 } from "@/components/ui/dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type { MasterTopic } from "@/lib/api/services/fetchMasterTopic";
+import { Button } from "@/components/ui/button";
 
 interface MasterTopicDetailModalProps {
   open: boolean;
   masterTopic: MasterTopic | null;
   onOpenChange: (open: boolean) => void;
+  onEdit: (masterTopic: MasterTopic) => void;
 }
 
 export function MasterTopicDetailModal({
   open,
   masterTopic,
   onOpenChange,
+  onEdit,
 }: MasterTopicDetailModalProps) {
   if (!masterTopic) return null;
 
-  const { name, domain, semester, lecturers, description, createdAt } =
-    masterTopic;
+  const { name, domain, semester, lecturers, description } = masterTopic;
 
   function getFallback(fullName: string) {
     const parts = fullName.trim().split(" ");
@@ -104,14 +106,18 @@ export function MasterTopicDetailModal({
           )}
         </div>
 
-        {/* Metadata Footer */}
-        <DialogFooter className="pt-4 border-t border-gray-300 text-sm text-gray-700">
-          Created:{" "}
-          {new Date(createdAt).toLocaleDateString("vi-VN", {
-            day: "2-digit",
-            month: "2-digit",
-            year: "numeric",
-          })}
+        <DialogFooter>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+          >
+            Cancel
+          </Button>
+
+          <Button type="submit" onClick={() => onEdit(masterTopic)}>
+            Edit
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
