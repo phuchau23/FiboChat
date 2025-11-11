@@ -136,6 +136,11 @@ export default function TopicPage() {
       <MasterTopicDetailModal
         open={isViewOpen}
         onOpenChange={setIsViewOpen}
+        onEdit={(mt) => {
+          setSelectedItem(mt);
+          setIsViewOpen(false);
+          setIsFormOpen(true);
+        }}
         masterTopic={selectedViewItem}
       />
 
@@ -144,6 +149,12 @@ export default function TopicPage() {
         onOpenChange={closeTopicDetail}
         topic={selectedTopicViewItem}
         masterTopic={masterTopic}
+        onEdit={(t) => {
+          setSelectedItem(t);
+          closeTopicDetail();
+          setIsFormOpen(true);
+          setActiveTab("topics");
+        }}
         loading={topicViewLoading}
       />
     </div>

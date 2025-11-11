@@ -1,13 +1,21 @@
 "use client";
 
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import type { CSSProperties } from "react";
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
+import { BarChart, Bar, XAxis, YAxis, Cell } from "recharts";
+import { ClassEngagementModal } from "./classEngagementModal";
 
 interface GroupEngagementData {
   classCode: string;
   selected: number;
   total: number;
+  groups: { groupName: string; topicName: string | null }[];
 }
 
 interface OverviewClassEngagementProps {
@@ -17,62 +25,76 @@ interface OverviewClassEngagementProps {
 export function OverviewClassEngagement({
   data,
 }: OverviewClassEngagementProps) {
-  const chartData = data.map((item) => ({
-    classCode: item.classCode,
-    selected: item.selected,
-    total: item.total,
-    percentage:
-      item.total > 0 ? Math.round((item.selected / item.total) * 100) : 0,
-  }));
+  const [modalData, setModalData] = useState<{
+    classCode: string | null;
+    groups: { groupName: string; topicName: string | null }[];
+  }>({ classCode: null, groups: [] });
+
+  const chartData = data.map((item) => {
+    const percentage =
+      item.total > 0 ? Math.round((item.selected / item.total) * 100) : 0;
+
+    let color = "#10B981";
+    if (percentage < 30) color = "#EF4444";
+    else if (percentage < 80) color = "#F59E0B";
+
+    return { ...item, percentage, color };
+  });
+
+  const chartConfig: ChartConfig = {
+    percentage: { label: "% Assigned" },
+  };
 
   return (
-    <Card className="border-gray-200 shadow-sm bg-white">
+    <Card className="bg-white">
       <CardHeader>
-        <CardTitle className="text-lg font-semibold text-slate-900">
-          Class Project Topic Allocation
-        </CardTitle>
-
-        <p className="text-md text-slate-500 mt-2">
-          Displays the percentage of student project groups in each class that
-          have selected a topic.
-        </p>
-
-        <div className="flex items-center gap-4 mt-1 text-xs text-slate-600">
-          <div className="flex items-center gap-1">
-            <span className="inline-block w-3 h-3 rounded-full bg-[#FF6B00]" />
-            <span>Topic Assigned</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <span className="inline-block w-3 h-3 rounded-full bg-slate-300" />
-            <span>Awaiting Assignment</span>
-          </div>
-        </div>
+        <CardTitle>Class Topic Selection Progress</CardTitle>
       </CardHeader>
 
-      <CardContent className="space-y-4">
-        {chartData.length === 0 && (
-          <p className="text-sm text-slate-500 text-center py-6">
-            No class engagement data available.
-          </p>
-        )}
-
-        {chartData.map((item) => (
-          <div key={item.classCode} className="space-y-1">
-            <div className="flex justify-between text-sm font-medium text-slate-700">
-              <span>{item.classCode}</span>
-              <span>
-                {item.selected}/{item.total} groups ({item.percentage}%)
-              </span>
-            </div>
-
-            <Progress
-              value={item.percentage}
-              className="h-2 rounded-full bg-slate-200 [&>[data-progress=indicator]]:bg-[#FF6B00]"
-              style={{ "--progress-bar": "#FF6B00" } as CSSProperties}
+      <CardContent>
+        <ChartContainer config={chartConfig} className="h-72 w-full">
+          <BarChart data={chartData} layout="vertical" margin={{ left: 16 }}>
+            <XAxis type="number" domain={[0, 100]} hide />
+            <YAxis
+              dataKey="classCode"
+              type="category"
+              tickLine={false}
+              axisLine={false}
             />
-          </div>
-        ))}
+            <ChartTooltip
+              content={
+                <ChartTooltipContent
+                  formatter={(value) => `${value}%`}
+                  hideLabel
+                />
+              }
+            />
+
+            <Bar
+              dataKey="percentage"
+              radius={6}
+              onClick={(entry) =>
+                setModalData({
+                  classCode: entry.classCode,
+                  groups: entry.groups,
+                })
+              }
+              className="cursor-pointer"
+            >
+              {chartData.map((item, idx) => (
+                <Cell key={idx} fill={item.color} />
+              ))}
+            </Bar>
+          </BarChart>
+        </ChartContainer>
       </CardContent>
+
+      <ClassEngagementModal
+        open={modalData.classCode !== null}
+        onClose={() => setModalData({ classCode: null, groups: [] })}
+        classCode={modalData.classCode}
+        groups={modalData.groups}
+      />
     </Card>
   );
 }
