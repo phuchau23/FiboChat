@@ -60,7 +60,7 @@ export function DomainTable({ onEdit, onDelete }: DomainTableProps) {
     },
     {
       key: "createdAt",
-      label: "Created At",
+      label: "Created",
       sortable: true,
       render: (value: string) =>
         new Date(value).toLocaleDateString("vi-VN", {

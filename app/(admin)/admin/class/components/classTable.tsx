@@ -61,7 +61,12 @@ export function ClassTable({ onEdit, onDelete, onView }: ClassTableProps) {
     {
       key: "createdAt",
       label: "Created At",
-      render: (value) => new Date(value).toLocaleDateString("vi-VN"),
+      render: (value) =>
+        new Date(value).toLocaleDateString("vi-VN", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        }),
       sortable: true,
     },
   ];

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
@@ -30,6 +30,7 @@ export function AdminSidebar() {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const router = useRouter();
 
   return (
     <>
@@ -54,20 +55,23 @@ export function AdminSidebar() {
         className={cn(
           "group relative bg-gray-50 border-r border-sidebar-border h-screen sticky top-0 transition-all duration-300",
           "hidden md:block",
-          collapsed ? "w-20" : "w-64"
+          collapsed ? "w-28" : "w-64"
         )}
       >
         {/* Logo */}
-        <div className="flex items-center gap-2 p-6 border-b border-gray-200 transition-all">
+        <div
+          className="flex items-center p-6 border-b border-gray-200 transition-all cursor-pointer"
+          onClick={() => router.push("/")}
+        >
           <Image
             src="/logo_header.png"
             alt="Fibo Edu Logo"
-            width={40}
-            height={40}
-            className="h-10 w-10 object-contain shrink-0"
+            width={50}
+            height={50}
+            className="h-12 w-12 object-contain shrink-0"
           />
           {!collapsed && (
-            <div className="text-2xl font-bold ml-2 whitespace-nowrap">
+            <div className="text-2xl font-bold whitespace-nowrap">
               <span className="text-black">Fibo</span>{" "}
               <span className="text-orange-500">Edu</span>
             </div>

@@ -10,7 +10,6 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -134,20 +133,12 @@ export function AddStudentModal({
               {filteredStudents.map((student) => (
                 <label
                   key={student.id}
-                  className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted cursor-pointer"
+                  className="flex items-center gap-4 p-3 rounded-lg border hover:bg-muted cursor-pointer"
                 >
                   <Checkbox
                     checked={selectedStudents.includes(student.id)}
                     onCheckedChange={() => toggleSelect(student.id)}
                   />
-
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage src={"/placeholder.svg"} />
-                    <AvatarFallback>
-                      {student.firstname.charAt(0)}
-                    </AvatarFallback>
-                  </Avatar>
-
                   <div>
                     <p className="font-medium text-sm">
                       {student.firstname} {student.lastname} -{" "}
