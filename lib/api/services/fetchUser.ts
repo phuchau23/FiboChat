@@ -94,6 +94,13 @@ export interface UpdateProfileResponse {
     message: string;
   };
 }
+
+export interface ImportUserResponse {
+  importJobId: string;
+  message: string;
+}
+
+
 export const fetchUser = {
   getAllUsers: async (page = 1, pageSize = 10): Promise<UserApiResponse> => {
     const response = await apiService.get<UserApiResponse>("/auth/api/users", { page, pageSize });
@@ -131,6 +138,18 @@ export const fetchUser = {
     if (payload.AvatarFile) formData.append("AvatarFile", payload.AvatarFile);
 
     const response = await apiService.put<UpdateProfileResponse>("/auth/api/users/update-profile", formData);
+
+    return response.data;
+  },
+
+ importUsers: async (file: File): Promise<ImportUserResponse> => {
+    const formData = new FormData();
+    formData.append("file", file); //key
+
+    const response = await apiService.post<ImportUserResponse>(
+      "/auth/api/import/users-register",
+      formData
+    );
 
     return response.data;
   },

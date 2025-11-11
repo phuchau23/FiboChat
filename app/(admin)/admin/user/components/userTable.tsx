@@ -53,7 +53,7 @@ export function UserTable({ onDelete }: UserTableProps) {
     {
       key: "createdAt",
       label: "Created At",
-      render: (value) => format(new Date(value), "dd/MM/yyyy - HH:mm"),
+      render: (value) => format(new Date(value), "dd/MM/yyyy"),
       sortable: true,
     },
   ];
