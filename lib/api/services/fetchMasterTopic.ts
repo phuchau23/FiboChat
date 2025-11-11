@@ -82,6 +82,13 @@ export interface DeleteMasterTopicResponse {
   data: MasterTopic;
 }
 
+export interface MasterTopicDetailApiResponse {
+  statusCode: number;
+  code: string;
+  message: string;
+  data: MasterTopic;
+}
+
 export const fetchMasterTopic = {
  
   getAllMasterTopics: async (
@@ -95,11 +102,11 @@ export const fetchMasterTopic = {
     return response.data;
   },
 
-  getMasterTopicById: async (id: string) => {
-    const response = await apiService.get<{ data: MasterTopic }>(
+  getMasterTopicById: async (id: string): Promise<MasterTopic> => {
+    const response = await apiService.get<MasterTopicDetailApiResponse>(
       `course/api/master-topics/${id}`
     );
-    return response.data;
+    return response.data.data;
   },
 
   createMasterTopic: async (

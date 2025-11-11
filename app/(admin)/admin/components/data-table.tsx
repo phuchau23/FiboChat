@@ -28,6 +28,7 @@ export interface Column<T> {
   render?: (value: any, row: T) => React.ReactNode;
   sortable?: boolean;
   searchable?: boolean;
+  sortFn?: (a: T, b: T, direction: "asc" | "desc") => number;
 }
 
 interface DataTableProps<T> {
@@ -64,33 +65,54 @@ export function DataTable<T extends { [key: string]: any }>({
       result = result.filter((row) => {
         return columns.some((col) => {
           if (!col.searchable) return false;
-          const value = String(row[col.key]).toLowerCase();
-          return value.includes(lowerSearchTerm);
+          const rawValue = row[col.key];
+
+          let stringValue = "";
+
+          if (rawValue == null) {
+            stringValue = "";
+          } else if (typeof rawValue === "object") {
+            stringValue =
+              rawValue.fullName ??
+              rawValue.name ??
+              rawValue.title ??
+              JSON.stringify(rawValue);
+          } else {
+            stringValue = String(rawValue);
+          }
+
+          return stringValue.toLowerCase().includes(lowerSearchTerm);
         });
       });
     }
 
     // Apply sorting
     if (sortKey && sortDirection) {
+      const col = columns.find((c) => c.key === sortKey);
+
       result.sort((a, b) => {
+        if (col?.sortFn) return col.sortFn(a, b, sortDirection);
+
         const aValue = a[sortKey];
         const bValue = b[sortKey];
 
         if (aValue === bValue) return 0;
-        if (aValue === null || aValue === undefined) return 1;
-        if (bValue === null || bValue === undefined) return -1;
+        if (aValue == null) return 1;
+        if (bValue == null) return -1;
 
-        if (typeof aValue === "string" && typeof bValue === "string") {
+        if (typeof aValue === "boolean" && typeof bValue === "boolean") {
           return sortDirection === "asc"
-            ? aValue.localeCompare(bValue)
-            : bValue.localeCompare(aValue);
+            ? Number(aValue) - Number(bValue)
+            : Number(bValue) - Number(aValue);
         }
 
         if (typeof aValue === "number" && typeof bValue === "number") {
           return sortDirection === "asc" ? aValue - bValue : bValue - aValue;
         }
 
-        return 0;
+        return sortDirection === "asc"
+          ? String(aValue).localeCompare(String(bValue))
+          : String(bValue).localeCompare(String(aValue));
       });
     }
 
@@ -124,13 +146,20 @@ export function DataTable<T extends { [key: string]: any }>({
 
     // Nếu là ISO date → format dd/mm/yyyy
     if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}T/.test(value)) {
-      const date = new Date(value);
-      if (!isNaN(date.getTime())) {
-        const day = String(date.getDate()).padStart(2, "0");
-        const month = String(date.getMonth() + 1).padStart(2, "0");
-        const year = date.getFullYear();
-        return `${day}/${month}/${year}`;
-      }
+      const d = new Date(value);
+      return (
+        d.toLocaleDateString("vi-VN", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        }) +
+        " " +
+        d.toLocaleTimeString("vi-VN", {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false,
+        })
+      );
     }
 
     return String(value);
@@ -147,7 +176,7 @@ export function DataTable<T extends { [key: string]: any }>({
         />
       </div>
 
-      <div className="border rounded-lg overflow-hidden">
+      <div className="border shadow-sm rounded-lg overflow-hidden bg-white">
         <Table>
           <TableHeader>
             <TableRow>
@@ -168,7 +197,7 @@ export function DataTable<T extends { [key: string]: any }>({
                   )}
                 </TableHead>
               ))}
-              {(onEdit || onDelete) && <TableHead>Actions</TableHead>}
+              {(onView || onEdit || onDelete) && <TableHead>Actions</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>

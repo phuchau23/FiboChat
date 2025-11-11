@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import {
@@ -14,6 +13,7 @@ import { useDeleteUser } from "@/hooks/useUser";
 import { useToast } from "@/hooks/use-toast";
 import type { User } from "@/lib/api/services/fetchUser";
 import { useState } from "react";
+import { getErrorMessage } from "@/utils/error";
 
 interface UserDeleteDialogProps {
   open: boolean;
@@ -37,24 +37,22 @@ export function UserDeleteDialog({
       const res = await deleteUser.mutateAsync(selectedUser.id);
 
       toast({
-        title: "Student deleted",
+        title: "Success notification!",
         description: res?.message || "Student deleted successfully.",
       });
 
       onOpenChange(false);
-    } catch (error: any) {
-      const message =
-        error?.response?.data?.message ||
-        error?.message ||
-        "Failed to delete student.";
+    } catch (error) {
+      const message = getErrorMessage(
+        error,
+        "Failed to delete student. Please try again."
+      );
 
       toast({
         title: "Oops! Something went wrong",
         description: message,
         variant: "destructive",
       });
-
-      console.error("Delete user error:", error);
     } finally {
       setLoading(false);
     }

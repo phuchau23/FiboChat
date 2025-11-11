@@ -55,6 +55,7 @@ export interface DeleteUserResponse {
   message: string;
 }
 export interface UserProfile {
+  id: string;
   firstname: string;
   lastname: string;
   email: string;
@@ -64,6 +65,7 @@ export interface UserProfile {
   address: string;
   dateOfBirth: string;
   avatarUrl?: string;
+  classId?: string;
 }
 
 export interface UserProfileResponse {
@@ -96,6 +98,11 @@ export const fetchUser = {
   getAllUsers: async (page = 1, pageSize = 10): Promise<UserApiResponse> => {
     const response = await apiService.get<UserApiResponse>("/auth/api/users", { page, pageSize });
     return response.data;
+  },
+
+  getAllUsersNoPagination: async (): Promise<User[]> => {
+    const response = await apiService.get<UserApiResponse>("/auth/api/users");
+    return response.data.data.items;
   },
 
   createUser: async (formData: FormData): Promise<RegisterUserResponse> => {

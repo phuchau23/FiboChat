@@ -55,7 +55,7 @@ export default function ClassPage() {
   }
 
   return (
-    <section className="bg-white rounded-3xl p-8 shadow-xl border border-orange-100">
+    <section>
       {/* Header */}
       <div className="flex justify-between items-center mb-8 flex-wrap gap-3">
         <h2 className="text-3xl font-bold text-orange-500 flex items-center gap-2">

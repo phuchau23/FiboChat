@@ -22,6 +22,24 @@ export function useTopics(page = 1, pageSize = 10) {
   };
 }
 
+export function useAllTopics() {
+  const { data, isError, isLoading, error } = useQuery({
+    queryKey: ["allTopics"],
+    queryFn: () => fetchTopic.getAllTopicsAllPages(),
+    staleTime: 15 * 60 * 1000, // 15 phút không fetch lại
+    refetchOnWindowFocus: false, // không refetch mỗi lần người dùng alt-tab
+  });
+
+  return {
+    topics: data ?? [],
+    isLoading,
+    isError,
+    error,
+  };
+}
+
+
+
 export function useTopicById(id?: string) {
   const { data, isError, isLoading, error } = useQuery({
     queryKey: ["topic", id],
@@ -68,4 +86,43 @@ export function useDeleteTopic() {
       queryClient.invalidateQueries({ queryKey: ["topics"] });
     },
   });
+}
+export function useTopicsByLecturer(lecturerId?: string, page = 1, pageSize = 10) {
+  const { data, isError, isLoading, error } = useQuery({
+    queryKey: ["topicsByLecturer", lecturerId, page, pageSize],
+    queryFn: () => (lecturerId ? fetchTopic.getTopicsByLecturer(lecturerId, page, pageSize) : Promise.reject()),
+    enabled: !!lecturerId,
+    select: (data: TopicApiResponse) => ({
+      topics: data.data.items,
+      pagination: data.data,
+      statusCode: data.statusCode,
+      message: data.message,
+    }),
+  });
+
+  return {
+    isError,
+    isLoading,
+    error,
+    data,
+    topics: data?.topics,
+    pagination: data?.pagination,
+  };
+}
+
+// Lấy tất cả chủ đề theo giảng viên (không phân trang)
+export function useAllTopicsByLecturer(lecturerId?: string) {
+  const { data, isError, isLoading, error } = useQuery({
+    queryKey: ["allTopicsByLecturer", lecturerId],
+    queryFn: () => (lecturerId ? fetchTopic.getAllTopicsByLecturer(lecturerId) : Promise.reject()),
+    enabled: !!lecturerId,
+    select: (data: TopicApiResponse) => data.data.items,
+  });
+
+  return {
+    isError,
+    isLoading,
+    error,
+    topics: data,
+  };
 }

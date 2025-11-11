@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ClassApiResponse, ClassStudentsResponse, fetchClass, StudentsWithoutClassResponse } from "../lib/api/services/fetchClass";
+import { Class, ClassApiResponse, ClassStudentsResponse, fetchClass, StudentsWithoutClassResponse } from "../lib/api/services/fetchClass";
 export default function useClasses(page = 1, pageSize = 10) {
   const { isError, isLoading, error, data } = useQuery({
     queryKey: ["classes", page, pageSize],
@@ -18,6 +18,23 @@ export default function useClasses(page = 1, pageSize = 10) {
     data,
     classes: data?.classes,
     pagination: data?.pagination,
+  };
+}
+
+export function useAllClasses() {
+  const { data, isLoading, isError, error } = useQuery<Class[]>({
+    queryKey: ["allClassesNoPaging"],
+    queryFn: () => fetchClass.getAllClassesNoPagination(),
+    staleTime: 5 * 60 * 1000, // cache 5 phút
+    retry: 1,
+  });
+
+  return {
+    data,
+    isLoading,
+    isError,
+    error,
+    classes: data ?? [],
   };
 }
 

@@ -22,7 +22,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "../../../../components/ui/textarea";
-import { cn } from "@/lib/utils";
+import { MultiSelect } from "@/components/ui/multi-select";
 
 export interface FormField {
   name: string;
@@ -35,7 +35,7 @@ export interface FormField {
     | "email"
     | "password"
     | "date"
-    | "multiselect"; //
+    | "multiselect"; 
   required?: boolean;
   options?: { value: string; label: string }[];
   placeholder?: string;
@@ -52,20 +52,6 @@ interface FormModalProps {
   error?: string;
 }
 
-function formatDateToDDMMYYYY(dateString?: string) {
-  if (!dateString) return "";
-  const date = new Date(dateString);
-  const day = String(date.getDate()).padStart(2, "0");
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const year = date.getFullYear();
-  return `${day}/${month}/${year}`;
-}
-
-function parseDateFromDDMMYYYY(dateStr: string) {
-  const [day, month, year] = dateStr.split("/");
-  return `${year}-${month}-${day}`; // return dạng yyyy-mm-dd
-}
-
 export function FormModal({
   open,
   title,
@@ -73,7 +59,6 @@ export function FormModal({
   initialData,
   onSubmit,
   onOpenChange,
-  loading,
 }: FormModalProps) {
   const [formData, setFormData] = useState<Record<string, any>>({});
 
@@ -122,34 +107,27 @@ export function FormModal({
                   </SelectTrigger>
                   <SelectContent
                     position="popper"
-                    className="bg-white shadow-md border-2 border-gray-200"
+                    className="z-[9999] bg-white border shadow-md rounded-md"
                   >
                     {field.options?.map((opt) => (
-                      <SelectItem
-                        key={opt.value}
-                        value={opt.value}
-                        className={cn(
-                          "cursor-pointer rounded-md px-2 py-1.5 transition-colors",
-                          "hover:not(:focus-visible):bg-gray-100 hover:not(:focus-visible):text-gray-900",
-                          "focus-visible:bg-gray-100 focus-visible:text-gray-900 focus-visible:outline-none"
-                        )}
-                      >
+                      <SelectItem key={opt.value} value={opt.value}>
                         {opt.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
+              ) : field.type === "multiselect" ? (
+                <MultiSelect
+                  value={formData[field.name] ?? []}
+                  onChange={(newVal) => handleChange(field.name, newVal)}
+                  options={field.options ?? []}
+                  placeholder={field.placeholder}
+                />
               ) : (
                 <Input
                   id={field.name}
                   type={field.type}
-                  value={
-                    field.type === "date" && formData[field.name]
-                      ? new Date(formData[field.name])
-                          .toISOString()
-                          .split("T")[0]
-                      : formData[field.name] || ""
-                  }
+                  value={formData[field.name] || ""}
                   onChange={(e) => handleChange(field.name, e.target.value)}
                   required={field.required}
                 />

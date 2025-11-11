@@ -21,9 +21,10 @@ import {
 interface TopicTableProps {
   onEdit: (topic: Topic) => void;
   onDelete: (topic: Topic) => void;
+  onView: (topic: Topic) => void;
 }
 
-export function TopicTable({ onEdit, onDelete }: TopicTableProps) {
+export function TopicTable({ onEdit, onDelete, onView }: TopicTableProps) {
   const [page, setPage] = useState(1);
   const { topics, pagination, isLoading, isError } = useTopics(page, 10);
   const queryClient = useQueryClient();
@@ -31,7 +32,14 @@ export function TopicTable({ onEdit, onDelete }: TopicTableProps) {
   const columns: Column<Topic>[] = [
     {
       key: "name",
-      label: "Topic Name",
+      label: "Name",
+      searchable: true,
+      sortable: true,
+    },
+    {
+      key: "masterTopic",
+      label: "Master Topic",
+      render: (masterTopic) => masterTopic.name,
       searchable: true,
       sortable: true,
     },
@@ -58,9 +66,18 @@ export function TopicTable({ onEdit, onDelete }: TopicTableProps) {
     },
     {
       key: "createdAt",
-      label: "Created At",
+      label: "Created",
       sortable: true,
-      render: (value) => new Date(value).toLocaleString(),
+      render: (value) => {
+        const d = new Date(value);
+
+        const date = d.toLocaleDateString("vi-VN", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        });
+        return `${date}`;
+      },
     },
   ];
 
@@ -86,6 +103,7 @@ export function TopicTable({ onEdit, onDelete }: TopicTableProps) {
       <DataTable
         columns={columns}
         data={topics || []}
+        onView={onView}
         onEdit={(topic) => {
           onEdit(topic);
           queryClient.invalidateQueries({ queryKey: ["topics"] });

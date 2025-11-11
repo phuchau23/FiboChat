@@ -20,7 +20,11 @@ import useLecturers from "@/hooks/useLecturer";
 import { useSemesters } from "@/hooks/useSemester";
 
 import type { Domain } from "@/lib/api/services/fetchDomain";
-import type { MasterTopic } from "@/lib/api/services/fetchMasterTopic";
+import type {
+  Lecturer,
+  MasterTopic,
+} from "@/lib/api/services/fetchMasterTopic";
+import { getErrorMessage } from "@/utils/error";
 
 interface TopicFormModalProps {
   open: boolean;
@@ -51,6 +55,7 @@ export function TopicFormModal({
   const updateTopic = useUpdateTopic();
 
   const [loading, setLoading] = useState(false);
+  const getAction = () => (selectedItem ? "Update" : "Add");
 
   const domainOptions = useMemo(
     () => (domains ?? []).map((d: Domain) => ({ value: d.id, label: d.name })),
@@ -108,18 +113,18 @@ export function TopicFormModal({
       placeholder: "Select",
     },
     {
-      name: "LecturerId",
-      label: "Lecturers",
-      type: "select",
-      required: true,
-      options: lecturerOptions,
-      placeholder: "Select",
-    },
-    {
       name: "Description",
       label: "Description",
       type: "textarea",
       placeholder: "Enter description",
+    },
+    {
+      name: "LecturerIds",
+      label: "Assigned Lecturers",
+      type: "multiselect",
+      required: true,
+      options: lecturerOptions,
+      placeholder: "Select",
     },
   ];
 
@@ -175,7 +180,10 @@ export function TopicFormModal({
         Description: selectedItem.description,
         DomainId: selectedItem.domain?.id,
         SemesterId: selectedItem.semester?.id,
-        LecturerId: selectedItem.lecturers?.[0]?.lecturerId,
+        LecturerIds:
+          (selectedItem.lecturers as Lecturer[] | undefined)?.map(
+            (l) => l.lecturerId
+          ) ?? [],
       };
     }
 
@@ -224,13 +232,24 @@ export function TopicFormModal({
       }
 
       toast({
-        description: `${getTitle()} successfully.`,
+        title: `${getAction()}`,
+        description: `${getAction()}d ${
+          activeTab === "domains"
+            ? "Domain"
+            : activeTab === "master-topics"
+            ? "Master Topic"
+            : "Topic"
+        } successfully.`,
       });
       onOpenChange(false);
-    } catch (error: any) {
+    } catch (error) {
+      const message = getErrorMessage(
+        error,
+        "Failed to save data. Please try again."
+      );
       toast({
         title: "Error",
-        description: error?.message || "Failed to save data.",
+        description: message,
         variant: "destructive",
       });
     } finally {

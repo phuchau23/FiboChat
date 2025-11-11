@@ -32,8 +32,28 @@ export function SemesterTable({ onEdit, onDelete }: SemesterTableProps) {
     { key: "code", label: "Code", searchable: true, sortable: true },
     { key: "term", label: "Term", searchable: true, sortable: true },
     { key: "year", label: "Year", searchable: true, sortable: true },
-    { key: "startDate", label: "Start Date", sortable: true },
-    { key: "endDate", label: "End Date", sortable: true },
+    {
+      key: "startDate",
+      label: "Start Date",
+      sortable: true,
+      render: (value) =>
+        new Date(value).toLocaleDateString("vi-VN", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        }),
+    },
+    {
+      key: "endDate",
+      label: "End Date",
+      sortable: true,
+      render: (value) =>
+        new Date(value).toLocaleDateString("vi-VN", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        }),
+    },
     {
       key: "status",
       label: "Status",

@@ -23,11 +23,17 @@ export default function AddMemberPage() {
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
   const addMembersMutation = useAddMembersToGroup(classId as string);
 
-  const { studentsData, isLoading, isError } = useStudentsWithoutGroup(classId as string);
+  const { studentsData, isLoading, isError } = useStudentsWithoutGroup(
+    classId as string
+  );
   const students = (studentsData?.[0]?.students as Student[]) || [];
 
   const handleCheckboxChange = (userId: string) => {
-    setSelectedUserIds((prev) => (prev.includes(userId) ? prev.filter((id) => id !== userId) : [...prev, userId]));
+    setSelectedUserIds((prev) =>
+      prev.includes(userId)
+        ? prev.filter((id) => id !== userId)
+        : [...prev, userId]
+    );
   };
 
   const handleAddMembers = async () => {
@@ -55,15 +61,28 @@ export default function AddMemberPage() {
     } catch (err: unknown) {
       toast({
         title: " Lỗi thêm thành viên",
-        description: err instanceof Error ? err.message : "Không thể thêm sinh viên vào nhóm.",
+        description:
+          err instanceof Error
+            ? err.message
+            : "Không thể thêm sinh viên vào nhóm.",
         variant: "destructive",
       });
     }
   };
 
-  if (isLoading) return <div className="text-center text-orange-500 py-10">Đang tải danh sách sinh viên...</div>;
+  if (isLoading)
+    return (
+      <div className="text-center text-orange-500 py-10">
+        Đang tải danh sách sinh viên...
+      </div>
+    );
 
-  if (isError) return <div className="text-center text-red-500 py-10">Không thể tải danh sách sinh viên.</div>;
+  if (isError)
+    return (
+      <div className="text-center text-red-500 py-10">
+        Không thể tải danh sách sinh viên.
+      </div>
+    );
 
   return (
     <section className="bg-white rounded-3xl p-8 shadow-xl border border-orange-100">
@@ -82,10 +101,16 @@ export default function AddMemberPage() {
 
         <div className="ml-auto hidden sm:flex items-center gap-3">
           <div className="text-sm text-gray-500">
-            Available: <span className="font-medium text-orange-600">{students.length}</span>
+            Available:{" "}
+            <span className="font-medium text-orange-600">
+              {students.length}
+            </span>
           </div>
           <div className="text-sm text-gray-500">
-            Selected: <span className="font-medium text-orange-600">{selectedUserIds.length}</span>
+            Selected:{" "}
+            <span className="font-medium text-orange-600">
+              {selectedUserIds.length}
+            </span>
           </div>
         </div>
       </div>
@@ -104,7 +129,9 @@ export default function AddMemberPage() {
                 key={s.id}
                 className={`flex items-center gap-4 p-4 rounded-2xl border transition cursor-pointer
                   ${
-                    checked ? "bg-orange-50 border-orange-200 shadow-sm" : "bg-white border-orange-100 hover:shadow-sm"
+                    checked
+                      ? "bg-orange-50 border-orange-200 shadow-sm"
+                      : "bg-white border-orange-100 hover:shadow-sm"
                   }`}
               >
                 {/* Checkbox */}
@@ -120,7 +147,9 @@ export default function AddMemberPage() {
                   <div className="flex items-center gap-3">
                     <div
                       className="w-12 h-12 rounded-full flex items-center justify-center text-white font-semibold"
-                      style={{ background: "linear-gradient(135deg,#ffb86b,#ff7a00)" }}
+                      style={{
+                        background: "linear-gradient(135deg,#ffb86b,#ff7a00)",
+                      }}
                       aria-hidden
                     >
                       {s.firstName?.[0] || "U"}
@@ -131,24 +160,32 @@ export default function AddMemberPage() {
                       <div className="text-sm font-semibold text-orange-700 truncate">
                         {s.lastName} {s.firstName}
                       </div>
-                      <div className="text-xs text-gray-500 truncate">ID: {s.studentId}</div>
+                      <div className="text-xs text-gray-500 truncate">
+                        ID: {s.studentId}
+                      </div>
                     </div>
                   </div>
 
-                  <div className="mt-2 text-xs text-gray-600 truncate">{s.email}</div>
+                  <div className="mt-2 text-xs text-gray-600 truncate">
+                    {s.email}
+                  </div>
                 </div>
 
                 {/* Right actions / meta */}
                 <div className="flex flex-col items-end gap-2">
                   <div
                     className={`text-xs px-2 py-1 rounded-full ${
-                      s.status === "Active" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"
+                      s.status === "Active"
+                        ? "bg-green-100 text-green-700"
+                        : "bg-gray-100 text-gray-600"
                     }`}
                   >
                     {s.status ?? "Unknown"}
                   </div>
 
-                  <div className="text-xs text-gray-400">{/* empty slot for future meta */}</div>
+                  <div className="text-xs text-gray-400">
+                    {/* empty slot for future meta */}
+                  </div>
                 </div>
               </label>
             );
@@ -179,14 +216,19 @@ export default function AddMemberPage() {
 
         <div className="flex items-center gap-3">
           <div className="text-sm text-gray-500 hidden sm:block">
-            Selected: <span className="font-medium text-orange-600">{selectedUserIds.length}</span>
+            Selected:{" "}
+            <span className="font-medium text-orange-600">
+              {selectedUserIds.length}
+            </span>
           </div>
           <button
             onClick={handleAddMembers}
             disabled={addMembersMutation.isPending}
             className="bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600 transition disabled:opacity-60"
           >
-            {addMembersMutation.isPending ? "Adding..." : "Add Selected Members"}
+            {addMembersMutation.isPending
+              ? "Adding..."
+              : "Add Selected Members"}
           </button>
         </div>
       </div>

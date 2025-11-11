@@ -18,17 +18,23 @@ provider.setCustomParameters({
 
 export const signInWithGoogle = async () => {
   try {
-    // ✅ tránh tự login acc cũ
-    await signOut(auth);
-
     const result = await signInWithPopup(auth, provider);
     return await extract(result);
+
   } catch (error: any) {
-    // ✅ fallback nếu popup bị chặn
+
+    // User tự đóng popup → không coi là lỗi → trả về null
+    if (error.code === "auth/popup-closed-by-user") {
+      return null;
+    }
+
+    //  Popup bị chặn (Safari, iOS, cài extension...) → redirect fallback
     if (error.code === "auth/popup-blocked") {
       await signInWithRedirect(auth, provider);
       return null;
     }
+
+    // Lỗi thật → throw để xử lý ở tầng trên
     throw error;
   }
 };
