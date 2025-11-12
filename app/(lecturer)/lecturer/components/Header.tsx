@@ -37,12 +37,6 @@ export default function Header() {
   return (
     <header className="border-b border-border bg-background">
       <div className="flex items-center justify-end px-8 py-4 gap-2 md:gap-3">
-        {/* Notification Bell */}
-        <Button variant="ghost" size="icon" onClick={handleBellClick} className="w-9 h-9 relative">
-          <Bell className="w-5 h-5" />
-          <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
-          <span className="sr-only">Notifications</span>
-        </Button>
         <GlareHover
           width="auto"
           height="auto"
@@ -81,29 +75,6 @@ export default function Header() {
                 <span className="text-xs text-gray-500">{user.email}</span>
               </div>
             </div>
-
-            <DropdownMenuSeparator />
-
-            <DropdownMenuItem
-              onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-              className="cursor-pointer flex items-center gap-2 py-2 text-gray-700 hover:bg-gray-200 rounded-md transition"
-            >
-              {theme === "light" ? (
-                <>
-                  <Moon className="w-4 h-4" /> Dark Mode
-                </>
-              ) : (
-                <>
-                  <Sun className="w-4 h-4" /> Light Mode
-                </>
-              )}
-            </DropdownMenuItem>
-
-            <DropdownMenuItem className="cursor-pointer flex items-center gap-2 py-2 text-gray-700 hover:bg-gray-200 rounded-md transition">
-              <Globe className="w-4 h-4" /> Language
-            </DropdownMenuItem>
-
-            <DropdownMenuSeparator />
 
             <DropdownMenuItem
               onClick={handleLogoutClick}
