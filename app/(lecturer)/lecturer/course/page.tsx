@@ -7,6 +7,8 @@ import {
   useDeleteDocument,
   useDocumentsAll,
   useDocumentsByLecturer,
+  usePublishDocument,
+  useUnpublishDocument,
   useUpdateDocument,
   useUploadDocument,
 } from "@/hooks/useDocuments";
@@ -25,6 +27,19 @@ import { useCreateDocumentType } from "@/hooks/useDocumentTypes";
 import { Plus } from "lucide-react";
 type TabType = "documents" | "qa";
 type ViewMode = "my" | "all";
+export interface DocumentItem {
+  id: string;
+  title: string;
+  topic: {
+    id: string;
+    name: string;
+  };
+  documentType: {
+    id: string;
+    name: string;
+  };
+  fileUrl?: string;
+}
 
 export default function LecturerDocumentAndQAPage() {
   const [lecturerId, setLecturerId] = useState<string | undefined>(undefined);
@@ -40,7 +55,8 @@ export default function LecturerDocumentAndQAPage() {
   // === fetch dữ liệu động ===
   const { topics: lecturerTopics, isLoading: loadingTopics } = useTopicsByLecturer(lecturerId);
   const { data: documentTypeData, isLoading: loadingDocTypes } = useDocumentTypes(1, 50);
-
+  const publishDocument = usePublishDocument();
+  const unpublishDocument = useUnpublishDocument();
   // === Document States ===
   const [docPage, setDocPage] = useState(1);
   const docPageSize = 10;
@@ -57,6 +73,10 @@ export default function LecturerDocumentAndQAPage() {
   const [uploadTitle, setUploadTitle] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [editingDocId, setEditingDocId] = useState<string | null>(null);
+  const [editingTopicId, setEditingTopicId] = useState("");
+  const [editingDocTypeId, setEditingDocTypeId] = useState("");
+  const [editingFile, setEditingFile] = useState<File | null>(null);
+
   const [editingTitle, setEditingTitle] = useState("");
   // === API Hooks ===
   const { data: allDocs, isLoading: loadingAllDocs } = useDocumentsAll(docPage, docPageSize);
@@ -132,8 +152,19 @@ export default function LecturerDocumentAndQAPage() {
     }
   }, [activeTab]);
   useEffect(() => {
-    setQAList((qaData?.qaPairs || []).filter((qa) => qa.status !== "Inactive"));
-  }, [qaData]);
+    const filtered = (qaData?.qaPairs || []).filter((qa) => qa.status !== "Inactive");
+    const start = (qaPage - 1) * qaPageSize;
+    const end = qaPage * qaPageSize;
+    setQAList(filtered.slice(start, end));
+  }, [qaData, qaPage]);
+  useEffect(() => {
+    setQAPage(1);
+  }, [qaTopicId, qaDocumentId, qaKeyword]);
+
+  useEffect(() => {
+    setDocPage(1);
+  }, [viewMode]);
+
   // === Upload Handler ===
   const handleFileSelect = (file: File) => {
     if (!file) return;
@@ -193,9 +224,12 @@ export default function LecturerDocumentAndQAPage() {
       },
     });
   };
-  const documents = (viewMode === "my" ? myDocs?.documents || [] : allDocs?.documents || []).filter(
+  const allDocuments = (viewMode === "my" ? myDocs?.documents || [] : allDocs?.documents || []).filter(
     (doc) => doc.status !== "Inactive"
   );
+
+  const documents = allDocuments.slice((docPage - 1) * docPageSize, docPage * docPageSize);
+
   const updateDocument = useUpdateDocument();
   const deleteDocument = useDeleteDocument();
 
@@ -227,38 +261,46 @@ export default function LecturerDocumentAndQAPage() {
       ),
     });
   };
-  const startEditDocument = (doc: { id: string; title: string }) => {
+  const startEditDocument = (doc: DocumentItem) => {
     setEditingDocId(doc.id);
     setEditingTitle(doc.title);
+    setEditingTopicId(doc.topic.id);
+    setEditingDocTypeId(doc.documentType.id);
+    setEditingFile(null);
   };
-
+  useEffect(() => {
+    setDocPage(1);
+  }, [viewMode]);
   const cancelEditDocument = () => {
     setEditingDocId(null);
     setEditingTitle("");
   };
   const submitEditDocument = (id: string) => {
-    if (!editingTitle.trim()) return;
-
     updateDocument.mutate(
-      { id, data: { Title: editingTitle } },
+      {
+        id,
+        data: {
+          Title: editingTitle,
+          TopicId: editingTopicId,
+          DocumentTypeId: editingDocTypeId,
+          File: editingFile || undefined,
+        },
+      },
       {
         onSuccess: () => {
-          toast({
-            title: "Updated successfully",
-            description: "Document title updated",
-          });
-          setEditingDocId(null);
-          setEditingTitle("");
+          toast({ title: "Cập nhật thành công", description: "Document đã được cập nhật." });
+          setEditingDocId(null); // đóng form edit
+          // Nếu muốn cập nhật UI ngay:
+          if (viewMode === "my" && myDocs?.documents) {
+          }
         },
         onError: () => {
-          toast({
-            title: "Update failed",
-            description: "Cannot update document",
-          });
+          toast({ title: "Cập nhật thất bại", description: "Không thể cập nhật Document." });
         },
       }
     );
   };
+
   const startEditQA = (qa: { id: string; questionText: string; answerText: string }) => {
     setEditingQAId(qa.id);
     setEditingQuestion(qa.questionText);
@@ -474,6 +516,7 @@ export default function LecturerDocumentAndQAPage() {
                 <tr>
                   <th className="px-4 py-3 text-left">#</th>
                   <th className="px-4 py-3 text-left">Title</th>
+                  <th className="px-4 py-3 text-left">Document Type</th>
                   <th className="px-4 py-3 text-left">Topic</th>
                   <th className="px-4 py-3 text-left">Uploader</th>
                   <th className="px-4 py-3 text-left">File</th>
@@ -500,18 +543,50 @@ export default function LecturerDocumentAndQAPage() {
                       <td className="px-4 py-3">{(docPage - 1) * docPageSize + idx + 1}</td>
                       <td className="px-4 py-3 font-medium">
                         {editingDocId === doc.id ? (
-                          <div className="flex gap-2 items-center">
+                          <div className="flex flex-col gap-2">
                             <input
                               type="text"
                               value={editingTitle}
                               onChange={(e) => setEditingTitle(e.target.value)}
                               className="border border-orange-300 rounded px-2 py-1 text-sm"
                             />
+
+                            <select
+                              value={editingTopicId}
+                              onChange={(e) => setEditingTopicId(e.target.value)}
+                              className="border border-orange-300 rounded px-2 py-1 text-sm"
+                            >
+                              {lecturerTopics.map((topic) => (
+                                <option key={topic.id} value={topic.id}>
+                                  {topic.name}
+                                </option>
+                              ))}
+                            </select>
+
+                            <select
+                              value={editingDocTypeId}
+                              onChange={(e) => setEditingDocTypeId(e.target.value)}
+                              className="border border-orange-300 rounded px-2 py-1 text-sm"
+                            >
+                              {documentTypeData?.items?.map((type) => (
+                                <option key={type.id} value={type.id}>
+                                  {type.name}
+                                </option>
+                              ))}
+                            </select>
+
+                            <input
+                              type="file"
+                              accept=".pdf,.doc,.docx,.xls,.xlsx"
+                              onChange={(e) => setEditingFile(e.target.files?.[0] || null)}
+                              className="text-sm"
+                            />
                           </div>
                         ) : (
                           doc.title
                         )}
                       </td>
+                      <td className="px-4 py-3">{doc.documentType?.name || "—"}</td>
 
                       <td className="px-4 py-3">{doc.topic.name}</td>
                       <td className="px-4 py-3">{doc.updatedById === lecturerId ? "You" : "Other"}</td>
@@ -526,13 +601,37 @@ export default function LecturerDocumentAndQAPage() {
                         </a>
                       </td>
                       <td className="px-4 py-3">
-                        <span
+                        <select
+                          value={doc.status}
+                          onChange={(e) => {
+                            const newStatus = e.target.value as "Draft" | "Published";
+                            if (newStatus === "Published") {
+                              publishDocument.mutate(doc.id, {
+                                onSuccess: () => {
+                                  toast({ title: "Published!", description: "Document is now visible to AI." });
+                                },
+                                onError: () => {
+                                  toast({ title: "Failed!", description: "Cannot publish document." });
+                                },
+                              });
+                            } else if (newStatus === "Draft") {
+                              unpublishDocument.mutate(doc.id, {
+                                onSuccess: () => {
+                                  toast({ title: "Unpublished!", description: "Document is now draft." });
+                                },
+                                onError: () => {
+                                  toast({ title: "Failed!", description: "Cannot unpublish document." });
+                                },
+                              });
+                            }
+                          }}
                           className={`px-2 py-1 rounded-full text-xs font-medium ${
                             doc.status === "Draft" ? "bg-yellow-100 text-yellow-700" : "bg-green-100 text-green-700"
                           }`}
                         >
-                          {doc.status}
-                        </span>
+                          <option value="Draft">Draft</option>
+                          <option value="Published">Published</option>
+                        </select>
                       </td>
                       <td className="px-4 py-3 flex gap-2">
                         {editingDocId === doc.id ? (
@@ -581,17 +680,12 @@ export default function LecturerDocumentAndQAPage() {
                 </p>
                 <div className="flex gap-2">
                   <button
-                    onClick={() => setDocPage((p) => Math.max(1, p - 1))}
-                    disabled={!docPagination.hasPreviousPage}
-                    className="px-3 py-1 border rounded text-sm disabled:opacity-50 hover:bg-orange-50"
+                    onClick={() => setDocPage((prev) => Math.max(1, prev - 1))}
+                    disabled={!docPagination?.hasPreviousPage || docPage <= 1}
                   >
                     Previous
                   </button>
-                  <button
-                    onClick={() => setDocPage((p) => p + 1)}
-                    disabled={!docPagination.hasNextPage}
-                    className="px-3 py-1 border rounded text-sm disabled:opacity-50 hover:bg-orange-50"
-                  >
+                  <button onClick={() => setDocPage((prev) => prev + 1)} disabled={!docPagination?.hasNextPage}>
                     Next
                   </button>
                 </div>
@@ -807,29 +901,36 @@ export default function LecturerDocumentAndQAPage() {
         </div>
       )}
       {isDocTypeModalOpen && (
-        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-xl shadow-lg w-full max-w-sm">
-            <h3 className="text-lg font-semibold text-orange-600 mb-4">Create Document Type</h3>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-xl shadow-lg w-full max-w-md">
+            <h3 className="text-lg font-semibold text-orange-600 mb-4">Add New Document Type</h3>
+
             <input
               type="text"
-              placeholder="Enter new type name"
+              placeholder="Document type name"
               value={newDocTypeName}
               onChange={(e) => setNewDocTypeName(e.target.value)}
-              className="border border-orange-300 rounded-lg px-3 py-2 w-full mb-4"
+              className="border border-orange-300 rounded-lg px-3 py-2 w-full mb-4 focus:ring-2 focus:ring-orange-400"
             />
-            <div className="flex justify-end gap-2">
+
+            <div className="flex justify-end gap-3">
               <button
                 onClick={() => setIsDocTypeModalOpen(false)}
-                className="px-3 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-700"
+                className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 transition"
               >
                 Cancel
               </button>
+
               <button
                 onClick={handleCreateDocType}
-                disabled={createDocTypeMutation.isPending}
-                className="px-4 py-2 rounded-lg bg-orange-500 hover:bg-orange-600 text-white flex items-center gap-2 disabled:opacity-50"
+                disabled={createDocTypeMutation.isPending || !newDocTypeName.trim()}
+                className="px-4 py-2 rounded-lg bg-orange-500 text-white hover:bg-orange-600 transition disabled:opacity-50 flex items-center gap-2"
               >
-                {createDocTypeMutation.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
+                {createDocTypeMutation.isPending ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <CheckCircle2 className="h-4 w-4" />
+                )}
                 Create
               </button>
             </div>
