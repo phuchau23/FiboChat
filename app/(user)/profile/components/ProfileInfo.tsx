@@ -1,8 +1,8 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { useState, useEffect, ChangeEvent } from "react";
 import { Mail, User, Shield, Edit2, Save, X, ImageUp, Tag, UsersIcon, BookOpen, Users } from "lucide-react";
-import { type ClassMember } from "@/utils/data";
 import ChangePasswordDialog from "./ChangePasswordDialog";
 import { useUpdateProfile, useUserProfile } from "@/hooks/useUser";
 import { UpdateProfilePayload } from "@/lib/api/services/fetchUser";
@@ -58,7 +58,7 @@ export default function ProfileInfo() {
   });
 
   const [editing, setEditing] = useState(false);
-  const [uploading, setUploading] = useState(false);
+  const [uploading] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [activeTab, setActiveTab] = useState<"profile" | "class">("profile");
 
@@ -113,6 +113,7 @@ export default function ProfileInfo() {
       };
 
       const filteredPayload = Object.fromEntries(
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         Object.entries(payload).filter(([_, v]) => v !== "" && v !== undefined)
       ) as UpdateProfilePayload;
 

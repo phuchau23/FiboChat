@@ -5,7 +5,6 @@ import GlareHover from "../effects/GlareHover";
 import { useRouter } from "next/navigation";
 import { getCookie } from "cookies-next";
 import { decodeToken } from "@/utils/jwt";
-import { useClassEnrollmentByUser } from "@/hooks/useGroupEnrollment";
 import { useChatbotHub } from "@/hooks/useChatbotHub";
 
 export default function HeroSection() {
@@ -17,8 +16,6 @@ export default function HeroSection() {
   const userId = decoded?.nameid;
 
   // 🧩 Lấy thông tin group của user
-  const { data: enrollment } = useClassEnrollmentByUser(userId);
-  const groupId = enrollment?.group?.id;
 
   // ⚙️ Kết nối SignalR Hub
   const { isConnected } = useChatbotHub(userId);
@@ -50,8 +47,7 @@ export default function HeroSection() {
 
         {/* Subtitle */}
         <p className="mb-8 px-4 text-gray-800 text-base md:text-xl font-medium">
-          Giải pháp AI tương tác giúp sinh viên{" "}
-          <span className="font-semibold">FPTU</span> học tập thông minh,
+          Giải pháp AI tương tác giúp sinh viên <span className="font-semibold">FPTU</span> học tập thông minh,
           <br className="hidden sm:block" />
           phát triển toàn diện.
         </p>
@@ -82,23 +78,17 @@ export default function HeroSection() {
       <div className=" py-4 border border-gray-200 w-full flex flex-col items-center justify-center gap-6 md:flex-row md:gap-36">
         <div className="flex items-center gap-2">
           <Users className="h-6 w-6 text-orange-500" />
-          <span className="text-md text-black">
-            5,000+ sinh viên FPTU sử dụng
-          </span>
+          <span className="text-md text-black">5,000+ sinh viên FPTU sử dụng</span>
         </div>
 
         <div className="flex items-center gap-2">
           <Star className="h-6 w-6 text-orange-500" />
-          <span className="text-md text-black">
-            4.8/5 đánh giá từ sinh viên
-          </span>
+          <span className="text-md text-black">4.8/5 đánh giá từ sinh viên</span>
         </div>
 
         <div className="flex items-center gap-2">
           <Award className="h-6 w-6 text-orange-500" />
-          <span className="text-md text-black">
-            Được giảng viên khuyến dùng
-          </span>
+          <span className="text-md text-black">Được giảng viên khuyến dùng</span>
         </div>
       </div>
     </section>

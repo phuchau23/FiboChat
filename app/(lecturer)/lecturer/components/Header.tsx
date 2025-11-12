@@ -32,10 +32,6 @@ export default function Header() {
     router.push("/");
   };
 
-  const handleProfileClick = () => {
-    router.push("/lecturer/profile");
-  };
-
   if (!mounted || !user) return null;
 
   return (

@@ -1,18 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import Overview from "./components/Overview";
+import Overview from "./overview/page";
 import TopicTable from "./topic/page";
 import ClassTable from "./class/page";
 import CourseDocument from "./course/page";
-import ReportTable from "./report/page";
 import FeedbackTable from "./feedback/page";
-import TagTable from "./tag/page";
-import ChatBox from "./chatbox/page";
 
 export default function Page() {
-  const [sidebarKey, setSidebarKey] = useState("overview");
-  const [searchValue, setSearchValue] = useState("");
+  const [sidebarKey] = useState("overview");
 
   return (
     <div
@@ -29,10 +25,7 @@ export default function Page() {
       {sidebarKey === "topic" && <TopicTable />}
       {sidebarKey === "class" && <ClassTable />}
       {sidebarKey === "course" && <CourseDocument />}
-      {sidebarKey === "report" && <ReportTable />}
       {sidebarKey === "feedback" && <FeedbackTable />}
-      {sidebarKey === "tag" && <TagTable />}
-      {sidebarKey === "chatbox" && <ChatBox />}
     </div>
   );
 }
