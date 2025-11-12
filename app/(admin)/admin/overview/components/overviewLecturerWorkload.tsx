@@ -48,7 +48,7 @@ export function OverviewLecturerWorkloadLegend({
   };
 
   return (
-    <Card className="flex flex-col bg-white">
+    <Card className="flex flex-col h-full bg-white">
       <CardHeader className="items-center pb-0">
         <CardTitle>Lecturer Class Assignment</CardTitle>
         <CardDescription>
@@ -59,7 +59,7 @@ export function OverviewLecturerWorkloadLegend({
       <CardContent className="flex-1 pb-0">
         <ChartContainer
           config={chartConfig}
-          className="mx-auto aspect-square max-h-[300px]"
+          className="mx-auto aspect-square max-h-full"
         >
           <PieChart>
             <Pie
