@@ -7,18 +7,7 @@ import { UserFormModal } from "./components/userModal";
 import { UserDeleteDialog } from "./components/userDeleteDialog";
 import { User } from "@/lib/api/services/fetchUser";
 import { ImportStudentsModal } from "./components/importStudentsModal";
-import { DropdownMenu } from "@radix-ui/react-dropdown-menu";
-import {
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { ChevronDown, FileSpreadsheet, UserPlus } from "lucide-react";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 export default function UserPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -46,9 +35,7 @@ export default function UserPage() {
         <h1 className="text-3xl font-bold">Student Management</h1>
         <Popover>
           <PopoverTrigger asChild>
-            <Button className="flex items-center gap-2">
-              Register Student
-            </Button>
+            <Button className="flex items-center gap-2">Register Student</Button>
           </PopoverTrigger>
 
           <PopoverContent align="end" className="p-2">
@@ -80,11 +67,7 @@ export default function UserPage() {
       <UserFormModal open={isFormOpen} onOpenChange={setIsFormOpen} />
       <ImportStudentsModal open={isImportOpen} onOpenChange={setIsImportOpen} />
 
-      <UserDeleteDialog
-        open={isDeleteOpen}
-        selectedUser={selectedUser}
-        onOpenChange={setIsDeleteOpen}
-      />
+      <UserDeleteDialog open={isDeleteOpen} selectedUser={selectedUser} onOpenChange={setIsDeleteOpen} />
     </div>
   );
 }

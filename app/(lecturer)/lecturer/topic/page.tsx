@@ -1,40 +1,53 @@
 "use client";
 
 import React, { useState } from "react";
-import { Folder, FolderOpen, Layers, BookOpen, ChevronRight } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-
-import { useDomains } from "@/hooks/useDomain";
-import { useMasterTopics } from "@/hooks/useMasterTopic";
-import { useTopics } from "@/hooks/useTopic";
-import { Domain } from "@/lib/api/services/fetchDomain";
-import { MasterTopic } from "@/lib/api/services/fetchMasterTopic";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { motion } from "framer-motion";
+import { useAllTopics, useTopicsByLecturer } from "@/hooks/useTopic";
+import { useSemesters } from "@/hooks/useSemester";
+import { useQuery } from "@tanstack/react-query";
+import apiService from "@/lib/api/core";
 import { Topic } from "@/lib/api/services/fetchTopic";
 
-/**
- * 🌳 DashboardTree Component
- * Hiển thị cấu trúc cây 3 tầng:
- *  DOMAIN → MASTER TOPIC → TOPIC
- * Có hiệu ứng mở/đóng (expand/collapse) và hiển thị trạng thái Active/Inactive.
- */
-export default function DashboardTree() {
-  // Fetch dữ liệu
-  const { domains } = useDomains();
-  const { masterTopics } = useMasterTopics();
-  const { topics } = useTopics();
+/** Hook fetch topic theo semester */
+function useTopicsBySemester(semesterId?: string) {
+  return useQuery({
+    queryKey: ["topicsBySemester", semesterId],
+    queryFn: async () => {
+      if (!semesterId) return []; // trả về rỗng nếu không chọn kỳ
+      const res = await apiService.get<{ data: Topic[] }>(`/auth/api/topics?semesterId=${semesterId}`);
+      return res.data.data;
+    },
+    enabled: !!semesterId,
+  });
+}
 
-  // State lưu domain và master topic đang mở
-  const [openDomain, setOpenDomain] = useState<string | null>(null);
-  const [openMaster, setOpenMaster] = useState<string | null>(null);
+/** 🎓 Component LecturerTopicView */
+export default function LecturerTopicView() {
+  // Tabs
+  const [activeTab, setActiveTab] = useState<"all" | "my">("all");
 
-  /** 🟠 Helper: Render Badge trạng thái */
+  // Dropdown semester
+  const { semesters = [], isLoading: loadingSemesters } = useSemesters(1, 100);
+  const [selectedSemesterId, setSelectedSemesterId] = useState<string | null>(null);
+
+  // Topics
+  const { topics: allTopics = [], isLoading: allLoading } = useAllTopics();
+  const { topics: myTopics = [], isLoading: myLoading } = useTopicsByLecturer();
+
+  // Topics theo semester nếu có chọn
+  const { data: topicsBySemester = [], isLoading: loadingTopicsBySemester } = useTopicsBySemester(
+    selectedSemesterId || undefined
+  );
+
+  /** 🟠 Hiển thị trạng thái dưới dạng badge */
   const renderStatus = (status: string) => {
     switch (status?.toLowerCase()) {
       case "active":
         return (
-          <Badge className="bg-orange-200/60 text-orange-800 border border-orange-500 rounded-md px-2 py-0.5 text-xs">
+          <Badge className="bg-orange-100 text-orange-700 border border-orange-300 rounded-md px-2 py-0.5 text-xs">
             Active
           </Badge>
         );
@@ -48,143 +61,101 @@ export default function DashboardTree() {
         return null;
     }
   };
-  if (!domains?.length || !masterTopics?.length || !topics?.length) {
-    return <div className="p-6 text-orange-600 text-center">Đang tải dữ liệu...</div>;
-  }
+
+  /** 🟢 Render danh sách Topic */
+  const renderTopicList = (topics: Topic[], loading: boolean) => {
+    if (loading) {
+      return <div className="text-center py-6 text-orange-600">Đang tải dữ liệu...</div>;
+    }
+
+    if (!topics.length) {
+      return <div className="text-center py-6 text-gray-500">Không có chủ đề nào.</div>;
+    }
+
+    return (
+      <motion.div
+        layout
+        className="grid gap-3 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4"
+        transition={{ duration: 0.2 }}
+      >
+        {topics.map((topic) => (
+          <motion.div
+            key={topic.id}
+            layout
+            className="border border-orange-100 bg-white/90 rounded-xl p-4 shadow-sm hover:shadow-md hover:bg-orange-50/50 transition-all"
+          >
+            <div className="font-semibold text-orange-800">{topic.name}</div>
+            <div className="text-sm text-gray-600 mt-1 line-clamp-2">{topic.description}</div>
+            <div className="flex justify-between items-center mt-3">
+              <span className="text-xs text-gray-500">{topic.masterTopic?.name ?? "Không có Master Topic"}</span>
+              {renderStatus(topic.status)}
+            </div>
+          </motion.div>
+        ))}
+      </motion.div>
+    );
+  };
+
+  // Chọn topics hiển thị theo tab + semester
+  const topicsToShow = selectedSemesterId ? topicsBySemester : activeTab === "all" ? allTopics : myTopics;
+  const loadingToShow = selectedSemesterId ? loadingTopicsBySemester : activeTab === "all" ? allLoading : myLoading;
 
   return (
-    <div className="w-full space-y-4 p-6 bg-gradient-to-b from-white via-orange-50/50 to-white rounded-2xl border border-orange-100 shadow-[0_4px_20px_rgba(255,137,56,0.08)]">
-      <Card className="border border-orange-200/70 shadow-md rounded-xl backdrop-blur-sm bg-white/80">
-        {/* 🏷️ Header */}
-        <CardHeader className="bg-gradient-to-r from-orange-100/70 via-orange-50 to-white border-b border-orange-200/70 rounded-t-xl">
-          <CardTitle className="text-orange-700 flex items-center gap-2">
-            <FolderOpen className="h-5 w-5 text-orange-600" />
-            Domain Explorer
-          </CardTitle>
+    <div className="w-full max-w-6xl mx-auto p-6">
+      <Card className="border border-orange-200/70 shadow-md rounded-2xl bg-gradient-to-b from-white via-orange-50/40 to-white">
+        <CardHeader className="pb-2 border-b border-orange-100">
+          <CardTitle className="text-lg font-semibold text-orange-700">Topic Overview</CardTitle>
         </CardHeader>
 
-        {/* 📋 Nội dung chính */}
-        <CardContent className="pt-4 space-y-3">
-          {domains?.map((domain: Domain) => {
-            const isDomainOpen = openDomain === domain.id;
-            const relatedMasterTopics = masterTopics?.filter((mt) => mt.domain?.id === domain.id);
+        <CardContent className="pt-4">
+          {/* Dropdown chọn kỳ học */}
+          <div className="mb-4">
+            {loadingSemesters ? (
+              <span className="text-sm text-gray-500">Đang tải kỳ học...</span>
+            ) : (
+              <select
+                value={selectedSemesterId || ""}
+                onChange={(e) => setSelectedSemesterId(e.target.value || null)}
+                className="border rounded px-2 py-1 text-sm"
+              >
+                <option value="">Tất cả kỳ học</option>
+                {semesters.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.code} - {s.term}/{s.year}
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
 
-            return (
-              <div key={domain.id} className="space-y-2">
-                {/* ========================= 🌐 DOMAIN ITEM ========================= */}
-                <div
-                  onClick={() => setOpenDomain(isDomainOpen ? null : domain.id)}
-                  className={`flex items-center gap-3 cursor-pointer p-3 rounded-lg transition border ${
-                    isDomainOpen
-                      ? "bg-gradient-to-r from-orange-50 to-orange-100/60 border-orange-400"
-                      : "hover:bg-orange-50 border-transparent"
-                  }`}
-                >
-                  {/* Icon mũi tên xoay khi mở */}
-                  <motion.div animate={{ rotate: isDomainOpen ? 90 : 0 }} transition={{ duration: 0.2 }}>
-                    <ChevronRight className="h-4 w-4 text-orange-500" />
-                  </motion.div>
+          {/* Tabs */}
+          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "all" | "my")}>
+            <TabsList className="bg-orange-50 border border-orange-100 rounded-xl p-1 w-fit mb-4">
+              <TabsTrigger
+                value="all"
+                className={`px-4 py-1.5 rounded-lg text-sm font-medium ${
+                  activeTab === "all"
+                    ? "bg-white text-orange-700 border border-orange-200 shadow-sm"
+                    : "text-gray-600 hover:text-orange-600"
+                }`}
+              >
+                All Topics
+              </TabsTrigger>
+              <TabsTrigger
+                value="my"
+                className={`px-4 py-1.5 rounded-lg text-sm font-medium ${
+                  activeTab === "my"
+                    ? "bg-white text-orange-700 border border-orange-200 shadow-sm"
+                    : "text-gray-600 hover:text-orange-600"
+                }`}
+              >
+                My Topics
+              </TabsTrigger>
+            </TabsList>
 
-                  {/* Icon thư mục mở/đóng */}
-                  {isDomainOpen ? (
-                    <FolderOpen className="h-5 w-5 text-orange-500" />
-                  ) : (
-                    <Folder className="h-5 w-5 text-orange-500" />
-                  )}
-
-                  {/* Tên Domain + mô tả */}
-                  <span className="font-semibold text-orange-800">{domain.name}</span>
-                  <span className="text-sm text-gray-500 ml-1">{domain.description}</span>
-
-                  {/* Số lượng Master Topics */}
-                  <Badge variant="outline" className="ml-auto bg-white border-orange-200 text-orange-600">
-                    {relatedMasterTopics?.length ?? 0} Master Topics
-                  </Badge>
-
-                  {/* Trạng thái Domain */}
-                  <div>{renderStatus(domain.status)}</div>
-                </div>
-
-                {/* ========================= 📚 MASTER TOPICS ========================= */}
-                <AnimatePresence>
-                  {isDomainOpen && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.3 }}
-                      className="ml-7 pl-3 border-l-2 border-orange-200/70 space-y-2"
-                    >
-                      {relatedMasterTopics?.map((mt: MasterTopic) => {
-                        const isMasterOpen = openMaster === mt.id;
-                        const relatedTopics = topics?.filter((t) => t.masterTopic?.id === mt.id);
-
-                        return (
-                          <div key={mt.id} className="space-y-2">
-                            {/* ---------- MASTER TOPIC ITEM ---------- */}
-                            <div
-                              onClick={() => setOpenMaster(isMasterOpen ? null : mt.id)}
-                              className={`flex items-center gap-3 cursor-pointer p-2.5 rounded-md border transition ${
-                                isMasterOpen
-                                  ? "bg-orange-50 border-orange-200"
-                                  : "hover:bg-orange-50/60 border-transparent"
-                              }`}
-                            >
-                              <motion.div animate={{ rotate: isMasterOpen ? 90 : 0 }} transition={{ duration: 0.2 }}>
-                                <ChevronRight className="h-3.5 w-3.5 text-orange-500" />
-                              </motion.div>
-
-                              {isMasterOpen ? (
-                                <BookOpen className="h-4 w-4 text-orange-500" />
-                              ) : (
-                                <Layers className="h-4 w-4 text-orange-500" />
-                              )}
-
-                              <span className="text-orange-700 font-medium">{mt.name}</span>
-                              <span className="text-xs text-gray-500 ml-2">{mt.semester?.code || "-"}</span>
-
-                              {/* Hiển thị số lượng Topics */}
-                              <Badge variant="outline" className="ml-auto bg-white border-orange-200 text-orange-600">
-                                {relatedTopics?.length ?? 0} Topics
-                              </Badge>
-
-                              {/* Trạng thái */}
-                              <div>{renderStatus(mt.status)}</div>
-                            </div>
-
-                            {/* ========================= 📘 TOPICS ========================= */}
-                            <AnimatePresence>
-                              {isMasterOpen && (
-                                <motion.div
-                                  initial={{ height: 0, opacity: 0 }}
-                                  animate={{ height: "auto", opacity: 1 }}
-                                  exit={{ height: 0, opacity: 0 }}
-                                  transition={{ duration: 0.3 }}
-                                  className="ml-8 pl-4 border-l border-orange-100/70 space-y-1"
-                                >
-                                  {relatedTopics?.map((t: Topic) => (
-                                    <div
-                                      key={t.id}
-                                      className="flex items-center gap-2 p-2 rounded-md hover:bg-orange-50 transition"
-                                    >
-                                      <FolderOpen className="h-4 w-4 text-orange-400" />
-                                      <span className="text-sm font-medium text-orange-800">{t.name}</span>
-                                      <span className="text-xs text-gray-500 ml-2">{t.description}</span>
-                                      <div className="ml-auto">{renderStatus(t.status)}</div>
-                                    </div>
-                                  ))}
-                                </motion.div>
-                              )}
-                            </AnimatePresence>
-                          </div>
-                        );
-                      })}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            );
-          })}
+            <TabsContent value="all">{renderTopicList(topicsToShow, loadingToShow)}</TabsContent>
+            <TabsContent value="my">{renderTopicList(topicsToShow, loadingToShow)}</TabsContent>
+          </Tabs>
         </CardContent>
       </Card>
     </div>

@@ -67,44 +67,41 @@ export const fetchTopic = {
   },
 
   getAllTopicsAllPages: async (): Promise<Topic[]> => {
-  const pageSize = 100; // tăng lên để giảm số request (BE cho phép)
-  const first = await apiService.get<TopicApiResponse>(`/course/api/topics`, {
-    page: 1,
-    pageSize,
-  });
+    const pageSize = 100; // tăng lên để giảm số request (BE cho phép)
+    const first = await apiService.get<TopicApiResponse>(`/course/api/topics`, {
+      page: 1,
+      pageSize,
+    });
 
-  const pagination = first.data.data;
-  const totalItems = pagination.totalItems;
+    const pagination = first.data.data;
+    const totalItems = pagination.totalItems;
 
-  // Nếu chỉ có 1 trang → trả về ngay
-  if (pagination.items.length >= totalItems) {
-    return pagination.items;
-  }
+    // Nếu chỉ có 1 trang → trả về ngay
+    if (pagination.items.length >= totalItems) {
+      return pagination.items;
+    }
 
-  const totalPages = Math.ceil(totalItems / pageSize);
+    const totalPages = Math.ceil(totalItems / pageSize);
 
-  // Tạo list promise cho tất cả page còn lại
-  const requests = [];
-  for (let page = 2; page <= totalPages; page++) {
-    requests.push(
-      apiService.get<TopicApiResponse>(`/course/api/topics`, {
-        page,
-        pageSize,
-      })
-    );
-  }
+    // Tạo list promise cho tất cả page còn lại
+    const requests = [];
+    for (let page = 2; page <= totalPages; page++) {
+      requests.push(
+        apiService.get<TopicApiResponse>(`/course/api/topics`, {
+          page,
+          pageSize,
+        })
+      );
+    }
 
-  // Chạy song song
-  const results = await Promise.all(requests);
+    // Chạy song song
+    const results = await Promise.all(requests);
 
-  // Ghép tất cả pages lại
-  const all = [
-    ...pagination.items,
-    ...results.flatMap((r) => r.data.data.items),
-  ];
+    // Ghép tất cả pages lại
+    const all = [...pagination.items, ...results.flatMap((r) => r.data.data.items)];
 
-  return all;
-},
+    return all;
+  },
 
   getTopicById: async (id: string): Promise<SingleTopicResponse> => {
     const response = await apiService.get<SingleTopicResponse>(`/course/api/topics/${id}`);
@@ -131,12 +128,6 @@ export const fetchTopic = {
       page,
       pageSize,
     });
-    return response.data;
-  },
-
-  // Lấy tất cả chủ đề theo giảng viên (bỏ phân trang nếu cần)
-  getAllTopicsByLecturer: async (lecturerId: string): Promise<TopicApiResponse> => {
-    const response = await apiService.get<TopicApiResponse>(`/course/api/topics/lecturer/${lecturerId}`);
     return response.data;
   },
 };

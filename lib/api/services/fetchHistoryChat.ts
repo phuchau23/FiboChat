@@ -1,5 +1,4 @@
 import { UiMessage } from "@/hooks/useChatbotHub";
-import { getCookie } from "cookies-next";
 
 // ==== ADD: types cho API history (đúng theo payload bạn đưa) ====
 export type HistoryAnswer = {
@@ -33,20 +32,10 @@ export type HistoryResponse = {
   };
 };
 
-// ==== ADD: lấy raw token để gọi API protected ====
-function getAuthToken(): string | undefined {
-  const raw = getCookie("auth-token");
-  const tokenStr = typeof raw === "string" ? raw : raw?.toString();
-  return tokenStr || undefined;
-}
-
 // ==== ADD: map history → UiMessage[] (user trước, rồi tới các answer) ====
 // ==== FIX: map history → UiMessage[] có đủ 'ts' ====
 // Map lịch sử: question → user, answer → assistant
-export function mapHistoryToUiMessages(
-  items: HistoryItem[],
-  convId?: string
-): UiMessage[] {
+export function mapHistoryToUiMessages(items: HistoryItem[], convId?: string): UiMessage[] {
   const out: UiMessage[] = [];
   for (const it of items) {
     // User question
@@ -54,7 +43,7 @@ export function mapHistoryToUiMessages(
       role: "user",
       content: it.questionText ?? "",
       conversationId: convId,
-      ts: it.questionCreatedAt,          // ISO từ API
+      ts: it.questionCreatedAt, // ISO từ API
     });
 
     // Answers của AI (có thể nhiều)
@@ -63,11 +52,9 @@ export function mapHistoryToUiMessages(
         role: "assistant",
         content: ans.answerContent ?? "",
         conversationId: convId,
-        ts: ans.answerCreatedAt,         // ISO từ API
+        ts: ans.answerCreatedAt, // ISO từ API
       });
     }
   }
   return out;
 }
-
-
