@@ -45,9 +45,7 @@ export default function UserPage() {
 
         <Popover>
           <PopoverTrigger asChild>
-            <Button className="flex items-center gap-2">
-              Register Student
-            </Button>
+            <Button className="flex items-center gap-2">Register Student</Button>
           </PopoverTrigger>
 
           <PopoverContent align="end" className="p-2">
