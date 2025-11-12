@@ -164,24 +164,6 @@ export default function OverviewPage() {
     ];
   }, [topics, groups]);
 
-  const unselectedTopics = useMemo(() => {
-    if (!topics || !groups) return [];
-
-    const assignedTopicIds = new Set(
-      groups.filter((g: any) => g.topic !== null).map((g: any) => g.topic.id)
-    );
-
-    return topics
-      .filter(
-        (t) => t.status === TopicStatus.Active && !assignedTopicIds.has(t.id)
-      )
-      .map((t) => ({
-        id: t.id,
-        name: t.name,
-        masterTopicName: t.masterTopic?.name ?? null,
-      }));
-  }, [topics, groups]);
-
   const classEngagement = useMemo(() => {
     if (!groups.length) return [];
 
@@ -306,12 +288,19 @@ export default function OverviewPage() {
   return (
     <div className="space-y-6">
       <OverviewKPICards stats={kpi} />
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        <OverviewTopicInventory
-          data={topicInventory}
-          unselected={unselectedTopics}
-        />
-        <OverviewLecturerWorkloadLegend data={lecturerWorkload} />
+      <div className="grid grid-cols-1 lg:grid-cols-10 gap-5 items-stretch ">
+        <div className="lg:col-span-6 h-full">
+          <OverviewTopicInventory
+            data={topicInventory}
+            groups={groups}
+            semesters={semesters}
+            topics={topics}
+          />
+        </div>
+
+        <div className="lg:col-span-4 h-full">
+          <OverviewLecturerWorkloadLegend data={lecturerWorkload} />
+        </div>
       </div>
       <OverviewClassEngagement data={classEngagement} />
 
