@@ -82,3 +82,14 @@ export function useUpdateProfile() {
     },
   });
 }
+
+export function useImportUsers() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (file: File) => fetchUser.importUsers(file),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+    },
+  });
+}

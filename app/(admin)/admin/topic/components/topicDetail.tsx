@@ -10,6 +10,7 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import type { Topic } from "@/lib/api/services/fetchTopic";
 import type { MasterTopic } from "@/lib/api/services/fetchMasterTopic";
+import { Button } from "@/components/ui/button";
 
 interface TopicDetailModalProps {
   open: boolean;
@@ -17,6 +18,7 @@ interface TopicDetailModalProps {
   masterTopic: MasterTopic | null;
   loading: boolean;
   onOpenChange: (open: boolean) => void;
+  onEdit: (topic: Topic) => void;
 }
 
 export function TopicDetailModal({
@@ -25,10 +27,11 @@ export function TopicDetailModal({
   masterTopic,
   loading,
   onOpenChange,
+  onEdit,
 }: TopicDetailModalProps) {
   if (!topic) return null;
 
-  const { name, description, createdAt } = topic;
+  const { name, description } = topic;
 
   const getFallback = (fullName: string) => {
     const parts = fullName.trim().split(" ");
@@ -39,7 +42,7 @@ export function TopicDetailModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-xl space-y-6">
         <DialogHeader>
-          <DialogTitle className="text-xl font-semibold">
+          <DialogTitle className="text-xl font-semibold flex items-center gap-2 mb-3 ">
             Topic Detail
           </DialogTitle>
           <p className="text-lg font-medium text-gray-800">{name}</p>
@@ -128,13 +131,18 @@ export function TopicDetailModal({
           </p>
         </div>
 
-        <DialogFooter className="pt-4 border-t text-sm text-gray-600">
-          Created:{" "}
-          {new Date(createdAt).toLocaleDateString("vi-VN", {
-            day: "2-digit",
-            month: "2-digit",
-            year: "numeric",
-          })}
+        <DialogFooter>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+          >
+            Cancel
+          </Button>
+
+          <Button type="submit" onClick={() => onEdit(topic)}>
+            Edit
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

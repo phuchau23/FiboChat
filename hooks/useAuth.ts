@@ -138,6 +138,104 @@ export function useAuth() {
     }
   };
 
+    // =========================
+  // FORGOT PASSWORD
+  // =========================
+  const forgotPassword = async (email: string) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const res = await fetchAuth.forgotPassword({ email });
+      if (res.statusCode === 200) {
+        toast({
+          title: "Thành công",
+          description: res.message || "Vui lòng kiểm tra email để đặt lại mật khẩu.",
+        });
+        return true;
+      } else {
+        setError(res.message || "Gửi email thất bại");
+        toast({
+          title: "Thất bại",
+          description: res.message || "Không thể gửi email đặt lại mật khẩu.",
+          variant: "destructive",
+        });
+        return false;
+      }
+    } catch (err: unknown) {
+      if (isApiError(err)) {
+        setError(err.message);
+        toast({
+          title: "Lỗi",
+          description: err.message,
+          variant: "destructive",
+        });
+      } else {
+        setError("Có lỗi xảy ra khi gửi yêu cầu");
+        toast({
+          title: "Lỗi",
+          description: "Có lỗi xảy ra, vui lòng thử lại sau.",
+          variant: "destructive",
+        });
+      }
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // =========================
+  // RESET PASSWORD
+  // =========================
+  const resetPassword = async (token: string, newPassword: string, confirmPassword: string) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const res = await fetchAuth.resetPassword({
+        Token: token,
+        NewPassword: newPassword,
+        ConfirmPassword: confirmPassword,
+      });
+
+      if (res.statusCode === 200) {
+        toast({
+          title: "Thành công",
+          description: res.message || "Đổi mật khẩu thành công.",
+        });
+        router.push("/login");
+        return true;
+      } else {
+        setError(res.message || "Đổi mật khẩu thất bại");
+        toast({
+          title: "Thất bại",
+          description: res.message || "Đổi mật khẩu thất bại.",
+          variant: "destructive",
+        });
+        return false;
+      }
+    } catch (err: unknown) {
+      if (isApiError(err)) {
+        setError(err.message);
+        toast({
+          title: "Lỗi",
+          description: err.message,
+          variant: "destructive",
+        });
+      } else {
+        setError("Đổi mật khẩu thất bại");
+        toast({
+          title: "Lỗi",
+          description: "Có lỗi xảy ra khi đặt lại mật khẩu.",
+          variant: "destructive",
+        });
+      }
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Fallback Redirect Google Login
   useEffect(() => {
     (async () => {
@@ -146,5 +244,5 @@ export function useAuth() {
     })();
   }, []);
 
-  return { login, changePasswordFirstTime, loginWithGoogle, loginWithGoogleProvider, loading, error };
+  return { login, changePasswordFirstTime, loginWithGoogle, loginWithGoogleProvider, forgotPassword, resetPassword, loading, error };
 }

@@ -58,6 +58,30 @@ export interface ChangePasswordFirstTimeResponse {
   message: string;
 }
 
+export interface ForgotPasswordRequest {
+  email: string;
+}
+
+export interface ForgotPasswordResponse {
+  statusCode: number;
+  code: string;
+  message: string;
+  data: null;
+}
+
+// reset password
+export interface ResetPasswordRequest {
+  Token: string;
+  NewPassword: string;
+  ConfirmPassword: string;
+}
+
+export interface ResetPasswordResponse {
+  statusCode: number;
+  code: string;
+  message: string;
+}
+
 export const fetchAuth = {
   login: async (data: LoginRequest): Promise<LoginResponse> => {
     const response = await apiService.post<LoginResponse, LoginRequest>("/auth/api/users/login", data);
@@ -86,6 +110,30 @@ export const fetchAuth = {
       form // Không truyền JSON mode → tự động gửi multipart/form-data
     );
 
+    return response.data;
+  },
+
+   forgotPassword: async (data: ForgotPasswordRequest): Promise<ForgotPasswordResponse> => {
+    const form = new FormData();
+    form.append("email", data.email);
+
+    const response = await apiService.post<ForgotPasswordResponse, FormData>(
+      "/auth/api/users/forgot-password",
+      form
+    );
+    return response.data;
+  },
+
+  resetPassword: async (data: ResetPasswordRequest): Promise<ResetPasswordResponse> => {
+    const form = new FormData();
+    form.append("Token", data.Token);
+    form.append("NewPassword", data.NewPassword);
+    form.append("ConfirmPassword", data.ConfirmPassword);
+
+    const response = await apiService.post<ResetPasswordResponse, FormData>(
+      "/auth/api/users/reset-password",
+      form
+    );
     return response.data;
   },
 };

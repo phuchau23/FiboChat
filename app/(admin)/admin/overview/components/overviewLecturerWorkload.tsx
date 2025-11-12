@@ -1,7 +1,21 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
+import { Pie, PieChart, Tooltip } from "recharts";
+
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
+} from "@/components/ui/chart";
 
 interface LecturerWorkloadProps {
   data: {
@@ -11,46 +25,50 @@ interface LecturerWorkloadProps {
   }[];
 }
 
-const COLORS = [
-  "#FF6B00",
-  "#6B5BFF",
-  "#28A745",
-  "#F59E0B",
-  "#EC4899",
-  "#8B5CF6",
-];
-
-export function OverviewLecturerWorkload({ data }: LecturerWorkloadProps) {
-  const chartData = data.map((item) => ({
+export function OverviewLecturerWorkloadLegend({
+  data,
+}: LecturerWorkloadProps) {
+  // convert API data → chart data theo structure của component mẫu
+  const chartData = data.map((item, index) => ({
+    lecturerKey: item.LecturerID,
     name: item.LecturerName,
     value: item.ClassesAssigned,
+    fill: `var(--chart-${(index % 6) + 1})`,
   }));
 
+  // tạo config legend tự động
+  const chartConfig: ChartConfig = {
+    value: { label: "Classes Assigned" },
+    ...Object.fromEntries(
+      chartData.map((item) => [
+        item.lecturerKey,
+        { label: item.name, color: item.fill },
+      ])
+    ),
+  };
+
   return (
-    <Card className="border-gray-200 shadow-sm bg-white">
-      <CardHeader>
-        <CardTitle className="text-lg font-semibold text-slate-900">
-          Lecturer Class Assignment
-        </CardTitle>
+    <Card className="flex flex-col bg-white">
+      <CardHeader className="items-center pb-0">
+        <CardTitle>Lecturer Class Assignment</CardTitle>
+        <CardDescription>
+          Workload distribution across lecturers
+        </CardDescription>
       </CardHeader>
 
-      <CardContent>
-        <ResponsiveContainer width="100%" height={280}>
+      <CardContent className="flex-1 pb-0">
+        <ChartContainer
+          config={chartConfig}
+          className="mx-auto aspect-square max-h-[300px]"
+        >
           <PieChart>
             <Pie
               data={chartData}
-              cx="50%"
-              cy="50%"
-              labelLine={false}
-              label={({ name, value }) => `${name} (${value})`}
-              outerRadius={85}
               dataKey="value"
-            >
-              {chartData.map((_, index) => (
-                <Cell key={index} fill={COLORS[index % COLORS.length]} />
-              ))}
-            </Pie>
-
+              nameKey="name"
+              labelLine={false}
+              outerRadius={95}
+            />
             <Tooltip
               formatter={(value) => `${value} classes`}
               contentStyle={{
@@ -59,8 +77,12 @@ export function OverviewLecturerWorkload({ data }: LecturerWorkloadProps) {
                 borderRadius: "6px",
               }}
             />
+            <ChartLegend
+              content={<ChartLegendContent nameKey="lecturerKey" />}
+              className="-translate-y-2 flex-wrap gap-2 *:basis-1/3 *:justify-center *:whitespace-nowrap"
+            />
           </PieChart>
-        </ResponsiveContainer>
+        </ChartContainer>
       </CardContent>
     </Card>
   );

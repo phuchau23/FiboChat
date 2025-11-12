@@ -9,6 +9,12 @@
   --primary: 255 125 0;
   --primary-foreground: 255 255 255;
   --radius: 0.5rem;
+  --chart-1: #FF6B00;
+  --chart-2: #6B5BFF;
+  --chart-3: #28A745;
+  --chart-4: #F59E0B;
+  --chart-5: #EC4899;
+  --chart-6: #8B5CF6;
 }
 
 .dark {
