@@ -19,22 +19,38 @@ export default function ChangePasswordPage() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // ✅ Validate logic (giống Reset Password)
+  const validatePassword = (password: string): string | null => {
+    if (!password) return "Mật khẩu không được để trống";
+    if (password.length < 8) return "Mật khẩu phải có ít nhất 8 ký tự";
+    if (!/[A-Z]/.test(password))
+      return "Mật khẩu phải có ít nhất 1 chữ cái viết hoa";
+    if (!/[0-9]/.test(password)) return "Mật khẩu phải có ít nhất 1 chữ số";
+    return null;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
-    if (newPassword.length < 6) {
-      setError("Password must be at least 6 characters");
+    const errMsg = validatePassword(newPassword);
+    if (errMsg) {
+      setError(errMsg);
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      setError("New password and confirm password do not match");
+      setError("Mật khẩu xác nhận không khớp");
       return;
     }
 
     await changePasswordFirstTime(newPassword, confirmPassword);
   };
+
+  // ✅ Indicator logic
+  const hasMinLength = newPassword.length >= 8;
+  const hasUpperCase = /[A-Z]/.test(newPassword);
+  const hasNumber = /[0-9]/.test(newPassword);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
@@ -52,10 +68,9 @@ export default function ChangePasswordPage() {
 
         {/* Right Side Form */}
         <div className="flex flex-col justify-center px-8 py-10 md:px-14">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-8 text-center">
+          <h2 className="text-2xl font-semibold text-gray-800 mb-4 text-center">
             Change Password
           </h2>
-
           {error && (
             <motion.div
               initial={{ opacity: 0, y: -5 }}
@@ -65,7 +80,6 @@ export default function ChangePasswordPage() {
               <Alert type="error" message={error} />
             </motion.div>
           )}
-
           <form
             onSubmit={handleSubmit}
             className={`space-y-6 ${error ? "mt-4" : ""}`}
@@ -92,6 +106,25 @@ export default function ChangePasswordPage() {
                 >
                   {showNew ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
+              </div>
+
+              {/* ✅ Indicators (from Reset Password) */}
+              <div className="flex gap-2 mt-2">
+                <div
+                  className={`h-1.5 flex-1 rounded-full ${
+                    hasMinLength ? "bg-green-500" : "bg-gray-200"
+                  }`}
+                />
+                <div
+                  className={`h-1.5 flex-1 rounded-full ${
+                    hasUpperCase ? "bg-green-500" : "bg-gray-200"
+                  }`}
+                />
+                <div
+                  className={`h-1.5 flex-1 rounded-full ${
+                    hasNumber ? "bg-green-500" : "bg-gray-200"
+                  }`}
+                />
               </div>
             </div>
 
@@ -122,12 +155,13 @@ export default function ChangePasswordPage() {
             </div>
 
             {/* Buttons */}
-            <div className=" ">
+            <div>
               <Button
                 type="submit"
+                disabled={loading}
                 className="w-full h-10 bg-[#ff6b00] text-white border-b-4 border-[#E85D04] hover:bg-[#F87402] shadow-[0_0.1px_0_0_#E85D04] hover:translate-y-[1px] hover:shadow-[0_0.05px_0_0_#E85D04] active:translate-y-[2px] active:shadow-[0_2px_0_0_#E85D04] transition-all"
               >
-                Đổi mật khẩu
+                {loading ? "Đang xử lý..." : "Đổi mật khẩu"}
               </Button>
             </div>
           </form>

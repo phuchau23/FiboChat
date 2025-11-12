@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { decodeToken } from "@/utils/jwt";
 
-const authRoutes = ["/login", "/forgot-password"];
+const authRoutes = ["/login", "/forgot-password","/reset-password"];
 
 export default function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;

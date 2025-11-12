@@ -3,18 +3,20 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Mail, ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import { Alert } from "@/components/ui/alert";
 import { motion } from "framer-motion";
-import Link from "next/link";
-import { Label } from "@radix-ui/react-label";
+import { useAuth } from "@/hooks/useAuth";
+import { useRouter } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
 
 export default function ForgotPassword() {
+  const { forgotPassword } = useAuth();
+
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<boolean>(false);
-  const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,62 +27,54 @@ export default function ForgotPassword() {
       return;
     }
 
-    setLoading(true);
-    try {
-      const res = await fetch(
-        "http://103.211.201.89:5001/api/user/forgot-password",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email }),
-        }
-      );
-
-      if (!res.ok) throw new Error("Không thể gửi email đặt lại mật khẩu");
-
-      // ✅ Hiển thị giao diện xác nhận
-      setSuccess(true);
-    } catch (err) {
-      setError("Có lỗi xảy ra, vui lòng thử lại sau.");
-    } finally {
-      setLoading(false);
-    }
+    const ok = await forgotPassword(email);
+    if (ok) setSuccess(true);
   };
 
-  // ⬇️ Giao diện sau khi gửi thành công
   if (success) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
-        <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-2xl text-center relative">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-6">
-            Kiểm tra hộp thư đến của bạn
+        <div className="w-full max-w-sm rounded-2xl bg-white p-10 shadow-xl text-center">
+          {/* Mailbox image */}
+          <div className="flex justify-center mb-6">
+            <Image
+              src="/img_email.png" // sample mailbox icon
+              alt="Mailbox"
+              width={120}
+              height={120}
+              className="mx-auto"
+            />
+          </div>
+
+          {/* Title */}
+          <h2 className="text-2xl font-semibold text-gray-800 mb-2">
+            Kiểm tra hộp thư của bạn
           </h2>
-          <p className="text-gray-600 text-sm mb-14 text-left leading-normal">
-            Chúng tôi đã gửi cho bạn một liên kết đăng nhập tới {email}. Liên
-            kết này sẽ hết hạn trong thời gian ngắn.
+
+          {/* Description */}
+          <p className="text-gray-600 text-sm mb-8">
+            Chúng tôi đã gửi hướng dẫn khôi phục mật khẩu đến{" "}
+            <span className="text-[#ff6b00] font-medium">{email}</span>
           </p>
+
+          {/* Open Gmail Button */}
+          <a
+            href="https://mail.google.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-2 border border-gray-200 rounded-xl py-3 hover:bg-gray-100 transition"
+          >
+            <Image src="/gmail.png" alt="Gmail icon" width={20} height={20} />
+            <span className="text-sm font-medium text-gray-800">Mở Gmail</span>
+          </a>
 
           <Button
-            onClick={handleSubmit}
-            disabled={loading}
-            className="w-full h-12 border border-[#ff6b00] bg-white text-[#ff6b00] font-semibold hover:bg-[#ff6b00] hover:text-white"
+            className="mt-3 gap-2 bg-transparent text-gray-600 hover:text-gray-700 text-xs shadow-none border-none hover:bg-transparent"
+            onClick={() => setSuccess(false)}
           >
-            Gửi lại email
+            <ArrowLeft className="h-4 w-4" />
+            Quay lại
           </Button>
-
-          <p className="text-sm text-gray-600 mt-4 text-left leading-normal">
-            Bạn không tìm thấy liên kết? Kiểm tra mục thư rác trong hộp thư của
-            bạn.
-          </p>
-
-          <div className="mt-5">
-            <Link
-              href="/login"
-              className="flex items-center text-sm text-[#ff6b00] hover:underline"
-            >
-              <ArrowLeft className="mr-1 h-4 w-4" /> Quay lại trang Đăng nhập
-            </Link>
-          </div>
         </div>
       </div>
     );
@@ -122,25 +116,29 @@ export default function ForgotPassword() {
             </motion.div>
           )}
 
-          <form
-            onSubmit={handleSubmit}
-            className={`space-y-6 ${error ? "mt-4" : ""}`}
-          >
+          <form onSubmit={handleSubmit} className={` ${error ? "mt-4" : ""}`}>
             <div className="relative">
               <Input
                 type="email"
-                placeholder="name@fpt.edu.vn"
+                placeholder="Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                disabled={loading}
               />
             </div>
 
             <Button
               type="submit"
-              className="w-full bg-[#ff6b00] text-white border-b-4 border-[#E85D04] hover:bg-[#F87402] shadow-[0_0.1px_0_0_#E85D04] hover:translate-y-[1px] hover:shadow-[0_0.05px_0_0_#E85D04] active:translate-y-[2px] active:shadow-[0_2px_0_0_#E85D04] transition-all"
+              className="w-full mt-6 bg-[#ff6b00] text-white border-b-4 border-[#E85D04] hover:bg-[#F87402] shadow-[0_0.1px_0_0_#E85D04] hover:translate-y-[1px] hover:shadow-[0_0.05px_0_0_#E85D04] active:translate-y-[2px] active:shadow-[0_2px_0_0_#E85D04] transition-all"
             >
               Đặt lại mật khẩu
+            </Button>
+            <Button
+              type="button"
+              className="mt-3 gap-2 bg-transparent text-gray-600 hover:text-gray-700 text-xs shadow-none border-none hover:bg-transparent"
+              onClick={() => router.push("/login")}
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Quay lại trang đăng nhập
             </Button>
           </form>
         </div>
