@@ -20,10 +20,7 @@ interface AuthContextType {
   loading: boolean;
   error: string | null;
   login: (email: string, password: string) => Promise<void>;
-  changePassword: (
-    newPassword: string,
-    confirmPassword: string
-  ) => Promise<void>;
+  changePassword: (newPassword: string, confirmPassword: string) => Promise<void>;
   logout: () => void;
   refreshUser: () => Promise<void>;
 }
@@ -31,12 +28,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const {
-    login,
-    changePasswordFirstTime,
-    loading: authLoading,
-    error: authError,
-  } = useAuth();
+  const { login, changePasswordFirstTime, loading: authLoading, error: authError } = useAuth();
 
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -89,6 +81,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = () => {
     deleteCookie("auth-token");
+    deleteCookie("user-id");
     setUser(null);
   };
 
@@ -116,7 +109,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 export function useAuthContext() {
   const ctx = useContext(AuthContext);
-  if (!ctx)
-    throw new Error("useAuthContext must be used inside <AuthProvider />");
+  if (!ctx) throw new Error("useAuthContext must be used inside <AuthProvider />");
   return ctx;
 }

@@ -4,7 +4,6 @@
 import {
   GoogleAuthProvider,
   signInWithPopup,
-  signOut,
   signInWithRedirect,
   getRedirectResult,
   getAdditionalUserInfo,
@@ -13,16 +12,14 @@ import { auth } from "./firebaseConfig";
 
 const provider = new GoogleAuthProvider();
 provider.setCustomParameters({
-  prompt: "select_account" // chọn tài khoản, không auto login
+  prompt: "select_account", // chọn tài khoản, không auto login
 });
 
 export const signInWithGoogle = async () => {
   try {
     const result = await signInWithPopup(auth, provider);
     return await extract(result);
-
   } catch (error: any) {
-
     // User tự đóng popup → không coi là lỗi → trả về null
     if (error.code === "auth/popup-closed-by-user") {
       return null;

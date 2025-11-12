@@ -2,21 +2,8 @@
 
 import React, { useMemo, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import {
-  ArrowLeft,
-  User,
-  Users,
-  Layers,
-  Pen,
-  UserPlus,
-  Trash2,
-} from "lucide-react";
-import {
-  useClassGroupsWithMembers,
-  useDeleteGroup,
-  useRemoveMemberFromGroup,
-  useUpdateGroup,
-} from "@/hooks/useGroup";
+import { ArrowLeft, User, Users, Layers, Pen, UserPlus, Trash2 } from "lucide-react";
+import { useClassGroupsWithMembers, useDeleteGroup, useRemoveMemberFromGroup, useUpdateGroup } from "@/hooks/useGroup";
 import { useClassStudents } from "@/hooks/useClass";
 import { useToast } from "@/hooks/use-toast";
 import { Group } from "@/lib/api/services/fetchGroup";
@@ -79,6 +66,7 @@ export default function ClassStudentsPage() {
 
   const classInfo = studentsData?.[0];
   // cast để TypeScript biết type (không đổi tên biến students)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const students = (classInfo?.students || []) as StudentType[];
   const tabParam = searchParams.get("tab");
 
@@ -94,9 +82,7 @@ export default function ClassStudentsPage() {
   } = useClassGroupsWithMembers(classId as string);
 
   // Lọc out những nhóm Inactive (giữ tên biến groups)
-  const groups = ((groupsWithMembers || []) as GroupWithMembersType[]).filter(
-    (g) => g.status !== "Inactive"
-  );
+  const groups = ((groupsWithMembers || []) as GroupWithMembersType[]).filter((g) => g.status !== "Inactive");
 
   // Map studentId -> groupName (giữ logic cũ)
   const studentGroupMap: Record<string, string> = {};
@@ -113,23 +99,14 @@ export default function ClassStudentsPage() {
 
     const filtered = q
       ? students.filter((s) => {
-          const fullName = `${s.lastName ?? ""} ${
-            s.firstName ?? ""
-          }`.toLowerCase();
-          return (
-            (s.studentId ?? "").toLowerCase().includes(q) ||
-            fullName.includes(q)
-          );
+          const fullName = `${s.lastName ?? ""} ${s.firstName ?? ""}`.toLowerCase();
+          return (s.studentId ?? "").toLowerCase().includes(q) || fullName.includes(q);
         })
       : [...students];
 
     filtered.sort((a, b) => {
-      const nameA = `${a.lastName ?? ""} ${a.firstName ?? ""}`
-        .trim()
-        .toLowerCase();
-      const nameB = `${b.lastName ?? ""} ${b.firstName ?? ""}`
-        .trim()
-        .toLowerCase();
+      const nameA = `${a.lastName ?? ""} ${a.firstName ?? ""}`.trim().toLowerCase();
+      const nameB = `${b.lastName ?? ""} ${b.firstName ?? ""}`.trim().toLowerCase();
       if (nameA < nameB) return sortOrder === "asc" ? -1 : 1;
       if (nameA > nameB) return sortOrder === "asc" ? 1 : -1;
       return 0;
@@ -138,10 +115,7 @@ export default function ClassStudentsPage() {
     return filtered;
   }, [students, searchQuery, sortOrder]);
 
-  const totalStudentsPages = Math.max(
-    1,
-    Math.ceil(filteredSortedStudents.length / PAGE_SIZE)
-  );
+  const totalStudentsPages = Math.max(1, Math.ceil(filteredSortedStudents.length / PAGE_SIZE));
   const pagedStudents = useMemo(() => {
     const page = Math.max(1, Math.min(studentsPage, totalStudentsPages));
     const start = (page - 1) * PAGE_SIZE;
@@ -154,10 +128,7 @@ export default function ClassStudentsPage() {
 
     const filtered = q
       ? groups.filter((g) => {
-          return (
-            (g.name ?? "").toLowerCase().includes(q) ||
-            (g.description ?? "").toLowerCase().includes(q)
-          );
+          return (g.name ?? "").toLowerCase().includes(q) || (g.description ?? "").toLowerCase().includes(q);
         })
       : [...groups];
 
@@ -172,10 +143,7 @@ export default function ClassStudentsPage() {
     return filtered;
   }, [groups, searchQuery, sortOrder]);
 
-  const totalGroupsPages = Math.max(
-    1,
-    Math.ceil(filteredSortedGroups.length / PAGE_SIZE)
-  );
+  const totalGroupsPages = Math.max(1, Math.ceil(filteredSortedGroups.length / PAGE_SIZE));
   const pagedGroups = useMemo(() => {
     const page = Math.max(1, Math.min(groupsPage, totalGroupsPages));
     const start = (page - 1) * PAGE_SIZE;
@@ -214,7 +182,7 @@ export default function ClassStudentsPage() {
         localStorage.removeItem("groupUpdated");
       }
     }
-  }, [tabParam]);
+  }, [tabParam, toast]);
 
   // Reset page when search or tab changes
   React.useEffect(() => {
@@ -225,17 +193,12 @@ export default function ClassStudentsPage() {
   // Loading / Error UI (giữ logic cũ, nhưng dùng filtered/paged lists)
   if (activeTab === "students") {
     if (isLoadingStudents || isLoadingGroups)
-      return (
-        <div className="text-center text-orange-500 py-10 animate-pulse">
-          Đang tải danh sách sinh viên...
-        </div>
-      );
+      return <div className="text-center text-orange-500 py-10 animate-pulse">Đang tải danh sách sinh viên...</div>;
 
     if (isErrorStudents)
       return (
         <div className="text-center text-red-500 py-10">
-          {(studentError as Error)?.message ||
-            "Không thể tải danh sách sinh viên."}
+          {(studentError as Error)?.message || "Không thể tải danh sách sinh viên."}
         </div>
       );
   }
@@ -254,8 +217,7 @@ export default function ClassStudentsPage() {
     if (isErrorGroups) {
       toast({
         title: "❌ Lỗi tải nhóm",
-        description:
-          (groupError as Error)?.message || "Không thể tải danh sách nhóm.",
+        description: (groupError as Error)?.message || "Không thể tải danh sách nhóm.",
         variant: "destructive",
       });
       return (
@@ -281,13 +243,11 @@ export default function ClassStudentsPage() {
           <h2 className="text-2xl font-bold text-orange-600 flex items-center gap-2">
             {activeTab === "students" ? (
               <>
-                <Users className="h-6 w-6 text-orange-400" /> Students in{" "}
-                {classInfo?.code}
+                <Users className="h-6 w-6 text-orange-400" /> Students in {classInfo?.code}
               </>
             ) : (
               <>
-                <Layers className="h-6 w-6 text-orange-400" /> Groups in{" "}
-                {classInfo?.code}
+                <Layers className="h-6 w-6 text-orange-400" /> Groups in {classInfo?.code}
               </>
             )}
           </h2>
@@ -301,9 +261,7 @@ export default function ClassStudentsPage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={
-                activeTab === "students"
-                  ? "Tìm theo tên hoặc student ID..."
-                  : "Tìm theo tên hoặc mô tả nhóm..."
+                activeTab === "students" ? "Tìm theo tên hoặc student ID..." : "Tìm theo tên hoặc mô tả nhóm..."
               }
               className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-300"
             />
@@ -314,9 +272,7 @@ export default function ClassStudentsPage() {
               <button
                 onClick={() => setActiveTab("students")}
                 className={`px-4 py-2 rounded-md font-medium ${
-                  activeTab === "students"
-                    ? "bg-orange-500 text-white shadow"
-                    : "text-orange-700"
+                  activeTab === "students" ? "bg-orange-500 text-white shadow" : "text-orange-700"
                 }`}
               >
                 Students
@@ -325,9 +281,7 @@ export default function ClassStudentsPage() {
               <button
                 onClick={() => setActiveTab("groups")}
                 className={`px-4 py-2 rounded-md font-medium ${
-                  activeTab === "groups"
-                    ? "bg-orange-500 text-white shadow"
-                    : "text-orange-700"
+                  activeTab === "groups" ? "bg-orange-500 text-white shadow" : "text-orange-700"
                 }`}
               >
                 Groups
@@ -350,9 +304,7 @@ export default function ClassStudentsPage() {
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <button
-            onClick={() =>
-              setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"))
-            }
+            onClick={() => setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"))}
             className="px-3 py-1 rounded-md bg-orange-50 text-orange-700 border border-orange-100 hover:bg-orange-100 transition"
             title="Toggle sort order"
           >
@@ -376,9 +328,7 @@ export default function ClassStudentsPage() {
       {/* Tab Content */}
       {activeTab === "students" ? (
         pagedStudents.length === 0 ? (
-          <div className="text-center text-gray-500 py-12 italic text-lg">
-            Lớp này chưa có sinh viên 😔
-          </div>
+          <div className="text-center text-gray-500 py-12 italic text-lg">Lớp này chưa có sinh viên 😔</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="table-fixed w-full border-collapse">
@@ -395,16 +345,11 @@ export default function ClassStudentsPage() {
               <tbody>
                 {pagedStudents.map((s, index) => {
                   // compute global index (1-based) for display
-                  const globalIndex =
-                    (studentsPage - 1) * PAGE_SIZE + index + 1;
+                  const globalIndex = (studentsPage - 1) * PAGE_SIZE + index + 1;
                   return (
                     <tr key={s.id} className="group border-t transition">
-                      <td className="py-3 px-4 group-hover:bg-orange-50">
-                        {globalIndex}
-                      </td>
-                      <td className="py-3 px-4 font-medium text-orange-600 group-hover:bg-orange-50">
-                        {s.studentId}
-                      </td>
+                      <td className="py-3 px-4 group-hover:bg-orange-50">{globalIndex}</td>
+                      <td className="py-3 px-4 font-medium text-orange-600 group-hover:bg-orange-50">{s.studentId}</td>
                       <td className="py-3 px-4 flex items-center gap-2 group-hover:bg-orange-50">
                         <User className="h-4 w-4 text-orange-400" />
                         <span className="truncate block">
@@ -414,9 +359,7 @@ export default function ClassStudentsPage() {
                       <td className="py-2 px-1 group-hover:bg-orange-50">
                         <span
                           className={`px-2 py-1 rounded-full text-sm ${
-                            s.status === "Active"
-                              ? "bg-green-100 text-green-600"
-                              : "bg-gray-100 text-gray-600"
+                            s.status === "Active" ? "bg-green-100 text-green-600" : "bg-gray-100 text-gray-600"
                           }`}
                         >
                           {s.status}
@@ -425,9 +368,7 @@ export default function ClassStudentsPage() {
                       <td className="py-2 px-1 group-hover:bg-orange-50">
                         <span className="truncate block">{s.email}</span>
                       </td>
-                      <td className="py-2 px-1 group-hover:bg-orange-50">
-                        {studentGroupMap[s.id] || "Chưa có nhóm"}
-                      </td>
+                      <td className="py-2 px-1 group-hover:bg-orange-50">{studentGroupMap[s.id] || "Chưa có nhóm"}</td>
                     </tr>
                   );
                 })}
@@ -438,11 +379,7 @@ export default function ClassStudentsPage() {
             <div className="flex items-center justify-between mt-4">
               <div className="text-sm text-gray-500">
                 Hiển thị {(studentsPage - 1) * PAGE_SIZE + 1} -{" "}
-                {Math.min(
-                  studentsPage * PAGE_SIZE,
-                  filteredSortedStudents.length
-                )}{" "}
-                của {filteredSortedStudents.length}
+                {Math.min(studentsPage * PAGE_SIZE, filteredSortedStudents.length)} của {filteredSortedStudents.length}
               </div>
 
               <div className="flex items-center gap-2">
@@ -463,9 +400,7 @@ export default function ClassStudentsPage() {
                         key={p}
                         onClick={() => setStudentsPage(p)}
                         className={`px-3 py-1 rounded-md border ${
-                          p === studentsPage
-                            ? "bg-orange-500 text-white border-orange-500"
-                            : "bg-white"
+                          p === studentsPage ? "bg-orange-500 text-white border-orange-500" : "bg-white"
                         }`}
                       >
                         {p}
@@ -487,9 +422,7 @@ export default function ClassStudentsPage() {
                 </div>
 
                 <button
-                  onClick={() =>
-                    setStudentsPage((p) => Math.min(totalStudentsPages, p + 1))
-                  }
+                  onClick={() => setStudentsPage((p) => Math.min(totalStudentsPages, p + 1))}
                   disabled={studentsPage >= totalStudentsPages}
                   className="px-3 py-1 rounded-md bg-white border border-gray-200 hover:bg-gray-50 disabled:opacity-50"
                 >
@@ -500,9 +433,7 @@ export default function ClassStudentsPage() {
           </div>
         )
       ) : pagedGroups.length === 0 ? (
-        <div className="text-center text-gray-500 py-12 italic text-lg">
-          Lớp này chưa có nhóm nào 😔
-        </div>
+        <div className="text-center text-gray-500 py-12 italic text-lg">Lớp này chưa có nhóm nào 😔</div>
       ) : (
         <div className="flex flex-col gap-4">
           {pagedGroups.map((g, index) => {
@@ -528,18 +459,12 @@ export default function ClassStudentsPage() {
                     </div>
 
                     <div className="min-w-0">
-                      <div className="text-lg font-semibold text-orange-700 truncate">
-                        {g.name}
-                      </div>
-                      <div className="text-xs text-gray-500 truncate">
-                        {g.description || "Không có mô tả"}
-                      </div>
+                      <div className="text-lg font-semibold text-orange-700 truncate">{g.name}</div>
+                      <div className="text-xs text-gray-500 truncate">{g.description || "Không có mô tả"}</div>
                       <div className="text-xs text-gray-400 mt-1">
                         Created: {new Date(g.createdAt).toLocaleDateString()}
                       </div>
-                      <div className="text-xs text-gray-400 mt-1">
-                        #{globalIndex}
-                      </div>
+                      <div className="text-xs text-gray-400 mt-1">#{globalIndex}</div>
                     </div>
                   </div>
 
@@ -547,9 +472,7 @@ export default function ClassStudentsPage() {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        router.push(
-                          `/lecturer/class/${classId}/${g.id}/add-member`
-                        );
+                        router.push(`/lecturer/class/${classId}/${g.id}/add-member`);
                       }}
                       className="p-2 rounded-md bg-white border border-orange-100 text-orange-600 hover:bg-orange-50 transition"
                       title="Add member"
@@ -583,17 +506,11 @@ export default function ClassStudentsPage() {
                     </button>
 
                     <button
-                      onClick={() =>
-                        setExpandedGroupId((prev) =>
-                          prev === g.id ? null : g.id
-                        )
-                      }
+                      onClick={() => setExpandedGroupId((prev) => (prev === g.id ? null : g.id))}
                       className="ml-2 px-3 py-1 rounded-full bg-orange-50 text-orange-700 text-sm"
                       title="Toggle members"
                     >
-                      {expandedGroupId === g.id
-                        ? "Hide members"
-                        : `Members (${g.members?.length || 0})`}
+                      {expandedGroupId === g.id ? "Hide members" : `Members (${g.members?.length || 0})`}
                     </button>
                   </div>
                 </div>
@@ -603,16 +520,12 @@ export default function ClassStudentsPage() {
                     {g.members?.length ? (
                       <div className="flex flex-col gap-2">
                         {g.members.map((m) => (
-                          <div
-                            key={m.userId}
-                            className="flex items-center justify-between gap-3"
-                          >
+                          <div key={m.userId} className="flex items-center justify-between gap-3">
                             <div className="flex items-center gap-3 min-w-0">
                               <div
                                 className="w-9 h-9 flex items-center justify-center rounded-full text-white font-medium"
                                 style={{
-                                  background:
-                                    "linear-gradient(135deg,#ffd7b5,#ff9f43)",
+                                  background: "linear-gradient(135deg,#ffd7b5,#ff9f43)",
                                 }}
                               >
                                 {m.firstName?.[0] || "U"}
@@ -631,9 +544,7 @@ export default function ClassStudentsPage() {
                               <div className="text-xs text-gray-500">
                                 <span
                                   className={`px-2 py-1 rounded-full ${
-                                    m.status === "Active"
-                                      ? "bg-green-100 text-green-700"
-                                      : "bg-gray-100 text-gray-600"
+                                    m.status === "Active" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"
                                   }`}
                                 >
                                   {m.status}
@@ -654,10 +565,7 @@ export default function ClassStudentsPage() {
                                   } catch (err: unknown) {
                                     toast({
                                       title: "❌ Lỗi xóa thành viên",
-                                      description:
-                                        err instanceof Error
-                                          ? err.message
-                                          : "Không thể xóa thành viên.",
+                                      description: err instanceof Error ? err.message : "Không thể xóa thành viên.",
                                       variant: "destructive",
                                     });
                                   }
@@ -671,9 +579,7 @@ export default function ClassStudentsPage() {
                         ))}
                       </div>
                     ) : (
-                      <div className="text-center text-gray-500 italic py-2">
-                        Nhóm này chưa có thành viên 😔
-                      </div>
+                      <div className="text-center text-gray-500 italic py-2">Nhóm này chưa có thành viên 😔</div>
                     )}
                   </div>
                 )}
@@ -685,8 +591,7 @@ export default function ClassStudentsPage() {
           <div className="flex items-center justify-between mt-4">
             <div className="text-sm text-gray-500">
               Hiển thị {(groupsPage - 1) * PAGE_SIZE + 1} -{" "}
-              {Math.min(groupsPage * PAGE_SIZE, filteredSortedGroups.length)}{" "}
-              của {filteredSortedGroups.length}
+              {Math.min(groupsPage * PAGE_SIZE, filteredSortedGroups.length)} của {filteredSortedGroups.length}
             </div>
 
             <div className="flex items-center gap-2">
@@ -706,9 +611,7 @@ export default function ClassStudentsPage() {
                       key={p}
                       onClick={() => setGroupsPage(p)}
                       className={`px-3 py-1 rounded-md border ${
-                        p === groupsPage
-                          ? "bg-orange-500 text-white border-orange-500"
-                          : "bg-white"
+                        p === groupsPage ? "bg-orange-500 text-white border-orange-500" : "bg-white"
                       }`}
                     >
                       {p}
@@ -729,9 +632,7 @@ export default function ClassStudentsPage() {
               </div>
 
               <button
-                onClick={() =>
-                  setGroupsPage((p) => Math.min(totalGroupsPages, p + 1))
-                }
+                onClick={() => setGroupsPage((p) => Math.min(totalGroupsPages, p + 1))}
                 disabled={groupsPage >= totalGroupsPages}
                 className="px-3 py-1 rounded-md bg-white border border-gray-200 hover:bg-gray-50 disabled:opacity-50"
               >
@@ -746,13 +647,9 @@ export default function ClassStudentsPage() {
       {editingGroup && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl p-6 shadow-lg w-full max-w-md">
-            <h3 className="text-xl font-semibold text-orange-600 mb-4">
-              Edit Group: {editingGroup.name}
-            </h3>
+            <h3 className="text-xl font-semibold text-orange-600 mb-4">Edit Group: {editingGroup.name}</h3>
 
-            <label className="block mb-2 font-medium text-gray-700">
-              Group Name
-            </label>
+            <label className="block mb-2 font-medium text-gray-700">Group Name</label>
             <input
               type="text"
               value={editName}
@@ -760,9 +657,7 @@ export default function ClassStudentsPage() {
               className="w-full border border-gray-300 rounded-lg p-2 mb-4 focus:outline-none focus:ring-2 focus:ring-orange-400"
             />
 
-            <label className="block mb-2 font-medium text-gray-700">
-              Description
-            </label>
+            <label className="block mb-2 font-medium text-gray-700">Description</label>
             <textarea
               value={editDescription}
               onChange={(e) => setEditDescription(e.target.value)}
@@ -816,18 +711,12 @@ export default function ClassStudentsPage() {
       {/* Custom delete confirmation modal (replaces window.confirm) */}
       {groupToDelete && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div
-            className="absolute inset-0 bg-black/40"
-            onClick={() => setGroupToDelete(null)}
-          />
+          <div className="absolute inset-0 bg-black/40" onClick={() => setGroupToDelete(null)} />
           <div className="relative bg-white rounded-xl shadow-lg p-6 w-full max-w-md z-10">
-            <h3 className="text-lg font-semibold text-red-600 mb-2">
-              Xác nhận xóa
-            </h3>
+            <h3 className="text-lg font-semibold text-red-600 mb-2">Xác nhận xóa</h3>
             <p className="text-sm text-gray-700 mb-4">
-              Bạn có chắc muốn xóa nhóm{" "}
-              <span className="font-medium">{groupToDelete.name}</span> ? Hành
-              động này không thể hoàn tác.
+              Bạn có chắc muốn xóa nhóm <span className="font-medium">{groupToDelete.name}</span> ? Hành động này không
+              thể hoàn tác.
             </p>
 
             <div className="flex justify-end gap-3">
@@ -850,10 +739,7 @@ export default function ClassStudentsPage() {
                   } catch (err: unknown) {
                     toast({
                       title: "❌ Lỗi xóa nhóm",
-                      description:
-                        err instanceof Error
-                          ? err.message
-                          : "Không thể xóa nhóm này.",
+                      description: err instanceof Error ? err.message : "Không thể xóa nhóm này.",
                       variant: "destructive",
                     });
                   }

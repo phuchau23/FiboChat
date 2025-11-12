@@ -12,10 +12,7 @@ import {
 import { ChevronDown } from "lucide-react";
 import { Topic } from "@/lib/data/api";
 import UserDropdown from "./UserAvatarMenu";
-import {
-  useClassEnrollmentByUser,
-  useGroupMembers,
-} from "@/hooks/useGroupEnrollment";
+import { useClassEnrollmentByUser, useGroupMembers } from "@/hooks/useGroupEnrollment";
 import { getCookie } from "cookies-next";
 import { decodeToken } from "@/utils/jwt";
 
@@ -41,11 +38,7 @@ function getInitials(fullName?: string) {
   return (first + last).toUpperCase();
 }
 
-export default function ChatHeader({
-  selectedTopic,
-  setSelectedTopic,
-  mockTopics,
-}: ChatHeaderProps) {
+export default function ChatHeader({}: ChatHeaderProps) {
   const token = getCookie("auth-token");
   let userId: string | undefined;
 
@@ -84,32 +77,24 @@ export default function ChatHeader({
                     className="flex items-center gap-3 py-2 focus:outline-none focus:ring-0 focus-visible:ring-0 hover:bg-gray-50"
                   >
                     <Avatar className="h-9 w-9">
-                      <AvatarFallback className="text-[12px]">
-                        {getInitials(member.name)}
-                      </AvatarFallback>
+                      <AvatarFallback className="text-[12px]">{getInitials(member.name)}</AvatarFallback>
                     </Avatar>
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="font-medium text-sm truncate">
-                          {member.name}
-                        </span>
+                        <span className="font-medium text-sm truncate">{member.name}</span>
                         {member.id === userId && (
                           <span className="text-[10px] leading-none px-1.5 py-0.5 rounded bg-neutral-100 text-neutral-600 border border-neutral-200">
                             You
                           </span>
                         )}
                       </div>
-                      <div className="text-xs text-gray-600 truncate">
-                        {member.email}
-                      </div>
+                      <div className="text-xs text-gray-600 truncate">{member.email}</div>
                     </div>
                   </DropdownMenuItem>
                 ))
               ) : (
-                <div className="text-sm text-gray-500 px-2 py-2">
-                  No members found.
-                </div>
+                <div className="text-sm text-gray-500 px-2 py-2">No members found.</div>
               )}
             </DropdownMenuContent>
           </DropdownMenuPortal>
