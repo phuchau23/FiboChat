@@ -193,12 +193,12 @@ export default function ClassStudentsPage() {
   // Loading / Error UI (giữ logic cũ, nhưng dùng filtered/paged lists)
   if (activeTab === "students") {
     if (isLoadingStudents || isLoadingGroups)
-      return <div className="text-center text-orange-500 py-10 animate-pulse">Đang tải danh sách sinh viên...</div>;
+      return <div className="text-center text-orange-500 py-10 animate-pulse">Loading student list...</div>;
 
     if (isErrorStudents)
       return (
         <div className="text-center text-red-500 py-10">
-          {(studentError as Error)?.message || "Không thể tải danh sách sinh viên."}
+          {(studentError as Error)?.message || "Unable to load student list."}
         </div>
       );
   }
@@ -261,7 +261,7 @@ export default function ClassStudentsPage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={
-                activeTab === "students" ? "Tìm theo tên hoặc student ID..." : "Tìm theo tên hoặc mô tả nhóm..."
+                activeTab === "students" ? "Search by name or student ID..." : "Search by name or group description..."
               }
               className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-300"
             />
@@ -312,8 +312,8 @@ export default function ClassStudentsPage() {
           </button>
           <div className="text-sm text-gray-500">
             {activeTab === "students"
-              ? `${filteredSortedStudents.length} sinh viên`
-              : `${filteredSortedGroups.length} nhóm`}
+              ? `${filteredSortedStudents.length} students`
+              : `${filteredSortedGroups.length} groups`}
           </div>
         </div>
 
@@ -328,7 +328,7 @@ export default function ClassStudentsPage() {
       {/* Tab Content */}
       {activeTab === "students" ? (
         pagedStudents.length === 0 ? (
-          <div className="text-center text-gray-500 py-12 italic text-lg">Lớp này chưa có sinh viên 😔</div>
+          <div className="text-center text-gray-500 py-12 italic text-lg">This class has no students yet</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="table-fixed w-full border-collapse">
@@ -368,7 +368,7 @@ export default function ClassStudentsPage() {
                       <td className="py-2 px-1 group-hover:bg-orange-50">
                         <span className="truncate block">{s.email}</span>
                       </td>
-                      <td className="py-2 px-1 group-hover:bg-orange-50">{studentGroupMap[s.id] || "Chưa có nhóm"}</td>
+                      <td className="py-2 px-1 group-hover:bg-orange-50">{studentGroupMap[s.id] || "No groups yet"}</td>
                     </tr>
                   );
                 })}
@@ -378,8 +378,8 @@ export default function ClassStudentsPage() {
             {/* Pagination controls for students */}
             <div className="flex items-center justify-between mt-4">
               <div className="text-sm text-gray-500">
-                Hiển thị {(studentsPage - 1) * PAGE_SIZE + 1} -{" "}
-                {Math.min(studentsPage * PAGE_SIZE, filteredSortedStudents.length)} của {filteredSortedStudents.length}
+                Show {(studentsPage - 1) * PAGE_SIZE + 1} -{" "}
+                {Math.min(studentsPage * PAGE_SIZE, filteredSortedStudents.length)} of {filteredSortedStudents.length}
               </div>
 
               <div className="flex items-center gap-2">
@@ -433,7 +433,7 @@ export default function ClassStudentsPage() {
           </div>
         )
       ) : pagedGroups.length === 0 ? (
-        <div className="text-center text-gray-500 py-12 italic text-lg">Lớp này chưa có nhóm nào 😔</div>
+        <div className="text-center text-gray-500 py-12 italic text-lg">This class does not have any groups yet</div>
       ) : (
         <div className="flex flex-col gap-4">
           {pagedGroups.map((g, index) => {
@@ -579,7 +579,7 @@ export default function ClassStudentsPage() {
                         ))}
                       </div>
                     ) : (
-                      <div className="text-center text-gray-500 italic py-2">Nhóm này chưa có thành viên 😔</div>
+                      <div className="text-center text-gray-500 italic py-2">This group has no members yet</div>
                     )}
                   </div>
                 )}
@@ -590,8 +590,8 @@ export default function ClassStudentsPage() {
           {/* Pagination controls for groups */}
           <div className="flex items-center justify-between mt-4">
             <div className="text-sm text-gray-500">
-              Hiển thị {(groupsPage - 1) * PAGE_SIZE + 1} -{" "}
-              {Math.min(groupsPage * PAGE_SIZE, filteredSortedGroups.length)} của {filteredSortedGroups.length}
+              Show {(groupsPage - 1) * PAGE_SIZE + 1} - {Math.min(groupsPage * PAGE_SIZE, filteredSortedGroups.length)}{" "}
+              of {filteredSortedGroups.length}
             </div>
 
             <div className="flex items-center gap-2">
@@ -715,8 +715,8 @@ export default function ClassStudentsPage() {
           <div className="relative bg-white rounded-xl shadow-lg p-6 w-full max-w-md z-10">
             <h3 className="text-lg font-semibold text-red-600 mb-2">Xác nhận xóa</h3>
             <p className="text-sm text-gray-700 mb-4">
-              Bạn có chắc muốn xóa nhóm <span className="font-medium">{groupToDelete.name}</span> ? Hành động này không
-              thể hoàn tác.
+              Are you sure you want to delete group <span className="font-medium">{groupToDelete.name}</span> ? This
+              action does not can be undone.
             </p>
 
             <div className="flex justify-end gap-3">
@@ -724,7 +724,7 @@ export default function ClassStudentsPage() {
                 onClick={() => setGroupToDelete(null)}
                 className="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition"
               >
-                Hủy
+                Cancel
               </button>
               <button
                 onClick={async () => {
@@ -746,7 +746,7 @@ export default function ClassStudentsPage() {
                 }}
                 className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition"
               >
-                Xóa
+                Delete
               </button>
             </div>
           </div>
