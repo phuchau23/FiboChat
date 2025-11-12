@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { decodeToken } from "@/utils/jwt";
 
-const authRoutes = ["/login", "/forgot-password", "/change-password"];
+const authRoutes = ["/login", "/forgot-password"];
 
 export default function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
@@ -16,7 +16,10 @@ export default function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-
+  // CHO PHÉP /change-password
+  if (pathname === "/change-password") {
+    return NextResponse.next();
+  }
 
   // Nếu đã login mà vào /login, /forgot-password,... → redirect theo vai trò
   if (authRoutes.includes(pathname)) {
