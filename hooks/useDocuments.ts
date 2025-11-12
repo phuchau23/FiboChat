@@ -44,10 +44,23 @@ export function useDocument(id: string) {
 
 export function useUpdateDocument() {
   const queryClient = useQueryClient();
+
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: { Title?: string; Version?: number; Status?: string } }) =>
-      fetchDocument.update(id, data),
-    onSuccess: (data) => queryClient.invalidateQueries({ queryKey: ["documents"] }),
+    mutationFn: ({
+      id,
+      data,
+    }: {
+      id: string;
+      data: {
+        Title?: string;
+        TopicId?: string;
+        DocumentTypeId?: string;
+        Version?: number;
+        Status?: string;
+        File?: File;
+      };
+    }) => fetchDocument.update(id, data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["documents"] }),
   });
 }
 
@@ -55,6 +68,23 @@ export function useDeleteDocument() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => fetchDocument.delete(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["documents"] }),
+  });
+}
+export function usePublishDocument() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => fetchDocument.publish(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["documents"] }),
+  });
+}
+
+export function useUnpublishDocument() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => fetchDocument.unpublish(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["documents"] }),
   });
 }
