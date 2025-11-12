@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { useTranslation } from "react-i18next";
@@ -36,12 +37,7 @@ export function LanguageSelector() {
             onClick={() => changeLanguage(language.code)}
             className={i18n.language === language.code ? "bg-accent" : ""}
           >
-            <img
-              src={`https://flagcdn.com/w40/${language.flag}.png`}
-              alt={language.code}
-              width={24}
-              height={16}
-            />
+            <img src={`https://flagcdn.com/w40/${language.flag}.png`} alt={language.code} width={24} height={16} />
             {language.name}
           </DropdownMenuItem>
         ))}

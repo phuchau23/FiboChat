@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchTopic, TopicApiResponse } from "../lib/api/services/fetchTopic";
+import { getCookie } from "cookies-next";
 
 export function useTopics(page = 1, pageSize = 10) {
   const { isError, isLoading, error, data } = useQuery({
@@ -27,7 +28,7 @@ export function useAllTopics() {
     queryKey: ["allTopics"],
     queryFn: () => fetchTopic.getAllTopicsAllPages(),
     staleTime: 15 * 60 * 1000, // 15 phút không fetch lại
-    refetchOnWindowFocus: false, 
+    refetchOnWindowFocus: false,
   });
 
   return {
@@ -37,8 +38,6 @@ export function useAllTopics() {
     error,
   };
 }
-
-
 
 export function useTopicById(id?: string) {
   const { data, isError, isLoading, error } = useQuery({
@@ -88,10 +87,12 @@ export function useDeleteTopic() {
   });
 }
 export function useTopicsByLecturer(lecturerId?: string, page = 1, pageSize = 10) {
+  const id = lecturerId ?? (getCookie("user-id") as string);
+
   const { data, isError, isLoading, error } = useQuery({
-    queryKey: ["topicsByLecturer", lecturerId, page, pageSize],
-    queryFn: () => (lecturerId ? fetchTopic.getTopicsByLecturer(lecturerId, page, pageSize) : Promise.reject()),
-    enabled: !!lecturerId,
+    queryKey: ["topicsByLecturer", id, page, pageSize],
+    queryFn: () => fetchTopic.getTopicsByLecturer(id, page, pageSize),
+    enabled: !!id,
     select: (data: TopicApiResponse) => ({
       topics: data.data.items,
       pagination: data.data,
@@ -105,24 +106,7 @@ export function useTopicsByLecturer(lecturerId?: string, page = 1, pageSize = 10
     isLoading,
     error,
     data,
-    topics: data?.topics,
+    topics: data?.topics ?? [], // luôn trả về array để component an toàn
     pagination: data?.pagination,
-  };
-}
-
-// Lấy tất cả chủ đề theo giảng viên (không phân trang)
-export function useAllTopicsByLecturer(lecturerId?: string) {
-  const { data, isError, isLoading, error } = useQuery({
-    queryKey: ["allTopicsByLecturer", lecturerId],
-    queryFn: () => (lecturerId ? fetchTopic.getAllTopicsByLecturer(lecturerId) : Promise.reject()),
-    enabled: !!lecturerId,
-    select: (data: TopicApiResponse) => data.data.items,
-  });
-
-  return {
-    isError,
-    isLoading,
-    error,
-    topics: data,
   };
 }

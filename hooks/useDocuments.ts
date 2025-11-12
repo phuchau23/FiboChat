@@ -1,4 +1,3 @@
-// hooks/useDocuments.ts
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchDocument, DocumentApiResponse } from "@/lib/api/services/fetchDocument";
 
@@ -27,11 +26,65 @@ export function useDocumentsByLecturer(lecturerId: string, page = 1, pageSize = 
 
 export function useUploadDocument() {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: (formData: FormData) => fetchDocument.upload(formData),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["documents"] });
-    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["documents"] }),
+  });
+}
+
+// --- New hooks for detail, update, delete ---
+export function useDocument(id: string) {
+  return useQuery({
+    queryKey: ["document", id],
+    queryFn: () => fetchDocument.getById(id),
+    enabled: !!id,
+    select: (res) => res.data,
+  });
+}
+
+export function useUpdateDocument() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      id,
+      data,
+    }: {
+      id: string;
+      data: {
+        Title?: string;
+        TopicId?: string;
+        DocumentTypeId?: string;
+        Version?: number;
+        Status?: string;
+        File?: File;
+      };
+    }) => fetchDocument.update(id, data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["documents"] }),
+  });
+}
+
+export function useDeleteDocument() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => fetchDocument.delete(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["documents"] }),
+  });
+}
+export function usePublishDocument() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => fetchDocument.publish(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["documents"] }),
+  });
+}
+
+export function useUnpublishDocument() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => fetchDocument.unpublish(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["documents"] }),
   });
 }

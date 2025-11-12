@@ -5,7 +5,7 @@ import apiService from "@/lib/api/core";
 export interface QAPair {
   id: string;
   topicId: string;
-  documentId: string;
+  documentId: string | null;
   createdById: string;
   verifiedById: string | null;
   questionText: string;
@@ -13,6 +13,12 @@ export interface QAPair {
   status: "Active" | "Inactive";
   createdAt: string;
   updatedAt: string;
+}
+
+export interface QAPairsByLecturerParams {
+  page?: number;
+  pageSize?: number;
+  topicId?: string;
 }
 
 export interface QAPagination {
@@ -41,7 +47,7 @@ export interface QASingleResponse {
 
 export interface CreateQAPairRequest {
   TopicId: string;
-  DocumentId: string;
+  DocumentId: string | null;
   QuestionText: string;
   AnswerText: string;
 }
@@ -71,7 +77,33 @@ export const fetchQAPair = {
   },
 
   create: async (formData: FormData): Promise<QASingleResponse> => {
+    // Thêm 2 trường auto
+    formData.append("AutoEmbed", "true");
+    formData.append("AutoLoadCache", "true");
+
     const res = await apiService.post<QASingleResponse>("/course/api/qa-pairs", formData);
+    return res.data;
+  },
+
+  getByLecturer: async (lecturerId: string, params: QAPairsByLecturerParams = {}): Promise<QAApiResponse> => {
+    const query = new URLSearchParams();
+    if (params.page) query.append("page", params.page.toString());
+    if (params.pageSize) query.append("pageSize", params.pageSize.toString());
+    if (params.topicId) query.append("topicId", params.topicId);
+
+    const res = await apiService.get<QAApiResponse>(`/course/api/qa-pairs/lecturer/${lecturerId}?${query.toString()}`);
+    return res.data;
+  },
+
+  // === New API: update QA pair ===
+  update: async (id: string, formData: FormData): Promise<QASingleResponse> => {
+    const res = await apiService.put<QASingleResponse>(`/course/api/qa-pairs/${id}`, formData);
+    return res.data;
+  },
+
+  // === New API: delete QA pair ===
+  delete: async (id: string): Promise<QASingleResponse> => {
+    const res = await apiService.delete<QASingleResponse>(`/course/api/qa-pairs/${id}`);
     return res.data;
   },
 };
