@@ -45,10 +45,8 @@ export default function QAPairSidebar({
   const pagination = data?.pagination;
 
   return (
-    <div className="w-2/12 h-full">
-      {/* QA Pair List */}
-
-      <div className="flex-1 overflow-y-auto  space-y-4 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+    <div className="w-2/12 h-screen flex flex-col">
+      <div className="flex-1 overflow-y-auto space-y-4 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {qaPairs.length === 0 ? (
           <p className="text-gray-500 text-sm text-center mt-8">
             No prompts available
@@ -64,9 +62,8 @@ export default function QAPairSidebar({
         )}
       </div>
 
-      {/* Pagination */}
       {pagination && pagination.totalPages > 1 && (
-        <div className="p-5 border-t border-gray-200 bg-white">
+        <div className="p-5 border-t border-gray-200">
           <div className="flex items-center justify-between text-[13px]">
             <button
               onClick={() => setPage(Math.max(1, page - 1))}
