@@ -22,10 +22,18 @@ import { OverviewTopicInventory } from "./components/overviewTopicInventory";
 export type KPIStats = {
   totalStudents: number;
   studentsTrend?: number;
+  lastMonthStudents?: number;
   totalLecturers: number;
+  lecturersTrend?: number;
+  lastMonthLecturers?: number;
   activeSemesters: number;
+  lastMonthSemesters?: number;
   totalClasses: number;
+  classesTrend?: number;
+  lastMonthClasses?: number;
   totalTopics: number;
+  topicsTrend?: number;
+  lastMonthTopics?: number;
 };
 
 export default function OverviewPage() {
@@ -47,19 +55,86 @@ export default function OverviewPage() {
   const hasError = e1 || e2 || e3 || e4 || e5 || e6;
 
   // KPI Summary
-  const kpi = useMemo(
-    () => ({
-      totalStudents: users?.length ?? 0,
-      totalLecturers: lecturers?.length ?? 0,
+  const kpi = useMemo(() => {
+    const now = new Date();
+    const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
+
+    // Lọc students tháng trước (giả sử users có trường createdAt)
+    const lastMonthStudents =
+      users?.filter((u: any) => {
+        const created = new Date(u.createdAt);
+        return created >= lastMonth && created <= lastMonthEnd;
+      }).length ?? 0;
+
+    const currentStudents = users?.length ?? 0;
+    const studentsTrend =
+      lastMonthStudents > 0
+        ? ((currentStudents - lastMonthStudents) / lastMonthStudents) * 100
+        : 0;
+
+    // Tương tự cho lecturers
+    const lastMonthLecturers =
+      lecturers?.filter((l: any) => {
+        const created = new Date(l.createdAt);
+        return created >= lastMonth && created <= lastMonthEnd;
+      }).length ?? 0;
+
+    const currentLecturers = lecturers?.length ?? 0;
+    const lecturersTrend =
+      lastMonthLecturers > 0
+        ? ((currentLecturers - lastMonthLecturers) / lastMonthLecturers) * 100
+        : 0;
+
+    // Classes
+    const lastMonthClasses =
+      classes?.filter((c: any) => {
+        const created = new Date(c.createdAt);
+        return created >= lastMonth && created <= lastMonthEnd;
+      }).length ?? 0;
+
+    const currentClasses = classes?.length ?? 0;
+    const classesTrend =
+      lastMonthClasses > 0
+        ? ((currentClasses - lastMonthClasses) / lastMonthClasses) * 100
+        : 0;
+
+    // Topics
+    const lastMonthTopics =
+      topics?.filter((t: any) => {
+        const created = new Date(t.createdAt);
+        return created >= lastMonth && created <= lastMonthEnd;
+      }).length ?? 0;
+
+    const currentTopics = topics?.length ?? 0;
+    const topicsTrend =
+      lastMonthTopics > 0
+        ? ((currentTopics - lastMonthTopics) / lastMonthTopics) * 100
+        : 0;
+
+    return {
+      totalStudents: currentStudents,
+      studentsTrend,
+      lastMonthStudents,
+
+      totalLecturers: currentLecturers,
+      lecturersTrend,
+      lastMonthLecturers,
+
       activeSemesters:
         semesters?.filter(
           (s: any) => String(s.status).toLowerCase() === "active"
         ).length ?? 0,
-      totalClasses: classes?.length ?? 0,
-      totalTopics: topics?.length ?? 0,
-    }),
-    [users, lecturers, semesters, classes, topics]
-  );
+
+      totalClasses: currentClasses,
+      classesTrend,
+      lastMonthClasses,
+
+      totalTopics: currentTopics,
+      topicsTrend,
+      lastMonthTopics,
+    };
+  }, [users, lecturers, semesters, classes, topics]);
 
   //Topic Inventory Status
   const topicInventory = useMemo(() => {

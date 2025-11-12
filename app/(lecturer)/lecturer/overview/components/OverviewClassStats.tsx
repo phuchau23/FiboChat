@@ -110,7 +110,7 @@ export function OverviewClassStats() {
     <Card>
       <CardHeader>
         <CardTitle>Class & Group Overview</CardTitle>
-        <p className="text-sm text-gray-500">Tổng số lớp học, nhóm và sinh viên bạn đang quản lý.</p>
+        <p className="text-sm text-gray-500">Total number of classes, groups, and students you are managing.</p>
 
         {/* Dropdown chọn kỳ học */}
         <div className="mt-2">
@@ -122,7 +122,7 @@ export function OverviewClassStats() {
               value={selectedSemesterId || ""}
               onChange={(e) => setSelectedSemesterId(e.target.value || null)}
             >
-              <option value="">Tất cả kỳ học</option>
+              <option value="">All semesters</option>
               {semesters?.map((s) => (
                 <option key={s.id} value={s.id}>
                   {s.code} - {s.term}/{s.year}
@@ -160,15 +160,15 @@ export function OverviewClassStats() {
         <div className="mt-4 grid grid-cols-3 gap-4 text-center text-sm">
           <div>
             <p className="font-semibold text-orange-600">{chartData[0].value}</p>
-            <p className="text-gray-500">Lớp học</p>
+            <p className="text-gray-500">Class</p>
           </div>
           <div>
             <p className="font-semibold text-orange-600">{chartData[1].value}</p>
-            <p className="text-gray-500">Nhóm</p>
+            <p className="text-gray-500">Group</p>
           </div>
           <div>
             <p className="font-semibold text-orange-600">{chartData[2].value}</p>
-            <p className="text-gray-500">Sinh viên</p>
+            <p className="text-gray-500">Students</p>
           </div>
         </div>
       </CardContent>

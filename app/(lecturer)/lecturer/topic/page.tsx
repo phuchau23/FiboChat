@@ -118,7 +118,7 @@ export default function LecturerTopicView() {
                 onChange={(e) => setSelectedSemesterId(e.target.value || null)}
                 className="border rounded px-2 py-1 text-sm"
               >
-                <option value="">Tất cả kỳ học</option>
+                <option value="">All semesters</option>
                 {semesters.map((s) => (
                   <option key={s.id} value={s.id}>
                     {s.code} - {s.term}/{s.year}

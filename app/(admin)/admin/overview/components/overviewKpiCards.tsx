@@ -1,27 +1,21 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Users,
-  BookOpen,
-  Layers,
-  Calendar,
-  TrendingUp,
-  type LucideIcon,
-} from "lucide-react";
+import { Users, BookOpen, Layers, type LucideIcon } from "lucide-react";
 import type { KPIStats } from "@/app/(admin)/admin/overview/page";
 
 interface KPICardsProps {
   stats: KPIStats;
 }
 
-type KPIColor = "orange" | "purple" | "emerald" | "blue" | "indigo";
+type KPIColor = "orange" | "purple" | "blue" | "indigo";
 
 export function OverviewKPICards({ stats }: KPICardsProps) {
   const kpiCards: {
     title: string;
     value: number;
     trend?: number;
+    lastMonthValue?: number;
     icon: LucideIcon;
     color: KPIColor;
   }[] = [
@@ -29,30 +23,31 @@ export function OverviewKPICards({ stats }: KPICardsProps) {
       title: "Total Students",
       value: stats.totalStudents,
       trend: stats.studentsTrend,
+      lastMonthValue: stats.lastMonthStudents,
       icon: Users,
       color: "orange",
     },
     {
       title: "Total Lecturers",
       value: stats.totalLecturers,
+      trend: stats.lecturersTrend,
+      lastMonthValue: stats.lastMonthLecturers,
       icon: BookOpen,
       color: "purple",
     },
     {
-      title: "Active Semesters",
-      value: stats.activeSemesters,
-      icon: Calendar,
-      color: "emerald",
-    },
-    {
       title: "Total Classes",
       value: stats.totalClasses,
+      trend: stats.classesTrend,
+      lastMonthValue: stats.lastMonthClasses,
       icon: Layers,
       color: "blue",
     },
     {
       title: "Total Topics",
       value: stats.totalTopics,
+      trend: stats.topicsTrend,
+      lastMonthValue: stats.lastMonthTopics,
       icon: BookOpen,
       color: "indigo",
     },
@@ -60,60 +55,91 @@ export function OverviewKPICards({ stats }: KPICardsProps) {
 
   const colorMap = {
     orange: {
-      gradient: "from-orange-50 to-orange-100",
+      bg: "bg-orange-50",
       icon: "text-orange-600",
+      iconBg: "bg-orange-100",
     },
     purple: {
-      gradient: "from-purple-50 to-purple-100",
+      bg: "bg-purple-50",
       icon: "text-purple-600",
+      iconBg: "bg-purple-100",
     },
-    emerald: {
-      gradient: "from-emerald-50 to-emerald-100",
-      icon: "text-emerald-600",
+    blue: {
+      bg: "bg-blue-50",
+      icon: "text-blue-600",
+      iconBg: "bg-blue-100",
     },
-    blue: { gradient: "from-blue-50 to-blue-100", icon: "text-blue-600" },
     indigo: {
-      gradient: "from-indigo-50 to-indigo-100",
+      bg: "bg-indigo-50",
       icon: "text-indigo-600",
+      iconBg: "bg-indigo-100",
     },
   } as const;
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-      {kpiCards.map(({ title, value, trend, icon: Icon, color }) => {
-        const colorScheme = colorMap[color];
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 auto-rows-[1fr]">
+      {kpiCards.map(
+        ({ title, value, trend, lastMonthValue, icon: Icon, color }) => {
+          const colorScheme = colorMap[color];
+          const isPositive = trend !== undefined && trend > 0;
+          const isNegative = trend !== undefined && trend < 0;
 
-        return (
-          <Card
-            key={title}
-            className="border-2 shadow-sm hover:shadow-md transition-shadow bg-white"
-          >
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-              <CardTitle className="text-sm font-medium text-slate-600 truncate">
-                {title}
-              </CardTitle>
-              <div
-                className={`p-2 rounded-lg bg-gradient-to-br ${colorScheme.gradient}`}
-              >
-                <Icon className={`w-4 h-4 ${colorScheme.icon}`} />
-              </div>
-            </CardHeader>
+          return (
+            <Card
+              key={title}
+              className="flex flex-col h-full border-0 shadow-sm hover:shadow-md transition-all duration-300 bg-white overflow-hidden rounded-3xl"
+            >
+              <CardHeader className="flex flex-row items-start justify-between px-5">
+                <div className="flex-1">
+                  <CardTitle className="text-md font-medium text-slate-500">
+                    {title}
+                  </CardTitle>
 
-            <CardContent>
-              <div className="flex items-baseline gap-1">
-                <div className="text-2xl font-bold text-slate-900">{value}</div>
+                  <div className="flex items-center gap-2 pt-3">
+                    <div className="relative flex items-center">
+                      <span className="text-5xl font-bold text-slate-900">
+                        {value.toLocaleString()}
+                      </span>
 
-                {trend !== undefined && trend !== 0 && (
-                  <div className="flex items-center gap-0.5 text-xs font-medium text-emerald-600">
-                    <TrendingUp className="w-3 h-3" />
-                    <span>+{trend}%</span>
+                      {trend !== undefined && (
+                        <div
+                          className={`absolute left-full ml-2 top-1/2 -translate-y-1/2 flex items-center gap-1 text-sm font-semibold px-3 py-1 rounded-full ${
+                            isPositive
+                              ? "bg-emerald-50 text-emerald-600"
+                              : isNegative
+                              ? "bg-red-50 text-red-600"
+                              : "bg-slate-50 text-slate-600"
+                          }`}
+                        >
+                          <span className="text-base">
+                            {isPositive ? "↑" : isNegative ? "↓" : "→"}
+                          </span>
+                          <span>{Math.abs(trend).toFixed(1)}%</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className={`p-2.5 rounded-xl ${colorScheme.iconBg}`}>
+                  <Icon className={`w-5 h-5 ${colorScheme.icon}`} />
+                </div>
+              </CardHeader>
+
+              <CardContent className="px-5">
+                {lastMonthValue !== undefined && (
+                  <div className="text-md text-slate-500 mt-1">
+                    Last month:{" "}
+                    <span className="font-semibold text-slate-700">
+                      {lastMonthValue.toLocaleString()}
+                    </span>
                   </div>
                 )}
-              </div>
-            </CardContent>
-          </Card>
-        );
-      })}
+              </CardContent>
+            </Card>
+          );
+        }
+      )}
     </div>
   );
 }

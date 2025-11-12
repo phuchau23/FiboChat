@@ -100,6 +100,27 @@ export interface ImportUserResponse {
   message: string;
 }
 
+export interface ImportJobStatus {
+  id: string;
+  filename?: string;
+  status: "Running" | "Processing" | "Completed" | "Failed";
+  totalCount: number;
+  processedCount: number;
+  successCount: number;
+  failedCount: number;
+  progress: number;
+}
+
+export interface ImportJobItem {
+  id: string;
+  rowNumber: number;
+  email: string;
+  studentId: string;
+  status: "Success" | "Skipped" | "Failed";
+  message: string;
+  processedAt: string;
+}
+
 
 export const fetchUser = {
   getAllUsers: async (page = 1, pageSize = 10): Promise<UserApiResponse> => {
@@ -108,9 +129,21 @@ export const fetchUser = {
   },
 
   getAllUsersNoPagination: async (): Promise<User[]> => {
-    const response = await apiService.get<UserApiResponse>("/auth/api/users");
-    return response.data.data.items;
-  },
+  const pageSize = 100; 
+  let page = 1;
+  const all: User[] = [];
+
+  while (true) {
+    const res = await apiService.get<UserApiResponse>("/auth/api/users", { page, pageSize });
+    const { items, hasNextPage } = res.data.data;
+
+    all.push(...items);
+    if (!hasNextPage) break;
+
+    page += 1;
+  }
+  return all;
+},
 
   createUser: async (formData: FormData): Promise<RegisterUserResponse> => {
     const response = await apiService.post<RegisterUserResponse>("/auth/api/users/register", formData);
@@ -151,6 +184,18 @@ export const fetchUser = {
       formData
     );
 
+    return response.data;
+  },
+
+    // Get import job status
+  getImportStatus: async (jobId: string): Promise<ImportJobStatus> => {
+    const response = await apiService.get<ImportJobStatus>(`/auth/api/import/${jobId}/status`);
+    return response.data;
+  },
+
+  // Get import job items
+  getImportItems: async (jobId: string): Promise<ImportJobItem[]> => {
+    const response = await apiService.get<ImportJobItem[]>(`/auth/api/import/${jobId}/items`);
     return response.data;
   },
 };
