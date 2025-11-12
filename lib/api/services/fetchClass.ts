@@ -123,9 +123,25 @@ export const fetchClass = {
   },
 
   getAllClassesNoPagination: async (): Promise<Class[]> => {
-    const response = await apiService.get<ClassApiResponse>(`/auth/api/classes`);
-    return response.data.data.items;
-  },
+  const pageSize = 100; 
+  let page = 1;
+  const all: Class[] = [];
+
+  while (true) {
+    const res = await apiService.get<ClassApiResponse>("/auth/api/classes", {
+      page,
+      pageSize,
+    });
+
+    const { items, hasNextPage } = res.data.data;
+    all.push(...items);
+
+    if (!hasNextPage) break;
+    page++;
+  }
+
+  return all;
+},
 
   // GET BY ID
   getClassById: async (id: string): Promise<ClassSingleResponse> => {

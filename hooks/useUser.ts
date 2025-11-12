@@ -1,5 +1,7 @@
 import {
   fetchUser,
+  ImportJobItem,
+  ImportJobStatus,
   UpdateProfilePayload,
   UpdateProfileResponse,
   UserApiResponse,
@@ -31,7 +33,10 @@ export function useUser(page = 1, pageSize = 10) {
 export function useAllUsers() {
   const { data, isLoading, isError } = useQuery({
     queryKey: ["allUsers"],
-    queryFn: () => fetchUser.getAllUsersNoPagination(),
+    queryFn: async () => {
+      const allUsers = await fetchUser.getAllUsersNoPagination();
+      return allUsers;
+    },
     staleTime: 5 * 60 * 1000, // cache 5 phút
   });
 
@@ -92,4 +97,30 @@ export function useImportUsers() {
       queryClient.invalidateQueries({ queryKey: ["users"] });
     },
   });
+}
+
+// Theo dõi tiến trình job import
+export function useImportJob(jobId?: string, p0?: { refetchInterval: number; }) {
+  return useQuery<ImportJobStatus>({
+    queryKey: ["import-job", jobId],
+    queryFn: () => fetchUser.getImportStatus(jobId!),
+    enabled: !!jobId,
+    refetchInterval: (query) => {
+      const status = query.state.data?.status;
+      // Stop polling when job done or failed
+      return status === "Completed" || status === "Failed" ? false : 3000;
+    },
+    refetchIntervalInBackground: true, // optional: keep polling even when tab inactive
+  });
+}
+
+// Lấy danh sách chi tiết các dòng import (Success / Skipped / Failed)
+export function useImportItems(jobId?: string, p0?: { refetchInterval: number; }) {
+  return useQuery<ImportJobItem[]>({
+    queryKey: ["import-items", jobId],
+    queryFn: () => fetchUser.getImportItems(jobId!),
+    enabled: !!jobId,
+  });
+
+  
 }

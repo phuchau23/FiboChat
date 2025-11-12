@@ -67,7 +67,7 @@ export const fetchTopic = {
   },
 
   getAllTopicsAllPages: async (): Promise<Topic[]> => {
-    const pageSize = 100; // tăng lên để giảm số request (BE cho phép)
+    const pageSize = 100; 
     const first = await apiService.get<TopicApiResponse>(`/course/api/topics`, {
       page: 1,
       pageSize,

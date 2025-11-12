@@ -25,7 +25,7 @@ export function useAllClasses() {
   const { data, isLoading, isError, error } = useQuery<Class[]>({
     queryKey: ["allClassesNoPaging"],
     queryFn: () => fetchClass.getAllClassesNoPagination(),
-    staleTime: 5 * 60 * 1000, // cache 5 phút
+    staleTime: 5 * 60 * 1000,
     retry: 1,
   });
 
