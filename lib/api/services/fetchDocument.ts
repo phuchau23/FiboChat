@@ -116,20 +116,41 @@ export const fetchDocument = {
 
   update: async (
     id: string,
-    data: { Title?: string; Version?: number; Status?: string }
+    data: {
+      Title?: string;
+      TopicId?: string;
+      DocumentTypeId?: string;
+      Version?: number;
+      Status?: string;
+      File?: File;
+    }
   ): Promise<DocumentSingleResponse> => {
     const formData = new FormData();
-    if (data.Title !== undefined) formData.append("Title", data.Title);
-    if (data.Version !== undefined) formData.append("Version", String(data.Version));
-    if (data.Status !== undefined) formData.append("Status", data.Status);
 
-    // Không cần headers, Axios tự set multipart/form-data cho FormData
+    if (data.Title) formData.append("Title", data.Title);
+    if (data.TopicId) formData.append("TopicId", data.TopicId);
+    if (data.DocumentTypeId) formData.append("DocumentTypeId", data.DocumentTypeId);
+    if (data.Version !== undefined) formData.append("Version", String(data.Version));
+    if (data.Status) formData.append("Status", data.Status);
+    if (data.File) formData.append("File", data.File);
+
+    // axios tự set Content-Type: multipart/form-data khi dùng FormData
     const res = await apiService.put<DocumentSingleResponse>(`/course/api/documents/${id}`, formData);
     return res.data;
   },
 
   delete: async (id: string): Promise<DocumentSingleResponse> => {
     const res = await apiService.delete<DocumentSingleResponse>(`/course/api/documents/${id}`);
+    return res.data;
+  },
+
+  publish: async (id: string): Promise<DocumentSingleResponse> => {
+    const res = await apiService.post<DocumentSingleResponse>(`/course/api/documents/${id}/publish`);
+    return res.data;
+  },
+
+  unpublish: async (id: string): Promise<DocumentSingleResponse> => {
+    const res = await apiService.post<DocumentSingleResponse>(`/course/api/documents/${id}/unpublish`);
     return res.data;
   },
 };
