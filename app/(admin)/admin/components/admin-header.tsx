@@ -1,7 +1,6 @@
 "use client";
 
-import { Bell, LogOut, Globe, Moon, Sun } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { LogOut, Globe, Moon, Sun } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,10 +22,6 @@ export function AdminHeader() {
 
   useEffect(() => setMounted(true), []);
 
-  const handleBellClick = () => {
-    console.log("Notification bell clicked");
-  };
-
   const handleLogout = () => {
     logout();
     router.push("/");
@@ -46,17 +41,6 @@ export function AdminHeader() {
 
         {/* Right side */}
         <div className="flex items-center gap-2 md:gap-3 mr-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleBellClick}
-            className="w-9 h-9 relative"
-          >
-            <Bell className="w-5 h-5" />
-            <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
-            <span className="sr-only">Notifications</span>
-          </Button>
-
           {/* User Dropdown */}
           <GlareHover
             width="auto"

@@ -10,24 +10,27 @@ import { useChatbotHub } from "@/hooks/useChatbotHub";
 export default function HeroSection() {
   const router = useRouter();
 
-  // 🧠 Lấy userId từ token
+  // Lấy userId từ token
   const token = getCookie("auth-token");
   const decoded = token ? decodeToken(token.toString()) : null;
   const userId = decoded?.nameid;
 
-  // 🧩 Lấy thông tin group của user
-
-  // ⚙️ Kết nối SignalR Hub
+  // Kết nối SignalR Hub
   const { isConnected } = useChatbotHub(userId);
 
-  // 🔸 Chuyển trang sau khi hub sẵn sàng
+  // Chuyển trang sau khi hub sẵn sàng
   const handleStartChat = () => {
-    if (!isConnected) {
-      console.log("⏳ Waiting for hub to connect...");
-    } else {
-      console.log("🚀 Hub ready → Redirecting to /chat");
-      router.push("/chat");
+    if (!userId) {
+      router.push("/login");
+      return;
     }
+
+    if (!isConnected) {
+      console.log("Waiting for hub to connect...");
+      return;
+    }
+    console.log("Hub ready → Redirecting to /chat");
+    router.push("/chat");
   };
   return (
     <section className="relative flex min-h-screen flex-col justify-between items-center bg-white text-center">
@@ -47,7 +50,8 @@ export default function HeroSection() {
 
         {/* Subtitle */}
         <p className="mb-8 px-4 text-gray-800 text-base md:text-xl font-medium">
-          Giải pháp AI tương tác giúp sinh viên <span className="font-semibold">FPTU</span> học tập thông minh,
+          Giải pháp AI tương tác giúp sinh viên{" "}
+          <span className="font-semibold">FPTU</span> học tập thông minh,
           <br className="hidden sm:block" />
           phát triển toàn diện.
         </p>
@@ -78,17 +82,23 @@ export default function HeroSection() {
       <div className=" py-4 border border-gray-200 w-full flex flex-col items-center justify-center gap-6 md:flex-row md:gap-36">
         <div className="flex items-center gap-2">
           <Users className="h-6 w-6 text-orange-500" />
-          <span className="text-md text-black">5,000+ sinh viên FPTU sử dụng</span>
+          <span className="text-md text-black">
+            5,000+ sinh viên FPTU sử dụng
+          </span>
         </div>
 
         <div className="flex items-center gap-2">
           <Star className="h-6 w-6 text-orange-500" />
-          <span className="text-md text-black">4.8/5 đánh giá từ sinh viên</span>
+          <span className="text-md text-black">
+            4.8/5 đánh giá từ sinh viên
+          </span>
         </div>
 
         <div className="flex items-center gap-2">
           <Award className="h-6 w-6 text-orange-500" />
-          <span className="text-md text-black">Được giảng viên khuyến dùng</span>
+          <span className="text-md text-black">
+            Được giảng viên khuyến dùng
+          </span>
         </div>
       </div>
     </section>
