@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from "react";
 import { OverviewClassStats } from "./components/OverviewClassStats";
 import { OverviewTopicQA } from "./components/OverviewTopicQA";
-import { OverviewFeedback } from "./components/OverviewFeedback";
 import { OverviewDocumentsByTopic } from "./components/OverviewDocuments";
 import { getCookie } from "cookies-next";
 import { OverviewTopicsBySemester } from "./components/OverviewTopicsBySemester";
@@ -34,11 +33,8 @@ export default function OverviewPage() {
       {/* Row 2: Q&A and Feedback */}
       {/* Row 2: Q&A and Feedback */}
       <div className="grid md:grid-cols-2 gap-6">
-        {lecturerId && <OverviewFeedback lecturerId={lecturerId} search="" filterTopicId={null} />}
-        <OverviewTopicQA />
-      </div>
-      <div className="grid md:grid-cols-1 gap-6">
         {lecturerId && <OverviewTopicsBySemester lecturerId={lecturerId} />}
+        <OverviewTopicQA />
       </div>
     </section>
   );

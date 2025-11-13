@@ -86,7 +86,7 @@ export function useDeleteTopic() {
     },
   });
 }
-export function useTopicsByLecturer(lecturerId?: string, page = 1, pageSize = 10) {
+export function useTopicsByLecturer(lecturerId?: string, page = 1, pageSize = 100) {
   const id = lecturerId ?? (getCookie("user-id") as string);
 
   const { data, isError, isLoading, error } = useQuery({
