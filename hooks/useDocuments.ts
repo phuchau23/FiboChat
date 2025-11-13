@@ -12,7 +12,7 @@ export function useDocumentsAll(page = 1, pageSize = 10) {
   });
 }
 
-export function useDocumentsByLecturer(lecturerId: string, page = 1, pageSize = 10) {
+export function useDocumentsByLecturer(lecturerId: string, page = 1, pageSize = 50) {
   return useQuery({
     queryKey: ["documents", "my", lecturerId, page, pageSize],
     queryFn: () => fetchDocument.getByLecturerId(lecturerId, page, pageSize),

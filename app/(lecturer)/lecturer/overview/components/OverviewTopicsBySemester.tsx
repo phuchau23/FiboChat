@@ -9,12 +9,29 @@ export function OverviewTopicsBySemester({ lecturerId }: { lecturerId: string })
   const [selectedSemesterId, setSelectedSemesterId] = useState<string | null>(null);
   const [topics, setTopics] = useState<Topic[]>([]);
   const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
+  const totalPages = Math.ceil(topics.length / itemsPerPage);
+  const paginatedTopics = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    return topics.slice(start, start + itemsPerPage);
+  }, [topics, currentPage]);
   // Load semesters
   useEffect(() => {
     const loadSemesters = async () => {
       const res = await fetchSemester.getAllSemesters(1, 50);
-      setSemesters(res.data.items);
+
+      // Định nghĩa thứ tự học kỳ (tùy hệ thống bạn dùng)
+      const termOrder = ["Spring", "Summer", "Fall", "Winter"];
+
+      const sorted = [...res.data.items].sort((a, b) => {
+        if (a.year !== b.year) return a.year - b.year; // Năm tăng dần
+        return termOrder.indexOf(a.term) - termOrder.indexOf(b.term); // Term tăng dần theo thứ tự học kỳ
+      });
+
+      setSemesters(sorted);
+
       if (res.data.items.length > 0) {
         setSelectedSemesterId(res.data.items[0].id);
       }
@@ -99,14 +116,39 @@ export function OverviewTopicsBySemester({ lecturerId }: { lecturerId: string })
       ) : topics.length === 0 ? (
         <p>No topics for this semester.</p>
       ) : (
-        <ul className="space-y-2">
-          {topics.map((t) => (
-            <li key={t.id} className="p-2 border rounded hover:bg-gray-50">
-              <h4 className="font-medium">{t.name}</h4>
-              <p className="text-gray-500 text-sm">{t.description}</p>
-            </li>
-          ))}
-        </ul>
+        <>
+          <ul className="space-y-2">
+            {paginatedTopics.map((t) => (
+              <li key={t.id} className="p-2 border rounded hover:bg-gray-50">
+                <h4 className="font-medium">{t.name}</h4>
+                <p className="text-gray-500 text-sm">{t.description}</p>
+              </li>
+            ))}
+          </ul>
+
+          {/* Điều khiển phân trang */}
+          <div className="flex items-center justify-between mt-4">
+            <button
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+              className="px-3 py-1 border rounded disabled:opacity-50"
+            >
+              Prev
+            </button>
+
+            <span className="text-sm">
+              Page {currentPage} of {totalPages}
+            </span>
+
+            <button
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+              className="px-3 py-1 border rounded disabled:opacity-50"
+            >
+              Next
+            </button>
+          </div>
+        </>
       )}
     </div>
   );
