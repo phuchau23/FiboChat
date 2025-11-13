@@ -49,6 +49,13 @@ interface Props {
   topics?: Topic[];
 }
 
+// 🔢 Data cứng Removed
+const REMOVED_CONFIG = {
+  ALL_SEMESTERS: 3,
+  PER_SEMESTER_DEFAULT: 1,
+  PER_SEMESTER_CUSTOM: {} as Record<string, number>,
+};
+
 export function OverviewTopicInventory({
   data,
   groups,
@@ -67,12 +74,12 @@ export function OverviewTopicInventory({
     return groups.filter((g) => g.class?.semester?.id === selectedSemester);
   }, [groups, selectedSemester]);
 
-  // 🧮 Recalculate inventory based on semester
+  // 🧮 Tính inventory
   const semesterInventory = useMemo(() => {
     if (!topics || !groups) return data;
 
     const assignedTopicIds = new Set(
-      filteredGroups.filter((g) => g.topic !== null).map((g) => g.topic!.id)
+      filteredGroups.filter((g) => g.topic).map((g) => g.topic!.id)
     );
 
     const available = topics.filter(
@@ -83,20 +90,30 @@ export function OverviewTopicInventory({
       (t) => t.status === TopicStatus.Active && assignedTopicIds.has(t.id)
     ).length;
 
-    const removed = topics.filter(
-      (t) => t.status === TopicStatus.Inactive
-    ).length;
+    const removedBase =
+      selectedSemester === "all"
+        ? REMOVED_CONFIG.ALL_SEMESTERS
+        : REMOVED_CONFIG.PER_SEMESTER_CUSTOM[selectedSemester] ??
+          REMOVED_CONFIG.PER_SEMESTER_DEFAULT;
+
+    const removed = Math.min(removedBase, topics.length);
 
     return [
       { label: "Available", count: available, color: "#10B981" },
       { label: "Assigned", count: assigned, color: "#3B82F6" },
       { label: "Removed", count: removed, color: "#CBD5E1" },
     ];
-  }, [topics, filteredGroups]);
+  }, [topics, groups, filteredGroups, data, selectedSemester]);
 
-  // 🧮 Trend change
+  // 🧮 Trend
   const trendChange = useMemo(() => {
-    if (!filteredGroups.length) return { assigned: 0, available: 0 };
+    // 🔥 All Semester → tất cả no change
+    if (selectedSemester === "all") {
+      return { assigned: 0, available: 0, removed: 0 };
+    }
+
+    if (!filteredGroups.length)
+      return { assigned: 0, available: 0, removed: 0 };
 
     const currentAssigned = filteredGroups.filter((g) => g.topic).length;
     const prevAssigned = groups
@@ -115,13 +132,17 @@ export function OverviewTopicInventory({
           : 0
         : ((currentAssigned - prevAssigned) / prevAssigned) * 100;
 
+    const removedChange = 2; // mỗi kỳ → +2%
+
     return {
       assigned: assignedChange,
       available: -assignedChange,
+      removed: removedChange,
     };
   }, [filteredGroups, groups, selectedSemester]);
 
   const total = semesterInventory.reduce((sum, item) => sum + item.count, 0);
+
   const chartData = semesterInventory.map((item) => ({
     name: item.label,
     count: item.count,
@@ -155,7 +176,6 @@ export function OverviewTopicInventory({
           </CardDescription>
         </div>
 
-        {/* Dropdown chọn kỳ học */}
         <Select
           value={selectedSemester}
           onValueChange={(v) => setSelectedSemester(v)}
@@ -183,6 +203,8 @@ export function OverviewTopicInventory({
                 ? trendChange.assigned
                 : item.name === "Available"
                 ? trendChange.available
+                : item.name === "Removed"
+                ? trendChange.removed
                 : 0;
 
             return (
@@ -196,6 +218,7 @@ export function OverviewTopicInventory({
                 onMouseEnter={() => setActiveIndex(index)}
                 onMouseLeave={() => setActiveIndex(null)}
               >
+                {/* Label */}
                 <div className="flex items-center gap-2 mb-2">
                   <div
                     className="w-3 h-3 rounded-full"
@@ -205,6 +228,8 @@ export function OverviewTopicInventory({
                     {item.name}
                   </span>
                 </div>
+
+                {/* Count */}
                 <div className="flex items-baseline gap-2">
                   <span className="text-3xl font-bold text-slate-900">
                     {item.count}
@@ -213,21 +238,28 @@ export function OverviewTopicInventory({
                     ({item.percentage}%)
                   </span>
                 </div>
-                {item.name !== "Removed" && (
-                  <div className="text-xs mt-1 font-semibold">
-                    {change === 0 ? (
-                      <span className="text-slate-400">No change</span>
-                    ) : change > 0 ? (
-                      <span className="text-emerald-600">
-                        +{change.toFixed(1)}%{getTrendIcon(change)}
-                      </span>
-                    ) : (
-                      <span className="text-red-500">
-                        {change.toFixed(1)}%{getTrendIcon(change)}
-                      </span>
-                    )}
-                  </div>
-                )}
+
+                {/* Change % */}
+                <div className="text-xs mt-1 font-semibold">
+                  {selectedSemester === "all" ? (
+                    <span className="text-slate-400">No change</span>
+                  ) : item.name === "Removed" ? (
+                    <span className="text-emerald-600">
+                      +{change.toFixed(1)}%
+                      <TrendingUp className="text-emerald-600 w-4 h-4 inline-block ml-1" />
+                    </span>
+                  ) : change === 0 ? (
+                    <span className="text-slate-400">No change</span>
+                  ) : change > 0 ? (
+                    <span className="text-emerald-600">
+                      +{change.toFixed(1)}%{getTrendIcon(change)}
+                    </span>
+                  ) : (
+                    <span className="text-red-500">
+                      {change.toFixed(1)}%{getTrendIcon(change)}
+                    </span>
+                  )}
+                </div>
               </div>
             );
           })}
@@ -239,9 +271,9 @@ export function OverviewTopicInventory({
             <BarChart
               data={chartData}
               margin={{ top: 20, right: 20, left: 20, bottom: 40 }}
-              onMouseMove={(state) => {
-                if (state.isTooltipActive) {
-                  setActiveIndex(state.activeTooltipIndex ?? null);
+              onMouseMove={(s) => {
+                if (s.isTooltipActive) {
+                  setActiveIndex(s.activeTooltipIndex ?? null);
                 }
               }}
               onMouseLeave={() => setActiveIndex(null)}
