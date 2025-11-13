@@ -33,6 +33,9 @@ export default function LecturerTopicView() {
   const { semesters = [], isLoading: loadingSemesters } = useSemesters(1, 100);
   const [selectedSemesterId, setSelectedSemesterId] = useState<string | null>(null);
 
+  // Search
+  const [searchTerm, setSearchTerm] = useState("");
+
   // Topics
   const { topics: allTopics = [], isLoading: allLoading } = useAllTopics();
   const { topics: myTopics = [], isLoading: myLoading } = useTopicsByLecturer();
@@ -63,7 +66,13 @@ export default function LecturerTopicView() {
   };
 
   /** 🟢 Render danh sách Topic */
-  const renderTopicList = (topics: Topic[], loading: boolean) => {
+  const renderTopicList = (
+    topics: Topic[],
+    loading: boolean,
+    currentPage: number,
+    totalPages: number,
+    onPageChange: (page: number) => void
+  ) => {
     if (loading) {
       return <div className="text-center py-6 text-orange-600">Đang tải dữ liệu...</div>;
     }
@@ -73,32 +82,75 @@ export default function LecturerTopicView() {
     }
 
     return (
-      <motion.div
-        layout
-        className="grid gap-3 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4"
-        transition={{ duration: 0.2 }}
-      >
-        {topics.map((topic) => (
-          <motion.div
-            key={topic.id}
-            layout
-            className="border border-orange-100 bg-white/90 rounded-xl p-4 shadow-sm hover:shadow-md hover:bg-orange-50/50 transition-all"
+      <>
+        <motion.div
+          layout
+          className="grid gap-3 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4"
+          transition={{ duration: 0.2 }}
+        >
+          {topics.map((topic) => (
+            <motion.div
+              key={topic.id}
+              layout
+              className="border border-orange-100 bg-white/90 rounded-xl p-4 shadow-sm hover:shadow-md hover:bg-orange-50/50 transition-all"
+            >
+              <div className="font-semibold text-orange-800">{topic.name}</div>
+              <div className="text-sm text-gray-600 mt-1 line-clamp-2">{topic.description}</div>
+              <div className="flex justify-between items-center mt-3">
+                <span className="text-xs text-gray-500">{topic.masterTopic?.name ?? "Không có Master Topic"}</span>
+                {renderStatus(topic.status)}
+              </div>
+            </motion.div>
+          ))}
+        </motion.div>
+
+        {/* Pagination */}
+        <div className="flex justify-center items-center mt-4 gap-2">
+          <button
+            onClick={() => onPageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            className="px-3 py-1 border rounded text-sm disabled:opacity-50 hover:bg-orange-50"
           >
-            <div className="font-semibold text-orange-800">{topic.name}</div>
-            <div className="text-sm text-gray-600 mt-1 line-clamp-2">{topic.description}</div>
-            <div className="flex justify-between items-center mt-3">
-              <span className="text-xs text-gray-500">{topic.masterTopic?.name ?? "Không có Master Topic"}</span>
-              {renderStatus(topic.status)}
-            </div>
-          </motion.div>
-        ))}
-      </motion.div>
+            Prev
+          </button>
+
+          <span className="text-sm text-gray-600">
+            Page {currentPage} / {totalPages}
+          </span>
+
+          <button
+            onClick={() => onPageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className="px-3 py-1 border rounded text-sm disabled:opacity-50 hover:bg-orange-50"
+          >
+            Next
+          </button>
+        </div>
+      </>
     );
   };
 
-  // Chọn topics hiển thị theo tab + semester
+  const [allPage, setAllPage] = useState(1);
+  const [myPage, setMyPage] = useState(1);
+  const itemsPerPage = 8;
+
+  // Chọn topics theo tab + semester
   const topicsToShow = selectedSemesterId ? topicsBySemester : activeTab === "all" ? allTopics : myTopics;
+
   const loadingToShow = selectedSemesterId ? loadingTopicsBySemester : activeTab === "all" ? allLoading : myLoading;
+
+  // 🔍 Filter theo search term
+  const filteredTopics = topicsToShow.filter(
+    (t) =>
+      t.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      t.description?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Pagination riêng từng tab
+  const currentPage = activeTab === "all" ? allPage : myPage;
+  const totalPages = Math.ceil(filteredTopics.length / itemsPerPage) || 1;
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedTopics = filteredTopics.slice(startIndex, startIndex + itemsPerPage);
 
   return (
     <div className="w-full max-w-6xl mx-auto p-6">
@@ -108,8 +160,8 @@ export default function LecturerTopicView() {
         </CardHeader>
 
         <CardContent className="pt-4">
-          {/* Dropdown chọn kỳ học */}
-          <div className="mb-4">
+          {/* Bộ lọc semester + search */}
+          <div className="flex flex-col sm:flex-row justify-between items-center mb-4 gap-3">
             {loadingSemesters ? (
               <span className="text-sm text-gray-500">Đang tải kỳ học...</span>
             ) : (
@@ -126,6 +178,15 @@ export default function LecturerTopicView() {
                 ))}
               </select>
             )}
+
+            {/* 🔍 Search input */}
+            <input
+              type="text"
+              placeholder="Tìm kiếm chủ đề..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="border border-orange-200 rounded px-3 py-1 text-sm w-full sm:w-64 focus:ring-1 focus:ring-orange-300 outline-none"
+            />
           </div>
 
           {/* Tabs */}
@@ -153,8 +214,17 @@ export default function LecturerTopicView() {
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="all">{renderTopicList(topicsToShow, loadingToShow)}</TabsContent>
-            <TabsContent value="my">{renderTopicList(topicsToShow, loadingToShow)}</TabsContent>
+            <TabsContent value="all">
+              {renderTopicList(paginatedTopics, loadingToShow, allPage, totalPages, (p) =>
+                setAllPage(Math.min(Math.max(p, 1), totalPages))
+              )}
+            </TabsContent>
+
+            <TabsContent value="my">
+              {renderTopicList(paginatedTopics, loadingToShow, myPage, totalPages, (p) =>
+                setMyPage(Math.min(Math.max(p, 1), totalPages))
+              )}
+            </TabsContent>
           </Tabs>
         </CardContent>
       </Card>
