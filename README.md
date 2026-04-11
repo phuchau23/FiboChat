@@ -4,16 +4,16 @@
 
 ---
 
-## Tại sao dự án này “đọc được” với HR / recruiter
+## Dự án
 
-| Góc nhìn | Nội dung ngắn |
-|----------|----------------|
-| **Vai trò sản phẩm** | Full-stack **SPA/SSR hybrid** trên Next.js App Router, nhiều **vùng theo role** (public, admin, lecturer, chat mentor). |
-| **Tích hợp real-time** | **SignalR** (`@microsoft/signalr`) cho luồng chat bot / hub. |
-| **Dữ liệu & trạng thái** | **TanStack Query** cho cache, đồng bộ server state; **Axios** + lớp `ApiService` (interceptors, Bearer token). |
-| **Bảo mật & phân quyền** | **Middleware** Next.js theo JWT cookie (`auth-token`), phân luồng **Admin / Lecturer**; **Firebase Auth** (cấu hình qua biến môi trường). |
+| Góc nhìn                   | Nội dung ngắn                                                                                                                                                                     |
+| -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Vai trò sản phẩm**       | Full-stack **SPA/SSR hybrid** trên Next.js App Router, nhiều **vùng theo role** (public, admin, lecturer, chat mentor).                                                           |
+| **Tích hợp real-time**     | **SignalR** (`@microsoft/signalr`) cho luồng chat bot / hub.                                                                                                                      |
+| **Dữ liệu & trạng thái**   | **TanStack Query** cho cache, đồng bộ server state; **Axios** + lớp `ApiService` (interceptors, Bearer token).                                                                    |
+| **Bảo mật & phân quyền**   | **Middleware** Next.js theo JWT cookie (`auth-token`), phân luồng **Admin / Lecturer**; **Firebase Auth** (cấu hình qua biến môi trường).                                         |
 | **Trải nghiệm người dùng** | **Tailwind CSS** + **shadcn/ui (Radix)** + **Framer Motion**; **i18next** (vi/en); **next-themes**; markdown (`react-markdown`) cho nội dung rich text an toàn với **DOMPurify**. |
-| **Chất lượng code** | **TypeScript**, **ESLint**, cấu trúc module theo feature (`app/`), tách **hooks**, **lib/api/services**, **components**. |
+| **Chất lượng code**        | **TypeScript**, **ESLint**, cấu trúc module theo feature (`app/`), tách **hooks**, **lib/api/services**, **components**.                                                          |
 
 ---
 
@@ -104,7 +104,7 @@ FiboChat/
 - **Người dùng chat / mentor (Fibo)** — giao diện chat, cặp Q&A, phản hồi (vùng `(fibo_mentor)/chat`).
 - **Khách / đã đăng nhập** — landing, profile, auth flows.
 
-*(Chi tiết màn hình nằm dưới từng thư mục `app/.../page.tsx` và `components/` tương ứng.)*
+_(Chi tiết màn hình nằm dưới từng thư mục `app/.../page.tsx` và `components/` tương ứng.)_
 
 ---
 
@@ -121,12 +121,12 @@ Mở [http://localhost:3000](http://localhost:3000).
 
 **Scripts**
 
-| Lệnh | Mô tả |
-|------|--------|
-| `npm run dev` | Dev server (Turbopack) |
-| `npm run build` | Build production |
-| `npm run start` | Chạy bản build |
-| `npm run lint` | ESLint |
+| Lệnh            | Mô tả                  |
+| --------------- | ---------------------- |
+| `npm run dev`   | Dev server (Turbopack) |
+| `npm run build` | Build production       |
+| `npm run start` | Chạy bản build         |
+| `npm run lint`  | ESLint                 |
 
 ---
 
